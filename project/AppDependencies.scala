@@ -21,4 +21,6 @@ object AppDependencies {
   )
 
   val it = Seq.empty
+
+  def apply(): Seq[ModuleID] = compile ++ test ++ it
 }
