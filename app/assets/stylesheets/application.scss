@@ -1,0 +1,10 @@
+.js-visible {
+  display: none !important;
+}
+.js-enabled .js-visible {
+  display: inline-block !important;
+}
+
+.red-background {
+  background-color: #d4351c;
+}

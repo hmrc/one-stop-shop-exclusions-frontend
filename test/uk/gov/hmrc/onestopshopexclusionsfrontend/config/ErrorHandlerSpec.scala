@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.onestopshopexclusionsfrontend.config
 
+import config.ErrorHandler
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
