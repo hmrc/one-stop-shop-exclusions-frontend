@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+<<<<<<<< HEAD:app/forms/LeaveSchemeFormProvider.scala
 package forms
 
 import javax.inject.Inject
 
 import forms.mappings.Mappings
 import play.api.data.Form
+========
+package generators
+
+trait ModelGenerators {
+>>>>>>>> b52c450 (VEOSS-1810 | Added Scaffold and missing build properties files):test-utils/generators/ModelGenerators.scala
 
 class LeaveSchemeFormProvider @Inject() extends Mappings {
 
