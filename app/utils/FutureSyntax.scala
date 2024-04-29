@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:app/utils/FutureSyntax.scala
 package utils
 
 import scala.concurrent.Future
@@ -25,16 +24,4 @@ object FutureSyntax {
 
     def toFuture: Future[A] = Future.successful(a)
   }
-========
-package pages
-
-import scala.language.implicitConversions
-
-trait Page
-
-object Page {
-
-  implicit def toString(page: Page): String =
-    page.toString
->>>>>>>> b52c450 (VEOSS-1810 | Added Scaffold and missing build properties files):app/pages/Page.scala
 }
