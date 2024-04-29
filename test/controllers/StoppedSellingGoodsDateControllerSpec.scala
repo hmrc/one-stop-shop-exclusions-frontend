@@ -18,6 +18,7 @@ package controllers
 
 import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
+import date.Dates
 import forms.StoppedSellingGoodsDateFormProvider
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
@@ -66,8 +67,10 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[StoppedSellingGoodsDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emptyWaypoints)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(form, emptyWaypoints, dates.dateHint)(getRequest, messages(application)).toString
       }
     }
 
@@ -80,10 +83,12 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val view = application.injector.instanceOf[StoppedSellingGoodsDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints, dates.dateHint)(getRequest, messages(application)).toString
       }
     }
 
@@ -123,10 +128,12 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[StoppedSellingGoodsDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, emptyWaypoints)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, dates.dateHint)(request, messages(application)).toString
       }
     }
 

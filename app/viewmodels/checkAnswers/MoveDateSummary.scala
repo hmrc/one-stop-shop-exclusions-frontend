@@ -16,30 +16,32 @@
 
 package viewmodels.checkAnswers
 
+import date.Dates
 import models.UserAnswers
-import pages.{CheckAnswersPage, EuCountryPage, Waypoints}
+import pages.{CheckAnswersPage, MoveDatePage, Waypoints}
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object EuCountrySummary  {
+object MoveDateSummary {
 
-  def countryRow(answers: UserAnswers, waypoints: Waypoints, sourcePage: CheckAnswersPage)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EuCountryPage).map {
-      country =>
+  def rowMoveDate(answers: UserAnswers,
+                  waypoints: Waypoints,
+                  sourcePage: CheckAnswersPage,
+                  dates: Dates)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(MoveDatePage).map {
+      moveDate =>
+        val value = dates.formatter.format(moveDate)
 
-        val value = HtmlFormat.escape(country.name).toString
-
-        val euCountryPageChangeUrl = EuCountryPage.changeLink(waypoints, sourcePage).url
+        val moveDatePageChangeUrl = MoveDatePage.changeLink(waypoints, sourcePage).url
         SummaryListRowViewModel(
-          key = "euCountry.checkYourAnswersLabel",
+          key = "moveDate.checkYourAnswersLabel",
           value = ValueViewModel(HtmlContent(value)),
           actions = Seq(
-            ActionItemViewModel("site.change", euCountryPageChangeUrl)
-              .withVisuallyHiddenText(messages("euCountry.change.hidden"))
+            ActionItemViewModel("site.change", moveDatePageChangeUrl)
+              .withVisuallyHiddenText(messages("moveDate.change.hidden"))
           )
         )
     }

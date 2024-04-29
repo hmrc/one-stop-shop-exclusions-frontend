@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions._
+import date.Dates
 import forms.MoveDateFormProvider
 
 import javax.inject.Inject
@@ -32,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class MoveDateController @Inject()(
                                     cc: AuthenticatedControllerComponents,
                                     formProvider: MoveDateFormProvider,
+                                    dates: Dates,
                                     view: MoveDateView
                                   )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
@@ -48,7 +50,7 @@ class MoveDateController @Inject()(
       }
 
       request.userAnswers.get(EuCountryPage).map { country =>
-        Ok(view(preparedForm, waypoints, country))
+        Ok(view(preparedForm, waypoints, country, dates.dateHint))
       }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()))
   }
 
@@ -60,7 +62,7 @@ class MoveDateController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           request.userAnswers.get(EuCountryPage).map { country =>
-            BadRequest(view(formWithErrors, waypoints, country)).toFuture
+            BadRequest(view(formWithErrors, waypoints, country, dates.dateHint)).toFuture
           }.getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))),
 
         value =>

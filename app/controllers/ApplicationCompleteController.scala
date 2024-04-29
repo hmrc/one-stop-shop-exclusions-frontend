@@ -18,6 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions._
+import date.Dates
 
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
@@ -26,12 +27,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ApplicationCompleteView
 
 import java.time.{Clock, LocalDate}
-import java.time.format.DateTimeFormatter
 
 class ApplicationCompleteController @Inject()(
                                                cc: AuthenticatedControllerComponents,
                                                config: FrontendAppConfig,
                                                clock: Clock,
+                                               dates: Dates,
                                                view: ApplicationCompleteView
                                              ) extends FrontendBaseController with I18nSupport {
 
@@ -40,10 +41,8 @@ class ApplicationCompleteController @Inject()(
   def onPageLoad: Action[AnyContent] = cc.authAndGetData {
     implicit request =>
 
-      val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
-
-      val leaveDate = dateTimeFormatter.format(LocalDate.now(clock).plusDays(1))
-      val cancelDate = dateTimeFormatter.format(LocalDate.now(clock))
+      val leaveDate = dates.formatter.format(LocalDate.now(clock).plusDays(1))
+      val cancelDate = dates.formatter.format(LocalDate.now(clock))
 
       Ok(view(config.ossYourAccountUrl, leaveDate, cancelDate))
   }

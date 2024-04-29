@@ -18,10 +18,14 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.AuthenticatedControllerComponents
-import pages.{CheckYourAnswersPage, Waypoints}
+import date.Dates
+import models.CheckMode
+import pages.{CheckYourAnswersPage, EmptyWaypoints, Waypoint, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CompletionChecks
+import viewmodels.checkAnswers.{EuCountrySummary, EuVatNumberSummary, MoveDateSummary}
 import viewmodels.govuk.summarylist._
 import views.html.CheckYourAnswersView
 
@@ -29,19 +33,34 @@ import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject()(
                                             cc: AuthenticatedControllerComponents,
+                                            dates: Dates,
                                             view: CheckYourAnswersView
-                                          ) extends FrontendBaseController with I18nSupport {
+                                          ) extends FrontendBaseController with I18nSupport with CompletionChecks {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
   def onPageLoad(): Action[AnyContent] = cc.authAndGetData {
     implicit request =>
 
+      val thisPage = CheckYourAnswersPage
+
+      val waypoints = EmptyWaypoints.setNextWaypoint(Waypoint(thisPage, CheckMode, CheckYourAnswersPage.urlFragment))
+
+      val euCountrySummaryRow = EuCountrySummary.countryRow(request.userAnswers, waypoints, thisPage)
+      val moveDateSummaryRow = MoveDateSummary.rowMoveDate(request.userAnswers, waypoints, thisPage, dates)
+      val euVatNumberSummaryRow = EuVatNumberSummary.rowEuVatNumber(request.userAnswers, waypoints, thisPage)
+
       val list = SummaryListViewModel(
-        rows = Seq.empty
+        rows = Seq(
+          euCountrySummaryRow,
+          moveDateSummaryRow,
+          euVatNumberSummaryRow
+        ).flatten
       )
 
-      Ok(view(list))
+      val isValid = validate()
+
+      Ok(view(waypoints, list, isValid))
   }
 
   def onSubmit(waypoints: Waypoints, incompletePrompt: Boolean): Action[AnyContent] = cc.authAndGetData.async {

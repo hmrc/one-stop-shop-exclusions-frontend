@@ -17,7 +17,9 @@
 package controllers
 
 import controllers.actions._
+import date.Dates
 import forms.StoppedUsingServiceDateFormProvider
+
 import javax.inject.Inject
 import pages.{StoppedUsingServiceDatePage, Waypoints}
 import play.api.i18n.I18nSupport
@@ -31,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class StoppedUsingServiceDateController @Inject()(
                                                    cc: AuthenticatedControllerComponents,
                                                    formProvider: StoppedUsingServiceDateFormProvider,
+                                                   dates: Dates,
                                                    view: StoppedUsingServiceDateView
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
@@ -46,7 +49,7 @@ class StoppedUsingServiceDateController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, waypoints))
+      Ok(view(preparedForm, waypoints, dates.dateHint))
   }
 
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
@@ -56,7 +59,7 @@ class StoppedUsingServiceDateController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          BadRequest(view(formWithErrors, waypoints)).toFuture,
+          BadRequest(view(formWithErrors, waypoints, dates.dateHint)).toFuture,
 
         value =>
           for {

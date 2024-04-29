@@ -18,6 +18,7 @@ package controllers
 
 import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
+import date.Dates
 import forms.MoveDateFormProvider
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
@@ -70,8 +71,10 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[MoveDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emptyWaypoints, country)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(form, emptyWaypoints, country, dates.dateHint)(getRequest, messages(application)).toString
       }
     }
 
@@ -83,11 +86,13 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val view = application.injector.instanceOf[MoveDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints, country)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints, country, dates.dateHint)(getRequest(), messages(application)).toString
       }
     }
 
@@ -123,10 +128,12 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[MoveDateView]
 
+        val dates = application.injector.instanceOf[Dates]
+
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, country, dates.dateHint)(request, messages(application)).toString
       }
     }
 
