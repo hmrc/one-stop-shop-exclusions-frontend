@@ -17,11 +17,13 @@
 package base
 
 import controllers.actions._
-import models.UserAnswers
+import generators.Generators
+import models.{Country, UserAnswers}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import pages.{EmptyWaypoints, Waypoints}
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
@@ -34,9 +36,12 @@ trait SpecBase
     with TryValues
     with OptionValues
     with ScalaFutures
-    with IntegrationPatience {
+    with IntegrationPatience
+    with Generators {
 
   val userAnswersId: String = "id"
+  val emptyWaypoints: Waypoints = EmptyWaypoints
+  val country: Country = arbitraryCountry.arbitrary.sample.value
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

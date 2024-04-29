@@ -1,0 +1,133 @@
+service.name = one-stop-shop-exclusions-frontend
+service.text = This is your new service
+
+site.back = Back
+site.remove = Remove
+site.change = Change
+site.no = No
+site.yes = Yes
+site.continue = Continue
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+date.day = Day
+date.month = Month
+date.year = Year
+date.error.day = day
+date.error.month = month
+date.error.year = year
+
+timeout.title = You’'re about to be signed out
+timeout.message = For security reasons, you will be signed out of this service in
+timeout.keepAlive = Stay signed in
+timeout.signOut = Sign out
+
+error.browser.title.prefix = Error:
+error.boolean = Please give an answer
+error.invalid_date = Give a correct date
+error.date.day_blank = Enter a day
+error.date.day_invalid = Give a correct day using numbers 1 to 31
+error.date.month_blank = Enter a month
+error.date.month_invalid = Give a correct month using numbers 1 to 12
+error.date.year_blank = Enter a year
+error.date.year_invalid = Give a correct year
+error.integer = Give an answer in whole numbers
+error.non_numeric = Give a value using only numbers
+error.number = Please enter a valid number
+error.required = Please enter a value
+error.summary.title = There is a problem
+
+index.title = one-stop-shop-exclusions-frontend
+index.heading = one-stop-shop-exclusions-frontend
+index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
+
+checkYourAnswers.title = Check Your Answers
+checkYourAnswers.heading = Check Your Answers
+
+journeyRecovery.continue.title = Sorry, there is a problem with the service
+journeyRecovery.continue.heading = Sorry, there is a problem with the service
+journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
+journeyRecovery.startAgain.title = Sorry, there is a problem with the service
+journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
+journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+unauthorised.title = You can’t access this service with this account
+unauthorised.heading = You can’t access this service with this account
+
+moveCountry.title = Are you moving your business to an EU country?
+moveCountry.heading = Are you moving your business to an EU country?
+moveCountry.checkYourAnswersLabel = Moved to an EU country
+moveCountry.error.required = Select yes if you moved your business to an EU country
+moveCountry.change.hidden = if you moved to an EU country
+
+euCountry.title = Which country is your business moving to?
+euCountry.heading = Which country is your business moving to?
+euCountry.checkYourAnswersLabel = New country
+euCountry.error.required = SeSelect the country your business is moving to
+euCountry.change.hidden = EU Country
+
+euVatNumber.title = What is your VAT registration number for {0}?
+euVatNumber.heading = What is your VAT registration number for {0}?
+euVatNumber.hint = This will start with {0}, for example {0}{1}
+euVatNumber.checkYourAnswersLabel = EU Vat Number
+euVatNumber.error.required = Enter your VAT registration number for {0}
+euVatNumber.error.invalid = Enter a registration number in the correct format
+euVatNumber.change.hidden = VAT registration number
+
+moveDate.title = When did or when will your business move to {0}?
+moveDate.heading = When did or when will your business move to {0}?
+moveDate.hint = You can enter a date from {0} up to {1}.<br/> For example, {2}.
+moveDate.checkYourAnswersLabel = Business move date
+moveDate.error.required.all = Enter the move date
+moveDate.error.required.two = The move date must include {0} and {1}
+moveDate.error.required = The move date must include {0}
+moveDate.error.invalid = Enter a valid move date
+moveDate.error.invalid.minDate = The date your business moved must be on or after {0}
+moveDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
+moveDate.change.hidden = Move Date
+
+stopSellingGoods.title = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
+stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
+stopSellingGoods.error.required = stopSellingGoods.error.required = Select yes if you want to stop selling goods
+
+leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
+leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?
+leaveScheme.checkYourAnswersLabel = leave scheme
+leaveScheme.error.required = Select yes if you want to leave the Import One Stop Shop scheme
+leaveScheme.change.hidden = Leave scheme
+
+stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
+stoppedSellingGoodsDate.heading = When did or when will your business stop selling eligible goods?
+stoppedSellingGoodsDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
+stoppedSellingGoodsDate.error.required.all = Enter the date you stopped selling goods
+stoppedSellingGoodsDate.error.required.two = The date you stopped selling goods must include {0} and {1}
+stoppedSellingGoodsDate.error.required = The date you stopped selling goods must include the {0}
+stoppedSellingGoodsDate.error.invalid = Give a correct date
+stoppedSellingGoodsDate.error.invalid = The date must be between {0} and {1} inclusively
+
+stoppedUsingServiceDate.title = When did you or when will you stop using this service?
+stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
+stoppedUsingServiceDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
+stoppedUsingServiceDate.error.required.all = Enter the date you stopped using this service
+stoppedUsingServiceDate.error.required.two = The date you stopped using this service must include {0} and {1}
+stoppedUsingServiceDate.error.required = The date you stopped using this service must include {0}
+stoppedUsingServiceDate.error.invalid = Give a correct date
+stoppedUsingServiceDate.change.hidden = The date must be between {0} and {1} inclusively
+
+applicationComplete.title = We have received your request to leave
+applicationComplete.heading = We have received your request to leave
+applicationComplete.registration.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.<br/></br/>You will leave this service on {0}.
+applicationComplete.next.heading = What happens next
+applicationComplete.next.info.top = You must:
+applicationComplete.next.info.bullet1 = complete a VAT return for your final month
+applicationComplete.next.info.bullet2 = pay any VAT you still owe
+applicationComplete.next.info.bottom = If you change your mind, you have until {0} to cancel this request and stay on the service.
+applicationComplete.next.info.returnToAccount = Return to your account
+
+

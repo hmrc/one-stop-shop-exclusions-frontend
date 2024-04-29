@@ -16,6 +16,13 @@
 
 package generators
 
+import models.Country
+import org.scalacheck.{Arbitrary, Gen}
+
 trait ModelGenerators {
 
+  implicit lazy val arbitraryCountry: Arbitrary[Country] =
+    Arbitrary {
+      Gen.oneOf(Country.euCountries)
+    }
 }

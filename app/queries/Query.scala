@@ -34,3 +34,6 @@ trait Settable[A] extends Query {
     Success(userAnswers)
 }
 
+trait Derivable[A, B] extends Query {
+  val derive: A => B
+}
