@@ -22,10 +22,10 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukDateInput: GovukDateInput,
-    button: ButtonGroup
+    button: ButtonGroup,
 )
 
-@(form: Form[_], waypoints: Waypoints, country: Country, dateHint: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], waypoints: Waypoints, country: Country, minDate: String, dateHint: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("moveDate.title", country.name))) {
 
@@ -40,7 +40,7 @@
                 field  = form("value"),
                 legend = LegendViewModel(messages("moveDate.heading", country.name)).withCssClass("govuk-label--l").asPageHeading()
             )
-            .withHint(HintViewModel(HtmlContent(messages("moveDate.hint", dateHint))))
+            .withHint(HintViewModel(HtmlContent(messages("moveDate.hint", minDate, dateHint))))
         )
 
         @button("site.continue", MoveDatePage.route(waypoints).url, waypoints)

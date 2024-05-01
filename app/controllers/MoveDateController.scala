@@ -50,7 +50,13 @@ class MoveDateController @Inject()(
       }
 
       request.userAnswers.get(EuCountryPage).map { country =>
-        Ok(view(preparedForm, waypoints, country, dates.dateHint))
+        Ok(view(
+          preparedForm,
+          waypoints,
+          country,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        ))
       }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()))
   }
 
@@ -62,8 +68,14 @@ class MoveDateController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           request.userAnswers.get(EuCountryPage).map { country =>
-            BadRequest(view(formWithErrors, waypoints, country, dates.dateHint)).toFuture
-          }.getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))),
+            BadRequest(view(
+              formWithErrors,
+              waypoints,
+              country,
+              dates.lastDayOfQuarterFormatted,
+              dates.dateHint
+            )).toFuture
+          }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture),
 
         value =>
           for {

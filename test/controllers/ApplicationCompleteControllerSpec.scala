@@ -17,9 +17,124 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
+import date.Today
+import org.mockito.MockitoSugar.when
+import pages.{EuCountryPage, MoveCountryPage, MoveDatePage, StopSellingGoodsPage, StoppedSellingGoodsDatePage, StoppedUsingServiceDatePage}
+import play.api.test.FakeRequest
+import play.api.inject.bind
+import play.api.test.Helpers._
+import views.html.ApplicationCompleteView
+
+import java.time.LocalDate
 
 
 class ApplicationCompleteControllerSpec extends SpecBase {
 
+  val today: LocalDate = LocalDate.of(2024, 1, 25)
+  val mockToday: Today = mock[Today]
+  when(mockToday.date).thenReturn(today)
 
+  "ApplicationComplete Controller" - {
+
+    "when someone moves business" - {
+      "must return OK with the leave date being the 10th of next month (10th Feb)" in {
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, true).success.get
+          .set(EuCountryPage, country).success.get
+          .set(MoveDatePage, today).success.get
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Today].toInstance(mockToday))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ApplicationCompleteView]
+
+          val config = application.injector.instanceOf[FrontendAppConfig]
+
+          status(result) mustEqual OK
+          val leaveDate = "25 January 2024"
+
+          contentAsString(result) mustEqual view(
+            config.ossYourAccountUrl,
+            leaveDate,
+            leaveDate,
+            Some(messages(application)("applicationComplete.moving.text", country.name)),
+            Some(messages(application)("applicationComplete.next.info.bullet0", country.name, leaveDate))
+          )(request, messages(application)).toString
+        }
+      }
+    }
+
+    "when someone stops selling goods" - {
+      "must return OK with the leave date being end of the month (31st Jan) " in {
+
+        val stoppedSellingGoodsDate = LocalDate.of(2024, 1, 16)
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, true).success.get
+          .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Today].toInstance(mockToday))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ApplicationCompleteView]
+
+          val config = application.injector.instanceOf[FrontendAppConfig]
+
+          status(result) mustEqual OK
+          val leaveDate = "31 March 2024"
+
+          contentAsString(result) mustEqual view(
+            config.ossYourAccountUrl,
+            leaveDate,
+            leaveDate,
+            Some(messages(application)("applicationComplete.stopSellingGoods.text"))
+          )(request, messages(application)).toString
+        }
+      }
+    }
+
+    "when someone stops using the service" - {
+      "must return OK with the leave date being 1st day of next month (1st Feb) " in {
+
+        val stoppedUsingServiceDate = LocalDate.of(2024, 1, 16)
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, false).success.get
+          .set(StoppedUsingServiceDatePage, stoppedUsingServiceDate).success.get
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Today].toInstance(mockToday))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ApplicationCompleteView]
+
+          val config = application.injector.instanceOf[FrontendAppConfig]
+
+          status(result) mustEqual OK
+          val leaveDate = "31 March 2024"
+          contentAsString(result) mustEqual view(config.ossYourAccountUrl, leaveDate, leaveDate)(request, messages(application)).toString
+        }
+      }
+    }
+  }
 }

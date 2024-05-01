@@ -18,25 +18,22 @@ package controllers
 
 import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
-import date.Dates
+import date.{Dates, Today, TodayImpl}
 import forms.StoppedSellingGoodsDateFormProvider
 import models.UserAnswers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import pages.StoppedSellingGoodsDatePage
-import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.SessionRepository
 import views.html.StoppedSellingGoodsDateView
 
-import scala.concurrent.Future
 
-class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
+class StoppedSellingGoodsDateControllerSpec extends SpecBase {
 
-  private val formProvider = new StoppedSellingGoodsDateFormProvider()
+  val today: Today = new TodayImpl(Dates.clock)
+  val dates = new Dates(today)
+
+  private val formProvider = new StoppedSellingGoodsDateFormProvider(dates)
   private def form = formProvider()
 
   val validAnswer: LocalDate = LocalDate.now(ZoneOffset.UTC)
@@ -70,7 +67,12 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
         val dates = application.injector.instanceOf[Dates]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emptyWaypoints, dates.dateHint)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form,
+          emptyWaypoints,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(getRequest(), messages(application)).toString
       }
     }
 
@@ -88,22 +90,18 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints, dates.dateHint)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form.fill(validAnswer),
+          emptyWaypoints,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(getRequest(), messages(application)).toString
       }
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val result = route(application, postRequest()).value
@@ -119,9 +117,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val request =
-        FakeRequest(POST, stoppedSellingGoodsDateRoute)
-          .withFormUrlEncodedBody(("value", "invalid value"))
+      val request = FakeRequest(POST, stoppedSellingGoodsDateRoute).withFormUrlEncodedBody(("value", "invalid value"))
 
       running(application) {
         val boundForm = form.bind(Map("value" -> "invalid value"))
@@ -133,7 +129,12 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, dates.dateHint)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          boundForm,
+          emptyWaypoints,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(request, messages(application)).toString
       }
     }
 
@@ -142,7 +143,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, getRequest).value
+        val result = route(application, getRequest()).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url

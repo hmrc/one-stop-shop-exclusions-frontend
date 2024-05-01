@@ -26,6 +26,7 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.FutureSyntax.FutureOps
 import views.html.MoveCountryView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +56,7 @@ class MoveCountryController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, waypoints))),
+         BadRequest(view(formWithErrors, waypoints)).toFuture,
 
         value => {
           val originalAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))

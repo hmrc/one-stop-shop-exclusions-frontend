@@ -16,18 +16,24 @@
 
 package forms
 
-import java.time.{LocalDate, ZoneOffset}
+import date.{Dates, TodayImpl}
+
+import java.time.LocalDate
 import forms.behaviours.DateBehaviours
 
 class StoppedUsingServiceDateFormProviderSpec extends DateBehaviours {
 
-  private val form = new StoppedUsingServiceDateFormProvider()()
+  val dates = new Dates(new TodayImpl(Dates.clock))
+  private val form = new StoppedUsingServiceDateFormProvider(dates)()
 
   ".value" - {
 
+    val minDate: LocalDate = dates.firstDayOfQuarter
+    val maxDate: LocalDate = dates.lastDayOfQuarter
+
     val validData = datesBetween(
-      min = LocalDate.of(2000, 1, 1),
-      max = LocalDate.now(ZoneOffset.UTC)
+      min = minDate,
+      max = maxDate
     )
 
     behave like dateField(form, "value", validData)

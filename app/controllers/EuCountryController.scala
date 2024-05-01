@@ -20,8 +20,8 @@ import controllers.actions._
 import forms.EuCountryFormProvider
 
 import javax.inject.Inject
-import models.Country
-import pages.{EuCountryPage, Waypoints}
+import models.{Country, UserAnswers}
+import pages.{EuCountryPage, EuVatNumberPage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -60,9 +60,17 @@ class EuCountryController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(EuCountryPage, value))
+            updatedAnswersEuVatNumber <- updateEuVatNumberPage(request.userAnswers, value)
+            updatedAnswers <- Future.fromTry(updatedAnswersEuVatNumber.set(EuCountryPage, value))
             _              <- cc.sessionRepository.set(updatedAnswers)
-          } yield  Redirect(EuCountryPage.navigate(waypoints, request.userAnswers, updatedAnswers).route)
+          } yield Redirect(EuCountryPage.navigate(waypoints, request.userAnswers, updatedAnswers).route)
       )
   }
+
+  private def updateEuVatNumberPage(userAnswers: UserAnswers, country: Country): Future[UserAnswers] =
+    if (userAnswers.get(EuCountryPage).contains(country)) {
+      userAnswers.toFuture
+    } else {
+      Future.fromTry(userAnswers.remove(EuVatNumberPage))
+    }
 }

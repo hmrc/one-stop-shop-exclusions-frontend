@@ -19,9 +19,10 @@ package controllers
 import controllers.actions.AuthenticatedControllerComponents
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.FutureSyntax.FutureOps
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class KeepAliveController @Inject()(
                                      cc: AuthenticatedControllerComponents,
@@ -36,6 +37,6 @@ class KeepAliveController @Inject()(
           answers =>
             cc.sessionRepository.keepAlive(answers.id).map(_ => Ok)
         }
-        .getOrElse(Future.successful(Ok))
+        .getOrElse(Ok.toFuture)
   }
 }

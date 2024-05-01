@@ -16,14 +16,59 @@
 
 package date
 
-import java.time.{Clock, LocalDate}
+import models.Quarter
+
+import java.time.{Clock, LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-class Dates @Inject() (val clock: Clock) {
+class Dates @Inject() (val today: Today) {
 
   val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
-  val dateHint: String =
-    DateTimeFormatter.ofPattern("dd/MM/yyyy").format(LocalDate.now(clock))
+  private val digitsFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MM yyyy")
+
+  val dateHint: String = digitsFormatter.format(today.date)
+  val lastDayOfQuarterFormatted: String = formatter.format(lastDayOfQuarter)
+
+  def getLeaveDateWhenStoppedUsingService(exclusionDate: LocalDate): LocalDate = {
+    val exclusionMonth = exclusionDate.getMonth
+    val quarter = Quarter.values.find(q => exclusionMonth.compareTo(q.startMonth) >= 0 && exclusionMonth.compareTo(q.endMonth) <= 0)
+    quarter match {
+      case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
+      case None    => throw new IllegalStateException("No quarter found for the current month")
+    }
+
+  }
+  def getLeaveDateWhenStoppedSellingGoods(leaveDate: LocalDate): LocalDate = {
+    val leaveMonth = leaveDate.getMonth
+    val quarter = Quarter.values.find(q => leaveMonth.compareTo(q.startMonth) >= 0 && leaveMonth.compareTo(q.endMonth) <= 0)
+    quarter match {
+      case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
+      case None    => throw new IllegalStateException("No quarter found for the current month")
+    }
+  }
+
+  def firstDayOfQuarter: LocalDate = {
+    val currentMonth = today.date.getMonth
+    val quarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
+    quarter match {
+      case Some(q) => today.date.withMonth(q.startMonth.getValue).withDayOfMonth(1)
+      case None    => throw new IllegalStateException("No quarter found for the current month")
+    }
+  }
+
+  def lastDayOfQuarter: LocalDate = {
+    val currentMonth = today.date.getMonth
+    val quarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
+    quarter match {
+      case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
+      case None    => throw new IllegalStateException("No quarter found for the current month")
+    }
+  }
+
+}
+
+object Dates {
+  val clock: Clock = Clock.systemDefaultZone.withZone(ZoneOffset.UTC)
 }

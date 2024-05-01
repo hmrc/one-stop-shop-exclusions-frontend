@@ -17,6 +17,7 @@
 @import config.FrontendAppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
+@import views.html.templates.FullWidthLayout
 
 @this(
     appConfig: FrontendAppConfig,
@@ -30,10 +31,12 @@
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcScripts: HmrcScripts,
-    alphaBanner: StandardAlphaBanner
+    alphaBanner: StandardAlphaBanner,
+    defaultMainContentLayout: TwoThirdsMainContent,
+    fullWidthLayout: FullWidthLayout
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, fullWidth: Boolean = false)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @head = {
 
@@ -48,13 +51,13 @@
                 signOutButtonText   = Some(messages("timeout.signOut")),
                 title               = Some(messages("timeout.title")),
                 message             = Some(messages("timeout.message")),
-                language            = Some(messages.lang.code)
             )))
         } else None
     )
 
     <link href="@routes.Assets.versioned("stylesheets/accessible-autocomplete.min.css").url" media="screen" rel="stylesheet" type="text/css" />
     <link href="@routes.Assets.versioned("stylesheets/application.css")" media="all" rel="stylesheet" type="text/css" />
+    <link href="@routes.Assets.versioned("stylesheets/one-stop-shop.css").url" media="screen" rel="stylesheet" type="text/css" />
 }
 
 @additionalScripts = {
@@ -96,6 +99,13 @@
     beforeContentBlock = Some(beforeContent),
     footerBlock        = Some(hmrcStandardFooter()),
     scriptsBlock       = Some(hmrcScripts(
-        scriptsBlock = Some(additionalScripts)
-    ))
+    scriptsBlock = Some(additionalScripts)
+    )),
+    mainContentLayout = Some(
+        if(fullWidth) {
+            fullWidthLayout(_)
+        } else {
+            defaultMainContentLayout(_)
+        }
+    )
 )(content)

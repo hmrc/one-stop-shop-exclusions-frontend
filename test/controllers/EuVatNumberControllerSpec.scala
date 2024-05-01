@@ -18,28 +18,21 @@ package controllers
 
 import base.SpecBase
 import forms.EuVatNumberFormProvider
-import models.UserAnswers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import pages.{EuCountryPage, EuVatNumberPage}
 import play.api.data.Form
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.SessionRepository
 import views.html.EuVatNumberView
 
-import scala.concurrent.Future
 
-class EuVatNumberControllerSpec extends SpecBase with MockitoSugar {
+class EuVatNumberControllerSpec extends SpecBase {
 
   val formProvider = new EuVatNumberFormProvider()
   val form: Form[String] = formProvider()
 
   private val userAnswersWithCountry = emptyUserAnswers.set(EuCountryPage, country).success.value
 
-  lazy val euVatNumberRoute = routes.EuVatNumberController.onPageLoad(emptyWaypoints).url
+  lazy val euVatNumberRoute: String = routes.EuVatNumberController.onPageLoad(emptyWaypoints).url
 
   "EuVatNumber Controller" - {
 
@@ -79,21 +72,10 @@ class EuVatNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswersWithCountry))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCountry)).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, euVatNumberRoute)
-            .withFormUrlEncodedBody(("value", "validAnswer"))
+        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", "validAnswer"))
 
         val result = route(application, request).value
 
@@ -107,9 +89,7 @@ class EuVatNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCountry)).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, euVatNumberRoute)
-            .withFormUrlEncodedBody(("value", ""))
+        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
@@ -141,9 +121,7 @@ class EuVatNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, euVatNumberRoute)
-            .withFormUrlEncodedBody(("value", "validAnswer"))
+        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", "validAnswer"))
 
         val result = route(application, request).value
 

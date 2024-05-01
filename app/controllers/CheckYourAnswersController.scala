@@ -25,11 +25,11 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CompletionChecks
+import utils.FutureSyntax.FutureOps
 import viewmodels.checkAnswers.{EuCountrySummary, EuVatNumberSummary, MoveDateSummary}
 import viewmodels.govuk.summarylist._
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject()(
                                             cc: AuthenticatedControllerComponents,
@@ -65,6 +65,15 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit(waypoints: Waypoints, incompletePrompt: Boolean): Action[AnyContent] = cc.authAndGetData.async {
     implicit request =>
-      Future.successful(Redirect(CheckYourAnswersPage.navigate(waypoints, request.userAnswers, request.userAnswers).route))
+      getFirstValidationErrorRedirect(waypoints) match {
+        case Some(errorRedirect) => if (incompletePrompt) {
+          errorRedirect.toFuture
+        } else {
+          Redirect(routes.CheckYourAnswersController.onPageLoad()).toFuture
+        }
+
+        case None =>
+          Redirect(CheckYourAnswersPage.navigate(waypoints, request.userAnswers, request.userAnswers).route).toFuture
+      }
   }
 }

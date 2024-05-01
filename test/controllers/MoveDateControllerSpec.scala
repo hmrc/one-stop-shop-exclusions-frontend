@@ -16,32 +16,28 @@
 
 package controllers
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.LocalDate
 import base.SpecBase
-import date.Dates
+import date.{Dates, Today, TodayImpl}
 import forms.MoveDateFormProvider
 import models.UserAnswers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import pages.{EuCountryPage, MoveDatePage}
 import play.api.data.Form
-import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.SessionRepository
 import views.html.MoveDateView
 
-import scala.concurrent.Future
+class MoveDateControllerSpec extends SpecBase {
 
-class MoveDateControllerSpec extends SpecBase with MockitoSugar {
+  val today: Today = new TodayImpl(Dates.clock)
+  val dates = new Dates(today)
 
-  private val formProvider = new MoveDateFormProvider()
+  private val formProvider = new MoveDateFormProvider(dates)
 
   private val form: Form[LocalDate] = formProvider()
 
-  private val validAnswer = LocalDate.now(ZoneOffset.UTC)
+  private val validAnswer = LocalDate.now(Dates.clock)
 
   private lazy val moveDateRoute = routes.MoveDateController.onPageLoad(emptyWaypoints).url
 
@@ -74,7 +70,13 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
         val dates = application.injector.instanceOf[Dates]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emptyWaypoints, country, dates.dateHint)(getRequest, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form,
+          emptyWaypoints,
+          country,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(getRequest(), messages(application)).toString
       }
     }
 
@@ -92,19 +94,19 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form.fill(validAnswer), emptyWaypoints, country, dates.dateHint)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form.fill(validAnswer),
+          emptyWaypoints,
+          country,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(getRequest(), messages(application)).toString
       }
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val result = route(application, postRequest()).value
@@ -117,11 +119,10 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
+
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCountry)).build()
 
-      val request =
-        FakeRequest(POST, moveDateRoute)
-          .withFormUrlEncodedBody(("value", "invalid value"))
+      val request = FakeRequest(POST, moveDateRoute).withFormUrlEncodedBody(("value", "invalid value"))
 
       running(application) {
         val boundForm = form.bind(Map("value" -> "invalid value"))
@@ -133,7 +134,13 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, country, dates.dateHint)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          boundForm,
+          emptyWaypoints,
+          country,
+          dates.lastDayOfQuarterFormatted,
+          dates.dateHint
+        )(request, messages(application)).toString
       }
     }
 
@@ -142,7 +149,7 @@ class MoveDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, getRequest).value
+        val result = route(application, getRequest()).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url

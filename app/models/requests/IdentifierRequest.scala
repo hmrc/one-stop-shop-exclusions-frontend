@@ -16,6 +16,13 @@
 
 package models.requests
 
+import models.registration.Registration
 import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.domain.Vrn
 
-case class IdentifierRequest[A] (request: Request[A], userId: String) extends WrappedRequest[A](request)
+case class IdentifierRequest[A] (
+                                  request: Request[A],
+                                  userId: String,
+                                  vrn: Vrn,
+                                  registration: Registration
+                                ) extends WrappedRequest[A](request)

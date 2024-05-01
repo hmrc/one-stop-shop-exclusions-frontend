@@ -38,6 +38,10 @@ error.non_numeric = Give a value using only numbers
 error.number = Please enter a valid number
 error.required = Please enter a value
 error.summary.title = There is a problem
+error.missing_answers = Some of your information is missing. You must complete this before you can submit your changes.
+error.missing_answers_header = Some information is missing.
+error.missing_answers_prompt.general = You need to complete the missing information before you continue.
+error.resolve_missing_answers = Resolve missing answers
 
 index.title = one-stop-shop-exclusions-frontend
 index.heading = one-stop-shop-exclusions-frontend
@@ -82,7 +86,7 @@ euVatNumber.change.hidden = VAT registration number
 
 moveDate.title = When did or when will your business move to {0}?
 moveDate.heading = When did or when will your business move to {0}?
-moveDate.hint = You can enter a date from {0} up to {1}.<br/> For example, {2}.
+moveDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
 moveDate.checkYourAnswersLabel = Business move date
 moveDate.error.required.all = Enter the move date
 moveDate.error.required.two = The move date must include {0} and {1}
@@ -109,7 +113,8 @@ stoppedSellingGoodsDate.error.required.all = Enter the date you stopped selling 
 stoppedSellingGoodsDate.error.required.two = The date you stopped selling goods must include {0} and {1}
 stoppedSellingGoodsDate.error.required = The date you stopped selling goods must include the {0}
 stoppedSellingGoodsDate.error.invalid = Give a correct date
-stoppedSellingGoodsDate.error.invalid = The date must be between {0} and {1} inclusively
+stoppedSellingGoodsDate.error.invalid.minDate = The date your business moved must be on or after {0}
+stoppedSellingGoodsDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
 
 stoppedUsingServiceDate.title = When did you or when will you stop using this service?
 stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
@@ -118,16 +123,20 @@ stoppedUsingServiceDate.error.required.all = Enter the date you stopped using th
 stoppedUsingServiceDate.error.required.two = The date you stopped using this service must include {0} and {1}
 stoppedUsingServiceDate.error.required = The date you stopped using this service must include {0}
 stoppedUsingServiceDate.error.invalid = Give a correct date
-stoppedUsingServiceDate.change.hidden = The date must be between {0} and {1} inclusively
+stoppedUsingServiceDate.error.invalid.minDate = The date your business moved must be on or after {0}
+stoppedUsingServiceDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
 
 applicationComplete.title = We have received your request to leave
 applicationComplete.heading = We have received your request to leave
-applicationComplete.registration.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.<br/></br/>You will leave this service on {0}.
+applicationComplete.stopSellingGoods.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.
+applicationComplete.moving.text = You are moving your business operations to {0}.
+applicationComplete.leave.text = You will leave this service on {0}.
 applicationComplete.next.heading = What happens next
 applicationComplete.next.info.top = You must:
-applicationComplete.next.info.bullet1 = complete a VAT return for your final month
+applicationComplete.next.info.bullet0 = register for the One Stop Shop scheme in {0} by {1} to continue using the scheme without a break
+applicationComplete.next.info.bullet1 = complete a VAT return for your final period
 applicationComplete.next.info.bullet2 = pay any VAT you still owe
-applicationComplete.next.info.bottom = If you change your mind, you have until {0} to cancel this request and stay on the service.
+applicationComplete.next.info.bottom = You have until {0} to cancel this request and stay on the service.
 applicationComplete.next.info.returnToAccount = Return to your account
 
 

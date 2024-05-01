@@ -16,9 +16,10 @@
 
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 @this(govukButton: GovukButton)
+
 @(continueMessage: String, continueUrl: String, waypoints: Waypoints)(implicit messages: Messages)
 <div class="govuk-button-group">
     @govukButton(
-     ButtonViewModel(messages(continueMessage)).withAttribute(("id", "continue")).withAttribute("onclick", "showTheSpinner()")
+      ButtonViewModel(messages(continueMessage)).withAttribute(("id", "continue"))
     )
 </div>

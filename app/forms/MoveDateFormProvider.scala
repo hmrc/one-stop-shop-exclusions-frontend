@@ -16,13 +16,15 @@
 
 package forms
 
+import date.{Dates, LocalDateOps}
 import forms.mappings.Mappings
 import play.api.data.Form
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.time.LocalDate
 import javax.inject.Inject
 
-class MoveDateFormProvider @Inject()() extends Mappings {
+class MoveDateFormProvider @Inject()(dates: Dates) extends Mappings {
 
   def apply(): Form[LocalDate] =
     Form(
@@ -31,7 +33,12 @@ class MoveDateFormProvider @Inject()() extends Mappings {
         allRequiredKey = "moveDate.error.required.all",
         twoRequiredKey = "moveDate.error.required.two",
         requiredKey    = "moveDate.error.required"
-      )
+      ).verifying(validDate)
     )
 
+  private def validDate: Constraint[LocalDate] = Constraint {
+    case date if date < dates.firstDayOfQuarter => Invalid("moveDate.error.invalid.minDate", dates.formatter.format(dates.firstDayOfQuarter))
+    case date if date > dates.lastDayOfQuarter => Invalid("moveDate.error.invalid.maxDate", dates.formatter.format(dates.lastDayOfQuarter))
+    case _ => Valid
+  }
 }

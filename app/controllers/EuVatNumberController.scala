@@ -59,7 +59,7 @@ class EuVatNumberController @Inject()(
         formWithErrors =>
           request.userAnswers.get(EuCountryPage).map { country =>
             BadRequest(view(formWithErrors, waypoints, country)).toFuture
-          }.getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))),
+          }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture),
 
         value =>
           for {

@@ -49,7 +49,7 @@ class StoppedSellingGoodsDateController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, waypoints, dates.dateHint))
+      Ok(view(preparedForm, waypoints, dates.lastDayOfQuarterFormatted, dates.dateHint))
   }
 
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
@@ -59,7 +59,7 @@ class StoppedSellingGoodsDateController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          BadRequest(view(formWithErrors, waypoints, dates.dateHint)).toFuture,
+          BadRequest(view(formWithErrors, waypoints, dates.lastDayOfQuarterFormatted, dates.dateHint)).toFuture,
 
         value =>
           for {

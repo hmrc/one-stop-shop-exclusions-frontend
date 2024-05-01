@@ -16,18 +16,25 @@
 
 package forms
 
-import java.time.{LocalDate, ZoneOffset}
+import date.{Dates, TodayImpl}
+
+import java.time.LocalDate
 import forms.behaviours.DateBehaviours
+import org.scalacheck.Gen
 
 class MoveDateFormProviderSpec extends DateBehaviours {
 
-  private val form = new MoveDateFormProvider()()
+  val dates = new Dates(new TodayImpl(Dates.clock))
+  private val form = new MoveDateFormProvider(dates)()
 
   ".value" - {
 
-    val validData = datesBetween(
-      min = LocalDate.of(2000, 1, 1),
-      max = LocalDate.now(ZoneOffset.UTC)
+    val minDate: LocalDate = dates.firstDayOfQuarter
+    val maxDate: LocalDate = dates.lastDayOfQuarter
+
+    val validData: Gen[LocalDate] = datesBetween(
+      min = minDate,
+      max = maxDate
     )
 
     behave like dateField(form, "value", validData)
