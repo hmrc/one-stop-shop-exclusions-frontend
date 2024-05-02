@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ case class EtmpAmendRegistrationRequest(
                                          administration: EtmpAdministration,
                                          changeLog: EtmpAmendRegistrationChangeLog,
                                          exclusionDetails: Option[EtmpExclusionDetails],
-                                         customerIdentification: EtmpCustomerIdentification,
+                                         customerIdentification: EtmpAmendCustomerIdentification,
                                          tradingNames: Seq[EtmpTradingNames],
                                          schemeDetails: EtmpSchemeDetails,
                                          bankDetails: BankDetails,
