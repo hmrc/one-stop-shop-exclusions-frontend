@@ -31,14 +31,14 @@ import java.time.LocalDate
 
 class ApplicationCompleteControllerSpec extends SpecBase {
 
-  val today: LocalDate = LocalDate.of(2024, 1, 25)
+  val today: LocalDate = LocalDate.of(2024, 1, 31)
   val mockToday: Today = mock[Today]
   when(mockToday.date).thenReturn(today)
 
   "ApplicationComplete Controller" - {
 
     "when someone moves business" - {
-      "must return OK with the leave date being the 10th of next month (10th Feb)" in {
+      "must return OK with the leave date being the end of the quarter" in {
         val userAnswers = emptyUserAnswers
           .set(MoveCountryPage, true).success.get
           .set(EuCountryPage, country).success.get
@@ -58,7 +58,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "25 January 2024"
+          val leaveDate = "31 January 2024"
 
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,

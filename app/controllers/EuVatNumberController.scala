@@ -18,10 +18,10 @@ package controllers
 
 import controllers.actions._
 import forms.EuVatNumberFormProvider
+import models.{CountryWithValidationDetails, UserAnswers}
 
 import javax.inject.Inject
 import pages.{EuCountryPage, EuVatNumberPage, Waypoints}
-import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -36,36 +36,42 @@ class EuVatNumberController @Inject()(
                                        view: EuVatNumberView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[String] = formProvider()
   protected val controllerComponents: MessagesControllerComponents = cc
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(EuVatNumberPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      getCountryWithValidationDetails(request.userAnswers).map { countryWithValidationDetails =>
+        val form = formProvider(countryWithValidationDetails.country)
+        val preparedForm = request.userAnswers.get(EuVatNumberPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      request.userAnswers.get(EuCountryPage).map { country =>
-        Ok(view(preparedForm, waypoints, country))
+
+        Ok(view(preparedForm, waypoints, countryWithValidationDetails))
       }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()))
   }
 
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
     implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          request.userAnswers.get(EuCountryPage).map { country =>
-            BadRequest(view(formWithErrors, waypoints, country)).toFuture
-          }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture),
+      getCountryWithValidationDetails(request.userAnswers).map { countryWithValidationDetails =>
+        formProvider(countryWithValidationDetails.country).bindFromRequest().fold(
+          formWithErrors => BadRequest(view(formWithErrors, waypoints, countryWithValidationDetails)).toFuture,
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(EuVatNumberPage, value))
-            _              <- cc.sessionRepository.set(updatedAnswers)
-          } yield Redirect(EuVatNumberPage.navigate(waypoints, request.userAnswers, updatedAnswers).route)
-      )
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(EuVatNumberPage, value))
+              _              <- cc.sessionRepository.set(updatedAnswers)
+            } yield Redirect(EuVatNumberPage.navigate(waypoints, request.userAnswers, updatedAnswers).route)
+        )
+      }.getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+  }
+
+  private def getCountryWithValidationDetails(userAnswers: UserAnswers): Option[CountryWithValidationDetails] = {
+    userAnswers.get(EuCountryPage).flatMap(country =>
+      CountryWithValidationDetails.euCountriesWithVRNValidationRules.find(_.country.code == country.code)
+    )
   }
 }

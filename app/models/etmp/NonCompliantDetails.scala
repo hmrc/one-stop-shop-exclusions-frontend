@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package pages
+package models.etmp
 
-import controllers.routes
-import play.api.mvc.Call
+import play.api.libs.json._
 
-object JourneyRecoveryPage extends Page {
+case class NonCompliantDetails(
+                                nonCompliantReturns: Option[Int],
+                                nonCompliantPayments: Option[Int]
+                              )
 
-  override def route(waypoints: Waypoints): Call =
-    routes.JourneyRecoveryController.onPageLoad()
+object NonCompliantDetails {
 
+  implicit val format: OFormat[NonCompliantDetails] = Json.format[NonCompliantDetails]
 }

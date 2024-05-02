@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock._
+import data.RegistrationData
 import generators.Generators
 import models.registration.Registration
+import models.responses.UnexpectedResponseStatus
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.Application
@@ -31,7 +33,8 @@ class RegistrationConnectorSpec
   extends SpecBase
     with WireMockHelper
     with ScalaCheckPropertyChecks
-    with Generators {
+    with Generators
+    with RegistrationData {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
@@ -62,6 +65,36 @@ class RegistrationConnectorSpec
       }
     }
 
+  }
+
+  ".amend" - {
+    val url = s"/one-stop-shop-registration/amend"
+
+    "must return Right when a new registration is created on the backend" in {
+
+      running(application) {
+        val connector = application.injector.instanceOf[RegistrationConnector]
+
+        server.stubFor(post(urlEqualTo(url)).willReturn(ok()))
+
+        val result = connector.amend(etmpAmendRegistrationRequest).futureValue
+
+        result mustBe Right(())
+      }
+    }
+
+    "must return Left(UnexpectedResponseStatus) when the backend returns UnexpectedResponseStatus" in {
+
+      running(application) {
+        val connector = application.injector.instanceOf[RegistrationConnector]
+
+        server.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(123)))
+
+        val result = connector.amend(etmpAmendRegistrationRequest).futureValue
+
+        result mustBe Left(UnexpectedResponseStatus(123, "Unexpected amend response, status 123 returned"))
+      }
+    }
   }
 
 }

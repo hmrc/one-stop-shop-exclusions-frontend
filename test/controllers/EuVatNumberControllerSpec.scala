@@ -28,7 +28,7 @@ import views.html.EuVatNumberView
 class EuVatNumberControllerSpec extends SpecBase {
 
   val formProvider = new EuVatNumberFormProvider()
-  val form: Form[String] = formProvider()
+  val form: Form[String] = formProvider(country)
 
   private val userAnswersWithCountry = emptyUserAnswers.set(EuCountryPage, country).success.value
 
@@ -48,7 +48,7 @@ class EuVatNumberControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[EuVatNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emptyWaypoints, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, emptyWaypoints, countryWithValidationDetails)(request, messages(application)).toString
       }
     }
 
@@ -66,7 +66,7 @@ class EuVatNumberControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("validAnswer"), emptyWaypoints, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("validAnswer"), emptyWaypoints, countryWithValidationDetails)(request, messages(application)).toString
       }
     }
 
@@ -75,7 +75,7 @@ class EuVatNumberControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCountry)).build()
 
       running(application) {
-        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", "validAnswer"))
+        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", euVatNumber))
 
         val result = route(application, request).value
 
@@ -98,7 +98,7 @@ class EuVatNumberControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, emptyWaypoints, countryWithValidationDetails)(request, messages(application)).toString
       }
     }
 

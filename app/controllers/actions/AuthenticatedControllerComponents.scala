@@ -39,9 +39,6 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def authAndGetData: ActionBuilder[DataRequest, AnyContent] =
     authAndGetOptionalData andThen requireData
 
-//  def authAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] =
-//    auth andThen getRegistration andThen checkVatGroupFixedEstablishment()
-
   def authAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =
     auth andThen getData
 }

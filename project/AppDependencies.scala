@@ -26,9 +26,9 @@ object AppDependencies {
     "org.pegdown"             %  "pegdown"                    % "1.6.0",
     "org.jsoup"               %  "jsoup"                      % "1.15.4",
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.64.6",
-  )
+    "org.scalatestplus.play"  %% "scalatestplus-play"         % "5.1.0",
+    "org.playframework"       %% "play-test"                  % PlayVersion.current
+  ).map(_ % "test, it")
 
-  val it = Seq.empty
-
-  def apply(): Seq[ModuleID] = compile ++ test ++ it
+  def apply(): Seq[ModuleID] = compile ++ test
 }

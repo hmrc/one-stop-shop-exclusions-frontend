@@ -16,15 +16,20 @@
 
 package forms
 
-import date.{Dates, TodayImpl}
+import date.{Dates, Today, TodayImpl}
 
 import java.time.LocalDate
 import forms.behaviours.DateBehaviours
+import org.mockito.MockitoSugar.when
 import org.scalacheck.Gen
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 class MoveDateFormProviderSpec extends DateBehaviours {
 
+  val mockToday: Today = mock[Today]
   val dates = new Dates(new TodayImpl(Dates.clock))
+
+
   private val form = new MoveDateFormProvider(dates)()
 
   ".value" - {
@@ -40,5 +45,83 @@ class MoveDateFormProviderSpec extends DateBehaviours {
     behave like dateField(form, "value", validData)
 
     behave like mandatoryDateField(form, "value", "moveDate.error.required.all")
+
+    "bind dates if today is within current quarter period" in {
+      val todayGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2024, 2, 1),
+        max = LocalDate.of(2024, 2, 28)
+      )
+
+      val validDatesGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2024, 1, 1),
+        max = LocalDate.of(2024, 3, 31)
+      )
+
+      forAll(todayGen, validDatesGen) { (today, validDate) =>
+        when(mockToday.date).thenReturn(today)
+        val dates = new Dates(mockToday)
+        val form = new MoveDateFormProvider(dates)()
+
+        val data = formData(validDate)
+        val result = form.bind(data)
+        result.value.value mustEqual validDate
+        result.errors mustBe empty
+      }
+    }
+
+    "fail to bind date if today is before the current quarter period" in {
+
+      val todayGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2023, 12, 1),
+        max = LocalDate.of(2023, 12, 31)
+      )
+
+      val validDatesGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2024, 1, 1),
+        max = LocalDate.of(2024, 3, 31)
+      )
+
+      forAll(todayGen, validDatesGen) { (today, validDate) =>
+        when(mockToday.date).thenReturn(today)
+
+        val dates = new Dates(mockToday)
+        val form = new MoveDateFormProvider(dates)()
+
+        val data = formData(validDate)
+        val result = form.bind(data)
+        result.errors must not be empty
+      }
+    }
+
+    "fail to bind date if today is after the current quarter period" in {
+      val todayGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2024, 7, 1),
+        max = LocalDate.of(2024, 7, 31)
+      )
+
+      val validDatesGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2024, 1, 1),
+        max = LocalDate.of(2024, 3, 31)
+      )
+
+      forAll(todayGen, validDatesGen) { (today, validDate) =>
+        when(mockToday.date).thenReturn(today)
+
+        val dates = new Dates(mockToday)
+        val form = new MoveDateFormProvider(dates)()
+
+        val data = formData(validDate)
+        val result = form.bind(data)
+        result.errors must not be empty
+      }
+    }
+
+
+    def formData(date: LocalDate): Map[String, String] = Map(
+      "value.day" -> date.getDayOfMonth.toString,
+      "value.month" -> date.getMonthValue.toString,
+      "value.year" -> date.getYear.toString
+    )
   }
+
 }

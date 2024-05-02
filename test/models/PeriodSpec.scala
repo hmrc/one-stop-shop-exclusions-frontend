@@ -14,14 +14,32 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import controllers.routes
-import play.api.mvc.Call
+import base.SpecBase
+import models.Quarter.Q1
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-object JourneyRecoveryPage extends Page {
 
-  override def route(waypoints: Waypoints): Call =
-    routes.JourneyRecoveryController.onPageLoad()
+class PeriodSpec extends SpecBase with ScalaCheckPropertyChecks {
+
+  ".fromString" - {
+
+    "must resolve for valid periods" in {
+
+      Period.fromString("2021-Q1").get mustEqual StandardPeriod(2021, Q1)
+
+    }
+
+    "must return None for invalid periods" in {
+
+      forAll(arbitrary[String]) {
+        string =>
+
+        Period.fromString(string) mustBe None
+      }
+    }
+  }
 
 }
