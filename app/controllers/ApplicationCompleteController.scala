@@ -62,13 +62,14 @@ class ApplicationCompleteController @Inject()(
       country <- request.userAnswers.get(EuCountryPage)
       leaveDate <- request.userAnswers.get(MoveDatePage)
     } yield {
+      val maxChangeDate = leaveDate.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
 
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
-        dates.formatter.format(leaveDate),
+        dates.formatter.format(maxChangeDate),
         Some(messages("applicationComplete.moving.text", country.name)),
-        Some(messages("applicationComplete.next.info.bullet0", country.name, dates.formatter.format(leaveDate)))
+        Some(messages("applicationComplete.next.info.bullet0", country.name, dates.formatter.format(maxChangeDate)))
       ))
     }
   }
@@ -94,7 +95,7 @@ class ApplicationCompleteController @Inject()(
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
-        dates.formatter.format(leaveDate)
+        dates.formatter.format(leaveDate.minusDays(1))
       ))
     }
   }

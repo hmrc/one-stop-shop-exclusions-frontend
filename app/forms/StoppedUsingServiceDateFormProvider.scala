@@ -16,15 +16,13 @@
 
 package forms
 
-import date.{Dates, LocalDateOps}
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.time.LocalDate
 import javax.inject.Inject
 
-class StoppedUsingServiceDateFormProvider @Inject()(dates: Dates) extends Mappings {
+class StoppedUsingServiceDateFormProvider @Inject() extends Mappings {
 
   def apply(): Form[LocalDate] =
     Form(
@@ -33,12 +31,6 @@ class StoppedUsingServiceDateFormProvider @Inject()(dates: Dates) extends Mappin
         allRequiredKey = "stoppedUsingServiceDate.error.required.all",
         twoRequiredKey = "stoppedUsingServiceDate.error.required.two",
         requiredKey    = "stoppedUsingServiceDate.error.required"
-      ).verifying(validDate)
+      )
     )
-
-  private def validDate: Constraint[LocalDate] = Constraint {
-    case date if date < dates.firstDayOfQuarter => Invalid("stoppedUsingServiceDate.error.invalid.minDate", dates.formatter.format(dates.firstDayOfQuarter))
-    case date if date > dates.lastDayOfQuarter => Invalid("stoppedUsingServiceDate.error.invalid.maxDate", dates.formatter.format(dates.lastDayOfQuarter))
-    case _ => Valid
-  }
 }

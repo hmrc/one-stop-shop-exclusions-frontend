@@ -28,7 +28,7 @@ class StoppedUsingServiceDateFormProviderSpec extends DateBehaviours {
 
   val mockToday: Today = mock[Today]
   val dates = new Dates(new TodayImpl(Dates.clock))
-  private val form = new StoppedUsingServiceDateFormProvider(dates)()
+  private val form = new StoppedUsingServiceDateFormProvider()()
 
   ".value" - {
 

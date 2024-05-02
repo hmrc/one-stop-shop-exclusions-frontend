@@ -20,23 +20,35 @@ import models.Quarter
 
 import java.time.{Clock, LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters.{firstDayOfNextMonth, lastDayOfMonth}
 import javax.inject.Inject
 
 class Dates @Inject() (val today: Today) {
 
   val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  val MoveDayOfMonthSplit: Int = 10
+  private val StopDayOfMonthSplit: Int = 15
 
   private val digitsFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MM yyyy")
 
   val dateHint: String = digitsFormatter.format(today.date)
   val lastDayOfQuarterFormatted: String = formatter.format(lastDayOfQuarter)
 
+  def minMoveDate: LocalDate =
+    (if (today.date.getDayOfMonth <= MoveDayOfMonthSplit) today.date.minusMonths(1) else today.date)
+      .withDayOfMonth(1)
+
+  def maxMoveDate: LocalDate =
+    today.date.plusMonths(1).withDayOfMonth(MoveDayOfMonthSplit)
+
   def getLeaveDateWhenStoppedUsingService(exclusionDate: LocalDate): LocalDate = {
-    val exclusionMonth = exclusionDate.getMonth
-    val quarter = Quarter.values.find(q => exclusionMonth.compareTo(q.startMonth) >= 0 && exclusionMonth.compareTo(q.endMonth) <= 0)
-    quarter match {
-      case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
-      case None    => throw new IllegalStateException("No quarter found for the current month")
+    val lastDayOfTheMonth = today.date.`with`(lastDayOfMonth())
+    val firstDayOfTheNextMonth = today.date.`with`(firstDayOfNextMonth())
+
+    if (exclusionDate <= lastDayOfTheMonth.minusDays(StopDayOfMonthSplit)) {
+      firstDayOfTheNextMonth
+    } else {
+      firstDayOfTheNextMonth.plusMonths(1)
     }
 
   }

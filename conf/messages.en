@@ -123,8 +123,7 @@ stoppedUsingServiceDate.error.required.all = Enter the date you stopped using th
 stoppedUsingServiceDate.error.required.two = The date you stopped using this service must include {0} and {1}
 stoppedUsingServiceDate.error.required = The date you stopped using this service must include {0}
 stoppedUsingServiceDate.error.invalid = Give a correct date
-stoppedUsingServiceDate.error.invalid.minDate = The date your business moved must be on or after {0}
-stoppedUsingServiceDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
+stoppedUsingServiceDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
 
 applicationComplete.title = We have received your request to leave
 applicationComplete.heading = We have received your request to leave

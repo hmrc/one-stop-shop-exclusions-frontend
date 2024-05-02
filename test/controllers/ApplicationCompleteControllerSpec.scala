@@ -31,7 +31,7 @@ import java.time.LocalDate
 
 class ApplicationCompleteControllerSpec extends SpecBase {
 
-  val today: LocalDate = LocalDate.of(2024, 1, 31)
+  val today: LocalDate = LocalDate.of(2024, 1, 25)
   val mockToday: Today = mock[Today]
   when(mockToday.date).thenReturn(today)
 
@@ -58,14 +58,15 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "31 January 2024"
+          val leaveDate = "25 January 2024"
+          val maxMoveDate = "10 February 2024"
 
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,
             leaveDate,
-            leaveDate,
+            maxMoveDate,
             Some(messages(application)("applicationComplete.moving.text", country.name)),
-            Some(messages(application)("applicationComplete.next.info.bullet0", country.name, leaveDate))
+            Some(messages(application)("applicationComplete.next.info.bullet0", country.name, maxMoveDate))
           )(request, messages(application)).toString
         }
       }
@@ -131,8 +132,9 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "31 March 2024"
-          contentAsString(result) mustEqual view(config.ossYourAccountUrl, leaveDate, leaveDate)(request, messages(application)).toString
+          val leaveDate = "1 February 2024"
+          val maxChangeDate = "31 January 2024"
+          contentAsString(result) mustEqual view(config.ossYourAccountUrl, leaveDate, maxChangeDate)(request, messages(application)).toString
         }
       }
     }

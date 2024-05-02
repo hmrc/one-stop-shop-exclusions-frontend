@@ -32,7 +32,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase {
 
   val today: Today = new TodayImpl(Dates.clock)
   val dates = new Dates(today)
-  private val formProvider = new StoppedUsingServiceDateFormProvider(dates)
+  private val formProvider = new StoppedUsingServiceDateFormProvider()
   private def form = formProvider()
 
   val validAnswer: LocalDate = LocalDate.now(ZoneOffset.UTC)
