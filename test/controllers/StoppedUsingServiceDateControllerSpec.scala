@@ -22,6 +22,7 @@ import date.{Dates, Today, TodayImpl}
 import forms.StoppedUsingServiceDateFormProvider
 import models.UserAnswers
 import pages.StoppedUsingServiceDatePage
+import play.api.data.Form
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -33,7 +34,8 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase {
   val today: Today = new TodayImpl(Dates.clock)
   val dates = new Dates(today)
   private val formProvider = new StoppedUsingServiceDateFormProvider()
-  private def form = formProvider()
+  private def form(currentDate: LocalDate = LocalDate.now(), registrationDate: LocalDate = LocalDate.now()): Form[LocalDate] =
+    formProvider.apply(currentDate, registrationDate)
 
   val validAnswer: LocalDate = LocalDate.now(ZoneOffset.UTC)
 
@@ -67,7 +69,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          form,
+          form(),
           emptyWaypoints,
           dates.lastDayOfQuarterFormatted,
           dates.dateHint
@@ -90,7 +92,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          form.fill(validAnswer),
+          form().fill(validAnswer),
           emptyWaypoints,
           dates.lastDayOfQuarterFormatted,
           dates.dateHint
@@ -119,7 +121,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase {
       val request = FakeRequest(POST, stoppedUsingServiceDateRoute).withFormUrlEncodedBody(("value", "invalid value"))
 
       running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = form().bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[StoppedUsingServiceDateView]
 

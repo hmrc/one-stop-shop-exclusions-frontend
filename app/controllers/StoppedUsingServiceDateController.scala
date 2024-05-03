@@ -19,7 +19,6 @@ package controllers
 import controllers.actions._
 import date.Dates
 import forms.StoppedUsingServiceDateFormProvider
-
 import javax.inject.Inject
 import pages.{StoppedUsingServiceDatePage, Waypoints}
 import play.api.i18n.I18nSupport
@@ -41,8 +40,8 @@ class StoppedUsingServiceDateController @Inject()(
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData {
     implicit request =>
-
-      val form = formProvider()
+      val commencementDate = request.registration.commencementDate
+      val form = formProvider(dates.today.date, commencementDate)
 
       val preparedForm = request.userAnswers.get(StoppedUsingServiceDatePage) match {
         case None => form
@@ -55,7 +54,8 @@ class StoppedUsingServiceDateController @Inject()(
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
     implicit request =>
 
-      val form = formProvider()
+      val commencementDate = request.registration.commencementDate
+      val form = formProvider(dates.today.date, commencementDate)
 
       form.bindFromRequest().fold(
         formWithErrors =>

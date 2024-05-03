@@ -73,7 +73,7 @@ moveCountry.change.hidden = if you moved to an EU country
 euCountry.title = Which country is your business moving to?
 euCountry.heading = Which country is your business moving to?
 euCountry.checkYourAnswersLabel = New country
-euCountry.error.required = SeSelect the country your business is moving to
+euCountry.error.required = Select the country your business is moving to
 euCountry.change.hidden = EU Country
 
 euVatNumber.title = What is your VAT registration number for {0}?
@@ -113,8 +113,8 @@ stoppedSellingGoodsDate.error.required.all = Enter the date you stopped selling 
 stoppedSellingGoodsDate.error.required.two = The date you stopped selling goods must include {0} and {1}
 stoppedSellingGoodsDate.error.required = The date you stopped selling goods must include the {0}
 stoppedSellingGoodsDate.error.invalid = Give a correct date
-stoppedSellingGoodsDate.error.invalid.minDate = The date your business moved must be on or after {0}
-stoppedSellingGoodsDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
+stoppedSellingGoodsDate.error.invalid.minDate = The date you stopped selling goods must be on or after {0}
+stoppedSellingGoodsDate.error.invalid.maxDate = The date you stopped selling goods must be on or before {0}
 
 stoppedUsingServiceDate.title = When did you or when will you stop using this service?
 stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
@@ -130,6 +130,7 @@ applicationComplete.heading = We have received your request to leave
 applicationComplete.stopSellingGoods.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.
 applicationComplete.moving.text = You are moving your business operations to {0}.
 applicationComplete.leave.text = You will leave this service on {0}.
+applicationComplete.leave.leftText = You have now left the service.
 applicationComplete.next.heading = What happens next
 applicationComplete.next.info.top = You must:
 applicationComplete.next.info.bullet0 = register for the One Stop Shop scheme in {0} by {1} to continue using the scheme without a break

@@ -37,8 +37,8 @@ class MoveDateFormProvider @Inject()(dates: Dates) extends Mappings {
     )
 
   private def validDate: Constraint[LocalDate] = Constraint {
-    case date if date < dates.firstDayOfQuarter => Invalid("moveDate.error.invalid.minDate", dates.formatter.format(dates.minMoveDate))
-    case date if date > dates.lastDayOfQuarter => Invalid("moveDate.error.invalid.maxDate", dates.formatter.format(dates.maxMoveDate))
+    case date if date < dates.minMoveDate => Invalid("moveDate.error.invalid.minDate", dates.formatter.format(dates.minMoveDate))
+    case date if date > dates.maxMoveDate => Invalid("moveDate.error.invalid.maxDate", dates.formatter.format(dates.maxMoveDate))
     case _ => Valid
   }
 }

@@ -17,7 +17,6 @@
 package forms
 
 import date.{Dates, Today, TodayImpl}
-
 import java.time.LocalDate
 import forms.behaviours.DateBehaviours
 import org.mockito.MockitoSugar.when
@@ -27,34 +26,34 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 class MoveDateFormProviderSpec extends DateBehaviours {
 
   val mockToday: Today = mock[Today]
-  val dates = new Dates(new TodayImpl(Dates.clock))
-
-
-  private val form = new MoveDateFormProvider(dates)()
 
   ".value" - {
 
-    val minDate: LocalDate = dates.firstDayOfQuarter
-    val maxDate: LocalDate = dates.lastDayOfQuarter
+    val dates = new Dates(new TodayImpl(Dates.clock))
+    val form = new MoveDateFormProvider(dates)()
+
+    val minDate: LocalDate =  dates.today.date
 
     val validData: Gen[LocalDate] = datesBetween(
       min = minDate,
-      max = maxDate
+      max = minDate.plusMonths(1).withDayOfMonth(10)
     )
 
     behave like dateField(form, "value", validData)
 
     behave like mandatoryDateField(form, "value", "moveDate.error.required.all")
 
-    "bind dates if today is within current quarter period" in {
+    "bind date if today is the 10th of the month or earlier AND " +
+      "the form's date is in the previous month or the current month or up to the 10th of the following month" in {
+
       val todayGen: Gen[LocalDate] = datesBetween(
         min = LocalDate.of(2024, 2, 1),
-        max = LocalDate.of(2024, 2, 28)
+        max = LocalDate.of(2024, 2, 10)
       )
 
       val validDatesGen: Gen[LocalDate] = datesBetween(
         min = LocalDate.of(2024, 1, 1),
-        max = LocalDate.of(2024, 3, 31)
+        max = LocalDate.of(2024, 3, 10)
       )
 
       forAll(todayGen, validDatesGen) { (today, validDate) =>
@@ -69,11 +68,11 @@ class MoveDateFormProviderSpec extends DateBehaviours {
       }
     }
 
-    "fail to bind date if today is before the current quarter period" in {
+    "fail to bind date if today is the 10th of the month or earlier AND the form's date is out of range" in {
 
       val todayGen: Gen[LocalDate] = datesBetween(
         min = LocalDate.of(2023, 12, 1),
-        max = LocalDate.of(2023, 12, 31)
+        max = LocalDate.of(2023, 12, 10)
       )
 
       val validDatesGen: Gen[LocalDate] = datesBetween(
@@ -93,15 +92,17 @@ class MoveDateFormProviderSpec extends DateBehaviours {
       }
     }
 
-    "fail to bind date if today is after the current quarter period" in {
+    "bind date if today is after the 10th of the month AND " +
+      "the form's date is in the current month or up to the 10th of the following month" in {
+
       val todayGen: Gen[LocalDate] = datesBetween(
-        min = LocalDate.of(2024, 7, 1),
-        max = LocalDate.of(2024, 7, 31)
+        min = LocalDate.of(2024, 1, 11),
+        max = LocalDate.of(2024, 1, 31)
       )
 
       val validDatesGen: Gen[LocalDate] = datesBetween(
         min = LocalDate.of(2024, 1, 1),
-        max = LocalDate.of(2024, 3, 31)
+        max = LocalDate.of(2024, 2, 10)
       )
 
       forAll(todayGen, validDatesGen) { (today, validDate) =>
@@ -112,7 +113,8 @@ class MoveDateFormProviderSpec extends DateBehaviours {
 
         val data = formData(validDate)
         val result = form.bind(data)
-        result.errors must not be empty
+        result.value.value mustEqual validDate
+        result.errors mustBe empty
       }
     }
 
