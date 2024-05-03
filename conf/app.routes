@@ -48,3 +48,4 @@ POST       /stopped-using-service-date                   controllers.StoppedUsin
 
 GET        /successful                                   controllers.ApplicationCompleteController.onPageLoad()
 
+GET        /submissionFailure                            controllers.SubmissionFailureController.onPageLoad()
