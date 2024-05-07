@@ -16,28 +16,23 @@
 
 package forms
 
-import date.{Dates, LocalDateOps}
+import date.Dates
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.time.LocalDate
 import javax.inject.Inject
 
 class MoveDateFormProvider @Inject()(dates: Dates) extends Mappings {
 
-  def apply(): Form[LocalDate] =
+  def apply(currentDate: LocalDate, registrationDate: LocalDate): Form[LocalDate] =
     Form(
       "value" -> localDate(
         invalidKey     = "moveDate.error.invalid",
         allRequiredKey = "moveDate.error.required.all",
         twoRequiredKey = "moveDate.error.required.two",
         requiredKey    = "moveDate.error.required"
-      ).verifying(validDate)
+      ).verifying(inDateRange(registrationDate, dates.maxMoveDate, "moveDate.error.invalid.invalidDateRage"))
     )
 
-  private def validDate: Constraint[LocalDate] = Constraint {
-    case date if date > dates.maxMoveDate => Invalid("moveDate.error.invalid.maxDate", dates.formatter.format(dates.maxMoveDate))
-    case _ => Valid
-  }
 }
