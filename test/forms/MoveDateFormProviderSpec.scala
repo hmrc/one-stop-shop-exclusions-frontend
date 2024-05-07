@@ -30,9 +30,11 @@ class MoveDateFormProviderSpec extends DateBehaviours {
   ".value" - {
 
     val dates = new Dates(new TodayImpl(Dates.clock))
-    val form = new MoveDateFormProvider(dates)()
-
+    val commencementDate = LocalDate.parse("2013-12-03")
+    val currentDate = LocalDate.parse("2013-12-01")
     val minDate: LocalDate =  dates.today.date
+
+    val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
 
     val validData: Gen[LocalDate] = datesBetween(
       min = minDate,
@@ -59,7 +61,7 @@ class MoveDateFormProviderSpec extends DateBehaviours {
       forAll(todayGen, validDatesGen) { (today, validDate) =>
         when(mockToday.date).thenReturn(today)
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)()
+        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
 
         val data = formData(validDate)
         val result = form.bind(data)
@@ -84,7 +86,7 @@ class MoveDateFormProviderSpec extends DateBehaviours {
         when(mockToday.date).thenReturn(today)
 
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)()
+        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
 
         val data = formData(validDate)
         val result = form.bind(data)
@@ -109,7 +111,7 @@ class MoveDateFormProviderSpec extends DateBehaviours {
         when(mockToday.date).thenReturn(today)
 
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)()
+        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
 
         val data = formData(validDate)
         val result = form.bind(data)
