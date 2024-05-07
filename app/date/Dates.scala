@@ -33,6 +33,7 @@ class Dates @Inject() (val today: Today) {
 
   val dateHint: String = digitsFormatter.format(today.date)
   val lastDayOfQuarterFormatted: String = formatter.format(lastDayOfQuarter)
+  val firstDayOfNextQuarterFormatted: String = formatter.format(firstDayOfNextQuarter)
 
   def minMoveDate: LocalDate =
     (if (today.date.getDayOfMonth <= MoveDayOfMonthSplit) today.date.minusMonths(1) else today.date)
@@ -77,6 +78,21 @@ class Dates @Inject() (val today: Today) {
     quarter match {
       case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
       case None    => throw new IllegalStateException("No quarter found for the current month")
+    }
+  }
+
+  def firstDayOfNextQuarter: LocalDate = {
+    val currentMonth = today.date.getMonth
+    val currentYear = today.date.getYear
+    val currentQuarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
+
+    currentQuarter match {
+      case Some(q) =>
+        val nextQuarterIndex = (Quarter.values.indexOf(q) + 1) % Quarter.values.size
+        val nextQuarter = Quarter.values(nextQuarterIndex)
+        LocalDate.of(currentYear, nextQuarter.startMonth, 1)
+      case None =>
+        throw new IllegalStateException("No quarter found for the current month")
     }
   }
 

@@ -18,7 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions._
-import date.Dates
+import date.{Dates, LocalDateOps}
 import models.requests.DataRequest
 import pages._
 
@@ -27,6 +27,8 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ApplicationCompleteView
+
+import java.time.LocalDate
 
 class ApplicationCompleteController @Inject()(
                                                cc: AuthenticatedControllerComponents,
@@ -63,13 +65,35 @@ class ApplicationCompleteController @Inject()(
       leaveDate <- request.userAnswers.get(MoveDatePage)
     } yield {
       val maxChangeDate = leaveDate.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
+      val isDateBeforeToday = leaveDate <= LocalDate.now()
+      val isDateBeforeCurrentPeriod = leaveDate <= dates.firstDayOfQuarter
+
+      val nextInfoBullet = if (!isDateBeforeCurrentPeriod) {
+        Some(messages("applicationComplete.next.info.bullet0", country.name, dates.formatter.format(maxChangeDate)))
+      } else {
+        None
+      }
+
+      val leaveMessage = if (!isDateBeforeToday || isDateBeforeCurrentPeriod) {
+        Some(messages("applicationComplete.leave.text", dates.lastDayOfQuarterFormatted))
+      } else {
+        Some(messages("applicationComplete.left.text"))
+      }
+
+      val nextInfoBottom = if (!isDateBeforeCurrentPeriod) {
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(maxChangeDate)))
+      } else {
+        Some(messages("applicationComplete.next.info.bottom.continue", country.name, dates.firstDayOfNextQuarterFormatted))
+      }
 
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
         dates.formatter.format(maxChangeDate),
         Some(messages("applicationComplete.moving.text", country.name)),
-        Some(messages("applicationComplete.next.info.bullet0", country.name, dates.formatter.format(maxChangeDate)))
+        nextInfoBullet,
+        leaveMessage,
+        nextInfoBottom
       ))
     }
   }

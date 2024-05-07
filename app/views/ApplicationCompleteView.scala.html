@@ -19,7 +19,15 @@
     govukButton: GovukButton
 )
 
-@(yourAccountUrl: String, leaveDate: String, cancelDate: String, recap: Option[String] = None, bullet0: Option[String] = None)(implicit request: Request[_], messages: Messages)
+@(
+    yourAccountUrl: String,
+    leaveDate: String,
+    cancelDate: String,
+    recap: Option[String] = None,
+    bullet0: Option[String] = None,
+    isBeforeToday: Option[String] = None,
+    bottomMessage: Option[String] = None
+)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("applicationComplete.title"))) {
 
@@ -29,7 +37,7 @@
 
     <p class="govuk-body">
         @recap.map { text => @text <br/></br/> }
-        @messages("applicationComplete.leave.text", leaveDate)
+        @isBeforeToday.map { text => @text}
     </p>
 
     <h2 class="govuk-heading-m">@messages("applicationComplete.next.heading")</h2>
@@ -44,7 +52,7 @@
     </ul>
 
     <p class="govuk-body">
-        @messages("applicationComplete.next.info.bottom", cancelDate)
+       @bottomMessage.map { text => @text }
     </p>
 
     <p class="govuk-body">

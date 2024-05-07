@@ -58,7 +58,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "25 January 2024"
+          val leaveDate = "27 January 2024"
           val maxMoveDate = "10 February 2024"
 
           contentAsString(result) mustEqual view(
@@ -66,7 +66,10 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             leaveDate,
             maxMoveDate,
             Some(messages(application)("applicationComplete.moving.text", country.name)),
-            Some(messages(application)("applicationComplete.next.info.bullet0", country.name, maxMoveDate))
+            Some(messages(application)("applicationComplete.next.info.bullet0", country.name, maxMoveDate)),
+            Some(messages(application)("applicationComplete.left.text")),
+            Some(messages(application)("applicationComplete.next.info.bottom", maxMoveDate)),
+
           )(request, messages(application)).toString
         }
       }
