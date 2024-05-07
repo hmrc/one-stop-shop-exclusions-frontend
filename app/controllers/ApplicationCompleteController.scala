@@ -108,18 +108,28 @@ class ApplicationCompleteController @Inject()(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
         dates.formatter.format(leaveDate),
-        Some(messages("applicationComplete.stopSellingGoods.text"))
+        Some(messages("applicationComplete.stopSellingGoods.text")),
+        None,
+        Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate)))
+
       ))
     }
   }
 
   private def onStopUsingService()(implicit request: DataRequest[_]): Option[Result] = {
+    val messages: Messages = implicitly[Messages]
+
     request.userAnswers.get(StoppedUsingServiceDatePage).map { stoppedUsingServiceDate =>
       val leaveDate = dates.getLeaveDateWhenStoppedUsingService(stoppedUsingServiceDate)
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
-        dates.formatter.format(leaveDate.minusDays(1))
+        dates.formatter.format(leaveDate.minusDays(1)),
+        None,
+        None,
+        Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate)))
       ))
     }
   }
