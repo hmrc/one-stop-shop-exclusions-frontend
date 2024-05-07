@@ -16,29 +16,25 @@
 
 package forms
 
-import date.{Dates, LocalDateOps}
+import date.Dates
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.time.LocalDate
 import javax.inject.Inject
 
 class StoppedSellingGoodsDateFormProvider @Inject()(dates: Dates) extends Mappings {
 
-  def apply(): Form[LocalDate] =
+  def apply(currentDate: LocalDate, registrationDate: LocalDate): Form[LocalDate] = {
+    val endOfPeriod = dates.lastDayOfQuarter
     Form(
       "value" -> localDate(
         invalidKey     = "stoppedSellingGoodsDate.error.invalid",
         allRequiredKey = "stoppedSellingGoodsDate.error.required.all",
         twoRequiredKey = "stoppedSellingGoodsDate.error.required.two",
         requiredKey    = "stoppedSellingGoodsDate.error.required"
-      ).verifying(validDate)
+      ).verifying(inDateRange(registrationDate, endOfPeriod, "stoppedSellingGoodsDate.error.invalidDateRage"))
     )
-
-  private def validDate: Constraint[LocalDate] = Constraint {
-    case date if date < dates.firstDayOfQuarter => Invalid("stoppedSellingGoodsDate.error.invalid.minDate", dates.formatter.format(dates.firstDayOfQuarter))
-    case date if date > dates.lastDayOfQuarter  => Invalid("stoppedSellingGoodsDate.error.invalid.maxDate", dates.formatter.format(dates.lastDayOfQuarter))
-    case _ => Valid
   }
+
 }

@@ -26,17 +26,17 @@ class StoppedSellingGoodsDateFormProviderSpec extends DateBehaviours {
 
   val mockToday: Today = mock[Today]
   val dates = new Dates(new TodayImpl(Dates.clock))
-  private val form = new StoppedSellingGoodsDateFormProvider(dates)()
 
   ".value" - {
+    val commencementDate = LocalDate.parse("2013-12-03")
+    val currentDate = LocalDate.parse("2013-12-01")
+    val endOfPeriod: LocalDate = dates.lastDayOfQuarter
 
-    val minDate: LocalDate = dates.firstDayOfQuarter
-    val maxDate: LocalDate = dates.lastDayOfQuarter
-
+    val form = new StoppedSellingGoodsDateFormProvider(dates)(currentDate, commencementDate)
 
     val validData = datesBetween(
-      min = minDate,
-      max = maxDate
+      min = commencementDate,
+      max = endOfPeriod
     )
 
     behave like dateField(form, "value", validData)

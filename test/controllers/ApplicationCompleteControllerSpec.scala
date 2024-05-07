@@ -105,7 +105,10 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             config.ossYourAccountUrl,
             leaveDate,
             leaveDate,
-            Some(messages(application)("applicationComplete.stopSellingGoods.text"))
+            Some(messages(application)("applicationComplete.stopSellingGoods.text")),
+            None,
+            Some(messages(application)("applicationComplete.leave.text", leaveDate)),
+            Some(messages(application)("applicationComplete.next.info.bottom", leaveDate))
           )(request, messages(application)).toString
         }
       }
@@ -137,7 +140,15 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           status(result) mustEqual OK
           val leaveDate = "1 February 2024"
           val maxChangeDate = "31 January 2024"
-          contentAsString(result) mustEqual view(config.ossYourAccountUrl, leaveDate, maxChangeDate)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(
+            config.ossYourAccountUrl,
+            leaveDate,
+            maxChangeDate,
+            None,
+            None,
+            Some(messages(application)("applicationComplete.leave.text", leaveDate)),
+            Some(messages(application)("applicationComplete.next.info.bottom", leaveDate))
+          )(request, messages(application)).toString
         }
       }
     }
