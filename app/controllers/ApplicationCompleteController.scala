@@ -64,7 +64,7 @@ class ApplicationCompleteController @Inject()(
       country <- request.userAnswers.get(EuCountryPage)
       leaveDate <- request.userAnswers.get(MoveDatePage)
     } yield {
-      val maxChangeDate = dates.lastDayOfQuarter.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
+      val maxChangeDate = leaveDate.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
       val isDateBeforeToday = leaveDate <= LocalDate.now()
       val isDateBeforeCurrentPeriod = leaveDate <= dates.firstDayOfQuarter
 

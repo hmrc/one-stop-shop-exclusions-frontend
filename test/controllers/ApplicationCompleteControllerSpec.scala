@@ -59,7 +59,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
 
           status(result) mustEqual OK
           val leaveDate = "27 January 2024"
-          val maxMoveDate = "10 April 2024"
+          val maxMoveDate = "10 February 2024"
 
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,
