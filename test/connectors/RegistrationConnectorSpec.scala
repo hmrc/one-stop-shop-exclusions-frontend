@@ -22,7 +22,6 @@ import generators.Generators
 import models.registration.Registration
 import models.responses.UnexpectedResponseStatus
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.Helpers.running
@@ -31,7 +30,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 class RegistrationConnectorSpec
   extends SpecBase
     with WireMockHelper
-    with ScalaCheckPropertyChecks
     with Generators {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
@@ -47,10 +45,8 @@ class RegistrationConnectorSpec
 
     "must return a registration when the server provides one" in {
 
-      val app = application
-
-      running(app) {
-        val connector = app.injector.instanceOf[RegistrationConnector]
+      running(application) {
+        val connector = application.injector.instanceOf[RegistrationConnector]
         val registration = arbitrary[Registration].sample.value
 
         val responseBody = Json.toJson(registration).toString
@@ -73,7 +69,8 @@ class RegistrationConnectorSpec
       running(application) {
         val connector = application.injector.instanceOf[RegistrationConnector]
 
-        server.stubFor(post(urlEqualTo(url)).willReturn(ok()))
+        server.stubFor(post(urlEqualTo(url))
+          .willReturn(ok()))
 
         val result = connector.amend(registrationRequest).futureValue
 
@@ -94,5 +91,4 @@ class RegistrationConnectorSpec
       }
     }
   }
-
 }

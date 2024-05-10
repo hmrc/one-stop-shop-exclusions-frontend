@@ -357,4 +357,34 @@ trait ModelGenerators {
         quarter <- Gen.oneOf(Quarter.values)
       } yield StandardPeriod(year, quarter)
     }
+
+  implicit lazy val arbitraryEtmpCustomerIdentification: Arbitrary[EtmpAmendCustomerIdentification] =
+    Arbitrary {
+      for {
+        vrn <- arbitraryVrn.arbitrary
+      } yield EtmpAmendCustomerIdentification(s"IM9$vrn")
+    }
+
+  implicit lazy val arbitrarySchemeType: Arbitrary[SchemeType] =
+    Arbitrary {
+      Gen.oneOf(SchemeType.values)
+    }
+
+  implicit lazy val arbitraryNonCompliantDetails: Arbitrary[NonCompliantDetails] =
+    Arbitrary {
+      for {
+        nonCompliantReturns <- option(Gen.chooseNum(1, 2))
+        nonCompliantPayments <- option(Gen.chooseNum(1, 2))
+      } yield {
+        NonCompliantDetails(
+          nonCompliantReturns = nonCompliantReturns,
+          nonCompliantPayments = nonCompliantPayments
+        )
+      }
+    }
+
+  implicit lazy val arbitraryDate: Arbitrary[LocalDate] =
+    Arbitrary {
+      datesBetween(LocalDate.of(2021, 7, 1), LocalDate.of(2023, 12, 31))
+    }
 }

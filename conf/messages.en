@@ -147,3 +147,12 @@ submissionFailure.heading = We have not received your request to leave
 submissionFailure.tryAgainLater = Please try again later.
 submissionFailure.contactUs = If the problem continues, you can email us at <a class="govuk-link" href="mailto:vatoss.contact@hmrc.gov.uk">vatoss.contact@hmrc.gov.uk</a>
 submissionFailure.next.info.returnToAccount = Back to your account
+
+cancelLeaveSchemeRequest.title = Do you want to cancel your request to leave the One Stop Shop scheme?
+cancelLeaveSchemeRequest.heading = Do you want to cancel your request to leave the One Stop Shop scheme?
+cancelLeaveSchemeRequest.error.required = Select yes if you want to cancel your request to leave the One Stop Shop scheme
+
+cancelLeaveSchemeAcknowledgement.title = You have cancelled your request to leave
+cancelLeaveSchemeAcknowledgement.heading = You have cancelled your request to leave
+cancelLeaveSchemeAcknowledgement.p1 = You can continue using this service.
+cancelLeaveSchemeAcknowledgement.returnToAccount = Return to your account
