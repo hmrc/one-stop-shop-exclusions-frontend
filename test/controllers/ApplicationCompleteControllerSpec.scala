@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import date.Today
 import org.mockito.MockitoSugar.when
-import pages.{EuCountryPage, MoveCountryPage, MoveDatePage, StopSellingGoodsPage, StoppedSellingGoodsDatePage, StoppedUsingServiceDatePage}
+import pages._
 import play.api.test.FakeRequest
 import play.api.inject.bind
 import play.api.test.Helpers._
@@ -59,7 +59,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
 
           status(result) mustEqual OK
           val leaveDate = "27 January 2024"
-          val maxMoveDate = "10 February 2024"
+          val maxMoveDate = "10 April 2024"
 
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,
@@ -76,7 +76,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
     }
 
     "when someone stops selling goods" - {
-      "must return OK with the leave date being end of the month (31st Jan) " in {
+      "must return OK with the leave date being end of the period (1st April) " in {
 
         val stoppedSellingGoodsDate = LocalDate.of(2024, 1, 16)
 
@@ -99,7 +99,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "31 March 2024"
+          val leaveDate = "1 April 2024"
 
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,
@@ -115,7 +115,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
     }
 
     "when someone stops using the service" - {
-      "must return OK with the leave date being 1st day of next month (1st Feb) " in {
+      "must return OK with the leave date being 1st day of next period (1st April) " in {
 
         val stoppedUsingServiceDate = LocalDate.of(2024, 1, 16)
 
@@ -138,7 +138,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           val config = application.injector.instanceOf[FrontendAppConfig]
 
           status(result) mustEqual OK
-          val leaveDate = "1 February 2024"
+          val leaveDate = "1 April 2024"
           val maxChangeDate = "31 January 2024"
           contentAsString(result) mustEqual view(
             config.ossYourAccountUrl,

@@ -16,10 +16,16 @@
 
 package forms
 
+import date.{Dates, Today, TodayImpl}
+
 import java.time.LocalDate
 import forms.behaviours.DateBehaviours
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 class StoppedUsingServiceDateFormProviderSpec extends DateBehaviours {
+
+  val mockToday: Today = mock[Today]
+  val dates = new Dates(new TodayImpl(Dates.clock))
 
   ".value" - {
 
@@ -27,7 +33,7 @@ class StoppedUsingServiceDateFormProviderSpec extends DateBehaviours {
     val currentDate = LocalDate.parse("2013-12-01")
     val endOfPeriod = LocalDate.parse("2013-12-31")
 
-    val form = new StoppedUsingServiceDateFormProvider()(currentDate, commencementDate)
+    val form = new StoppedUsingServiceDateFormProvider(dates)(currentDate, commencementDate)
 
     val validData = datesBetween(
       min = commencementDate,

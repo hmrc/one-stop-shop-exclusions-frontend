@@ -20,7 +20,6 @@ import models.Quarter
 
 import java.time.{Clock, LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters.{firstDayOfNextMonth, lastDayOfMonth}
 import javax.inject.Inject
 
 class Dates @Inject() (val today: Today) {
@@ -40,27 +39,21 @@ class Dates @Inject() (val today: Today) {
       .withDayOfMonth(1)
 
   def maxMoveDate: LocalDate =
-    lastDayOfQuarter.withDayOfMonth(MoveDayOfMonthSplit)
+    today.date.plusMonths(1).withDayOfMonth(MoveDayOfMonthSplit)
 
   def getLeaveDateWhenStoppedUsingService(exclusionDate: LocalDate): LocalDate = {
-    val lastDayOfTheMonth = today.date.`with`(lastDayOfMonth())
-    val firstDayOfTheNextMonth = today.date.`with`(firstDayOfNextMonth())
+    val lastDayOfTheQuarter = today.date.`with`(lastDayOfQuarter)
+    val firstDayOfTheNextQuarter = today.date.`with`(firstDayOfNextQuarter)
 
-    if (exclusionDate <= lastDayOfTheMonth.minusDays(StopDayOfMonthSplit)) {
-      firstDayOfTheNextMonth
+    if (today.date <= lastDayOfTheQuarter.minusDays(StopDayOfMonthSplit)) {
+      firstDayOfTheNextQuarter
     } else {
-      firstDayOfTheNextMonth.plusMonths(1)
+      firstDayOfTheNextQuarter.plusMonths(3)
     }
-
   }
 
-  def getLeaveDateWhenStoppedSellingGoods(leaveDate: LocalDate): LocalDate = {
-    val leaveMonth = leaveDate.getMonth
-    val quarter = Quarter.values.find(q => leaveMonth.compareTo(q.startMonth) >= 0 && leaveMonth.compareTo(q.endMonth) <= 0)
-    quarter match {
-      case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
-      case None    => throw new IllegalStateException("No quarter found for the current month")
-    }
+  def getLeaveDateWhenStoppedSellingGoods: LocalDate = {
+    today.date.`with`(firstDayOfNextQuarter)
   }
 
   def firstDayOfQuarter: LocalDate = {

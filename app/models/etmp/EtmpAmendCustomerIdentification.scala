@@ -17,8 +17,9 @@
 package models.etmp
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.domain.Vrn
 
-case class EtmpAmendCustomerIdentification(iossNumber: String)
+case class EtmpAmendCustomerIdentification(vrn: Vrn)
 
 object EtmpAmendCustomerIdentification {
 

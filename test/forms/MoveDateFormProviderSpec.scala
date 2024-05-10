@@ -16,12 +16,14 @@
 
 package forms
 
-import date.{Dates, Today, TodayImpl}
+import date.{Dates, LocalDateOps, Today, TodayImpl}
+
 import java.time.LocalDate
 import forms.behaviours.DateBehaviours
 import org.mockito.MockitoSugar.when
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.data.FormError
 
 class MoveDateFormProviderSpec extends DateBehaviours {
 
@@ -30,11 +32,9 @@ class MoveDateFormProviderSpec extends DateBehaviours {
   ".value" - {
 
     val dates = new Dates(new TodayImpl(Dates.clock))
-    val commencementDate = LocalDate.parse("2013-12-03")
-    val currentDate = LocalDate.parse("2013-12-01")
     val minDate: LocalDate =  dates.today.date
 
-    val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
+    val form = new MoveDateFormProvider(dates)()
 
     val validData: Gen[LocalDate] = datesBetween(
       min = minDate,
@@ -61,7 +61,7 @@ class MoveDateFormProviderSpec extends DateBehaviours {
       forAll(todayGen, validDatesGen) { (today, validDate) =>
         when(mockToday.date).thenReturn(today)
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
+        val form = new MoveDateFormProvider(dates)()
 
         val data = formData(validDate)
         val result = form.bind(data)
@@ -71,26 +71,39 @@ class MoveDateFormProviderSpec extends DateBehaviours {
     }
 
     "fail to bind date if today is the 10th of the month or earlier AND the form's date is out of range" in {
+      val validMinDate: LocalDate = LocalDate.of(2023, 11, 1)
+      val validMaxDate: LocalDate = LocalDate.of(2024, 1, 10)
 
       val todayGen: Gen[LocalDate] = datesBetween(
         min = LocalDate.of(2023, 12, 1),
         max = LocalDate.of(2023, 12, 10)
       )
 
-      val validDatesGen: Gen[LocalDate] = datesBetween(
-        min = LocalDate.of(2024, 1, 1),
-        max = LocalDate.of(2024, 3, 31)
+      val invalidEarlyDatesGen: Gen[LocalDate] = datesBetween(
+        min = LocalDate.of(2020, 1, 1),
+        max = validMinDate.minusDays(1)
       )
 
-      forAll(todayGen, validDatesGen) { (today, validDate) =>
+      val invalidLateDatesGen: Gen[LocalDate] = datesBetween(
+        min = validMaxDate.plusDays(1),
+        max = LocalDate.of(2027, 1, 1)
+      )
+
+      val invalidDatesGen: Gen[LocalDate] = Gen.oneOf(invalidEarlyDatesGen, invalidLateDatesGen)
+
+      forAll(todayGen, invalidDatesGen) { (today, invalidDate) =>
         when(mockToday.date).thenReturn(today)
-
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
+        val form = new MoveDateFormProvider(dates)()
 
-        val data = formData(validDate)
+        val data = formData(invalidDate)
         val result = form.bind(data)
-        result.errors must not be empty
+        val formError = if (invalidDate < today) {
+          FormError("value", "moveDate.error.invalid.minDate", Seq(dates.formatter.format(validMinDate)))
+        } else {
+          FormError("value", "moveDate.error.invalid.maxDate", Seq(dates.formatter.format(validMaxDate)))
+        }
+        result.errors must contain only formError
       }
     }
 
@@ -111,7 +124,7 @@ class MoveDateFormProviderSpec extends DateBehaviours {
         when(mockToday.date).thenReturn(today)
 
         val dates = new Dates(mockToday)
-        val form = new MoveDateFormProvider(dates)(currentDate, commencementDate)
+        val form = new MoveDateFormProvider(dates)()
 
         val data = formData(validDate)
         val result = form.bind(data)

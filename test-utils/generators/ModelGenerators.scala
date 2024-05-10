@@ -437,7 +437,7 @@ trait ModelGenerators {
     Arbitrary {
       for {
         vrn <- arbitraryVrn.arbitrary
-      } yield EtmpAmendCustomerIdentification(s"IM9$vrn")
+      } yield EtmpAmendCustomerIdentification(vrn)
     }
 
   implicit lazy val arbitrarySchemeType: Arbitrary[SchemeType] =

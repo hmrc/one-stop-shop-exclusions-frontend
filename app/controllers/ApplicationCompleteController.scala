@@ -64,7 +64,7 @@ class ApplicationCompleteController @Inject()(
       country <- request.userAnswers.get(EuCountryPage)
       leaveDate <- request.userAnswers.get(MoveDatePage)
     } yield {
-      val maxChangeDate = leaveDate.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
+      val maxChangeDate = dates.lastDayOfQuarter.plusMonths(1).withDayOfMonth(dates.MoveDayOfMonthSplit)
       val isDateBeforeToday = leaveDate <= LocalDate.now()
       val isDateBeforeCurrentPeriod = leaveDate <= dates.firstDayOfQuarter
 
@@ -102,8 +102,8 @@ class ApplicationCompleteController @Inject()(
   private def onStopSellingGoods()(implicit request: DataRequest[_]): Option[Result] = {
     val messages: Messages = implicitly[Messages]
 
-    request.userAnswers.get(StoppedSellingGoodsDatePage).map { stoppedSellingGoodsDate =>
-      val leaveDate = dates.getLeaveDateWhenStoppedSellingGoods(stoppedSellingGoodsDate)
+    request.userAnswers.get(StoppedSellingGoodsDatePage).map { _ =>
+      val leaveDate = dates.getLeaveDateWhenStoppedSellingGoods
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
