@@ -75,7 +75,7 @@ class ApplicationCompleteController @Inject()(
       }
 
       val leaveMessage = if (!isDateBeforeToday || isDateBeforeCurrentPeriod) {
-        Some(messages("applicationComplete.leave.text", dates.lastDayOfQuarterFormatted))
+        Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate)))
       } else {
         Some(messages("applicationComplete.left.text"))
       }
