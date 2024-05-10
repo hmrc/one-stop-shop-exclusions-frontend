@@ -42,8 +42,7 @@ class MoveDateController @Inject()(
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData {
     implicit request =>
 
-      val commencementDate = request.registration.commencementDate
-      val form = formProvider(dates.today.date, commencementDate)
+      val form = formProvider()
 
       val preparedForm = request.userAnswers.get(MoveDatePage) match {
         case None => form
@@ -64,8 +63,7 @@ class MoveDateController @Inject()(
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
     implicit request =>
 
-      val commencementDate = request.registration.commencementDate
-      val form = formProvider(dates.today.date, commencementDate)
+      val form = formProvider()
 
       form.bindFromRequest().fold(
         formWithErrors =>

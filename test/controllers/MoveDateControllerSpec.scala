@@ -35,8 +35,7 @@ class MoveDateControllerSpec extends SpecBase {
 
   private val formProvider = new MoveDateFormProvider(dates)
 
-  private def form(currentDate: LocalDate = LocalDate.now(), registrationDate: LocalDate = LocalDate.now()): Form[LocalDate] =
-    formProvider.apply(currentDate, registrationDate)
+  private val form: Form[LocalDate] = formProvider()
 
   private val validAnswer = LocalDate.now(Dates.clock)
 
@@ -72,7 +71,7 @@ class MoveDateControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          form(),
+          form,
           emptyWaypoints,
           country,
           dates.formatter.format(dates.maxMoveDate),
@@ -96,7 +95,7 @@ class MoveDateControllerSpec extends SpecBase {
         status(result) mustEqual OK
 
         contentAsString(result) mustEqual view(
-          form().fill(validAnswer),
+          form.fill(validAnswer),
           emptyWaypoints,
           country,
           dates.formatter.format(dates.maxMoveDate),
@@ -126,7 +125,7 @@ class MoveDateControllerSpec extends SpecBase {
       val request = FakeRequest(POST, moveDateRoute).withFormUrlEncodedBody(("value", "invalid value"))
 
       running(application) {
-        val boundForm = form().bind(Map("value" -> "invalid value"))
+        val boundForm = form.bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[MoveDateView]
 
