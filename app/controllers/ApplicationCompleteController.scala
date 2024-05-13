@@ -74,10 +74,10 @@ class ApplicationCompleteController @Inject()(
         None
       }
 
-      val leaveMessage = if (!isDateBeforeToday || isDateBeforeCurrentPeriod) {
-        Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate)))
-      } else {
-        Some(messages("applicationComplete.left.text"))
+      val leaveMessage = (isDateBeforeToday, isDateBeforeCurrentPeriod) match {
+        case (true, true) => Some(messages("applicationComplete.leave.text", dates.lastDayOfQuarterFormatted))
+        case (true, false) => Some(messages("applicationComplete.left.text"))
+        case _ => Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate)))
       }
 
       val nextInfoBottom = if (!isDateBeforeCurrentPeriod) {
@@ -107,11 +107,11 @@ class ApplicationCompleteController @Inject()(
       Ok(view(
         config.ossYourAccountUrl,
         dates.formatter.format(leaveDate),
-        dates.formatter.format(leaveDate),
+        dates.formatter.format(leaveDate.minusDays(1)),
         Some(messages("applicationComplete.stopSellingGoods.text")),
         None,
         Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
-        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate)))
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1))))
 
       ))
     }
@@ -129,7 +129,7 @@ class ApplicationCompleteController @Inject()(
         None,
         None,
         Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
-        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate)))
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1))))
       ))
     }
   }
