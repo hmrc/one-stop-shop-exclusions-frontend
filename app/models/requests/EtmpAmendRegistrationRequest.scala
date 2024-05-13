@@ -16,6 +16,7 @@
 
 package models.requests
 
+import models.BankDetails
 import models.etmp._
 import play.api.libs.json.{Json, OFormat}
 
