@@ -18,7 +18,7 @@ package generators
 
 import models.etmp.{NonCompliantDetails, _}
 import models.registration._
-import models.{etmp, _}
+import models._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.option
 import org.scalacheck.{Arbitrary, Gen}
@@ -227,7 +227,7 @@ trait ModelGenerators {
         accountName <- arbitrary[String]
         bic <- Gen.option(arbitrary[Bic])
         iban <- arbitrary[Iban]
-      } yield etmp.BankDetails(accountName, bic, iban)
+      } yield models.BankDetails(accountName, bic, iban)
     }
 
   implicit lazy val arbitraryAdminUse: Arbitrary[AdminUse] =

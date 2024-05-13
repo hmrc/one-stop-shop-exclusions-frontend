@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package models.etmp
+package models
 
-import models.{Bic, Iban}
 import play.api.libs.json._
 
 case class BankDetails (accountName: String, bic: Option[Bic], iban: Iban)
