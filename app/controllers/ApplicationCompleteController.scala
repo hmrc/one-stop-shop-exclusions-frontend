@@ -75,7 +75,7 @@ class ApplicationCompleteController @Inject()(
       }
 
       val leaveMessage = (isDateBeforeToday, isDateBeforeCurrentPeriod) match {
-        case (true, true) => Some(messages("applicationComplete.leave.text", dates.lastDayOfQuarterFormatted))
+        case (true, true) => Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate)))
         case (true, false) => Some(messages("applicationComplete.left.text"))
         case _ => Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate)))
       }
@@ -83,7 +83,7 @@ class ApplicationCompleteController @Inject()(
       val nextInfoBottom = if (!isDateBeforeCurrentPeriod) {
         Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(maxChangeDate)))
       } else {
-        Some(messages("applicationComplete.next.info.bottom.continue", country.name, dates.firstDayOfNextQuarterFormatted))
+        Some(messages("applicationComplete.next.info.bottom.continue", country.name, dates.formatter.format(maxChangeDate)))
       }
 
       Ok(view(
