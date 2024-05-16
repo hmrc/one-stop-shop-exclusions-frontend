@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package models.etmp
+package models
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDateTime
+case class Website(websiteAddress: String)
 
-case class AdminUse(changeDate: Option[LocalDateTime])
+object Website {
 
-object AdminUse {
-
-  implicit val format: OFormat[AdminUse] = Json.format[AdminUse]
+  implicit val format: OFormat[Website] = Json.format[Website]
 }

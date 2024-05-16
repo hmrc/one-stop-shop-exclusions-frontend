@@ -16,13 +16,11 @@
 
 package generators
 
-import models.etmp.{NonCompliantDetails, _}
 import models.registration._
 import models._
-import models.exclusions.{EtmpExclusion, EtmpExclusionReason, ExcludedTrader}
+import models.exclusions.ExcludedTrader
 import models.requests.RegistrationRequest
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen.option
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.domain.Vrn
 
@@ -274,133 +272,6 @@ trait ModelGenerators {
       Gen.listOfN(9, Gen.numChar).map(_.mkString).map(Vrn)
     }
 
-  implicit val arbitraryEtmpTradingNames: Arbitrary[EtmpTradingNames] = {
-    Arbitrary {
-      for {
-        tradingName <- arbitrary[String]
-      } yield EtmpTradingNames(tradingName)
-    }
-  }
-
-  implicit lazy val arbitraryEtmpExclusion: Arbitrary[EtmpExclusion] = {
-    Arbitrary {
-      for {
-        exclusionReason <- Gen.oneOf[EtmpExclusionReason](EtmpExclusionReason.values)
-        effectiveDate <- arbitrary[Int].map(n => LocalDate.ofEpochDay(n))
-        decisionDate <- arbitrary[Int].map(n => LocalDate.ofEpochDay(n))
-        quarantine <- arbitrary[Boolean]
-      } yield EtmpExclusion(
-        exclusionReason,
-        effectiveDate,
-        decisionDate,
-        quarantine
-      )
-    }
-  }
-
-  implicit val arbitraryDisplayEtmpEuRegistrationDetails: Arbitrary[EtmpDisplayEuRegistrationDetails] = {
-    Arbitrary {
-      for {
-        countryOfRegistration <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString.toUpperCase)
-        traderId <- arbitrary[String]
-        tradingName <- arbitrary[String]
-        fixedEstablishmentAddressLine1 <- arbitrary[String]
-        fixedEstablishmentAddressLine2 <- Gen.option(arbitrary[String])
-        townOrCity <- arbitrary[String]
-        regionOrState <- Gen.option(arbitrary[String])
-        postcode <- Gen.option(arbitrary[String])
-      } yield {
-        EtmpDisplayEuRegistrationDetails(
-          countryOfRegistration,
-          Some(traderId),
-          None,
-          tradingName,
-          fixedEstablishmentAddressLine1,
-          fixedEstablishmentAddressLine2,
-          townOrCity,
-          regionOrState,
-          postcode
-        )
-      }
-    }
-  }
-
-  implicit val arbitraryEtmpEuRegistrationDetails: Arbitrary[EtmpEuRegistrationDetails] = {
-    Arbitrary {
-      for {
-        countryOfRegistration <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString.toUpperCase)
-        vatNumber <- Gen.option(arbitraryVrn.arbitrary.toString)
-        taxIdentificationNumber <- Gen.option(arbitrary[String])
-        fixedEstablishment <- Gen.option(arbitrary[Boolean])
-        tradingName <- Gen.option(arbitrary[String])
-        fixedEstablishmentAddressLine1 <- Gen.option(arbitrary[String])
-        fixedEstablishmentAddressLine2 <- Gen.option(arbitrary[String])
-        townOrCity <- Gen.option(arbitrary[String])
-        regionOrState <- Gen.option(arbitrary[String])
-        postcode <- Gen.option(arbitrary[String])
-      } yield {
-        EtmpEuRegistrationDetails(
-          countryOfRegistration = countryOfRegistration,
-          vatNumber = vatNumber,
-          taxIdentificationNumber = taxIdentificationNumber,
-          fixedEstablishment = fixedEstablishment,
-          tradingName = tradingName,
-          fixedEstablishmentAddressLine1 = fixedEstablishmentAddressLine1,
-          fixedEstablishmentAddressLine2 = fixedEstablishmentAddressLine2,
-          townOrCity = townOrCity,
-          regionOrState = regionOrState,
-          postcode = postcode
-        )
-      }
-    }
-  }
-
-  implicit val arbitraryEtmpPreviousEURegistrationDetails: Arbitrary[EtmpPreviousEuRegistrationDetails] = {
-    Arbitrary {
-      for {
-        issuedBy <- arbitrary[String]
-        registrationNumber <- arbitrary[String]
-        schemeType <- Gen.oneOf(SchemeType.values)
-        intermediaryNumber <- Gen.option(arbitrary[String])
-      } yield EtmpPreviousEuRegistrationDetails(issuedBy, registrationNumber, schemeType, intermediaryNumber)
-    }
-  }
-
-  implicit val arbitraryWebsite: Arbitrary[Website] = {
-    Arbitrary {
-      for {
-        websiteAddress <- arbitrary[String]
-      } yield Website(websiteAddress)
-    }
-  }
-
-  implicit val arbitraryEtmpSchemeDetails: Arbitrary[EtmpSchemeDetails] = {
-    Arbitrary {
-      for {
-        commencementDate <- arbitrary[LocalDate]
-        euRegistrationDetails <- Gen.listOfN(5, arbitraryEtmpEuRegistrationDetails.arbitrary)
-        previousEURegistrationDetails <- Gen.listOfN(5, arbitraryEtmpPreviousEURegistrationDetails.arbitrary)
-        websites <- Gen.listOfN(10, arbitraryWebsite.arbitrary)
-        contactName <- arbitrary[String]
-        businessTelephoneNumber <- arbitrary[String]
-        businessEmailId <- arbitrary[String]
-        nonCompliantReturns <- Gen.option(arbitrary[Int].toString)
-        nonCompliantPayments <- Gen.option(arbitrary[Int].toString)
-      } yield
-        EtmpSchemeDetails(
-          commencementDate,
-          euRegistrationDetails,
-          previousEURegistrationDetails,
-          websites,
-          contactName,
-          businessTelephoneNumber,
-          businessEmailId,
-          nonCompliantReturns,
-          nonCompliantPayments
-        )
-    }
-  }
-
   def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
 
     def toMillis(date: LocalDate): Long =
@@ -485,30 +356,5 @@ trait ModelGenerators {
         year <- Gen.choose(2022, 2099)
         quarter <- Gen.oneOf(Quarter.values)
       } yield StandardPeriod(year, quarter)
-    }
-
-  implicit lazy val arbitraryEtmpCustomerIdentification: Arbitrary[EtmpAmendCustomerIdentification] =
-    Arbitrary {
-      for {
-        vrn <- arbitraryVrn.arbitrary
-      } yield EtmpAmendCustomerIdentification(vrn)
-    }
-
-  implicit lazy val arbitrarySchemeType: Arbitrary[SchemeType] =
-    Arbitrary {
-      Gen.oneOf(SchemeType.values)
-    }
-
-  implicit lazy val arbitraryNonCompliantDetails: Arbitrary[NonCompliantDetails] =
-    Arbitrary {
-      for {
-        nonCompliantReturns <- option(Gen.chooseNum(1, 2))
-        nonCompliantPayments <- option(Gen.chooseNum(1, 2))
-      } yield {
-        NonCompliantDetails(
-          nonCompliantReturns = nonCompliantReturns,
-          nonCompliantPayments = nonCompliantPayments
-        )
-      }
     }
 }

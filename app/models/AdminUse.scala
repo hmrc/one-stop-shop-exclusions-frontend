@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models.etmp
+package models
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OFormat}
 
-case class NonCompliantDetails(
-                                nonCompliantReturns: Option[Int],
-                                nonCompliantPayments: Option[Int]
-                              )
+import java.time.LocalDateTime
 
-object NonCompliantDetails {
+case class AdminUse(changeDate: Option[LocalDateTime])
 
-  implicit val format: OFormat[NonCompliantDetails] = Json.format[NonCompliantDetails]
+object AdminUse {
+
+  implicit val format: OFormat[AdminUse] = Json.format[AdminUse]
 }

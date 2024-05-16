@@ -18,7 +18,6 @@ package services
 
 import base.SpecBase
 import connectors.RegistrationConnector
-import data.RegistrationData
 import models.audit.ExclusionAuditType
 import models.exclusions.EtmpExclusionReason
 import org.mockito.ArgumentMatchers.any
@@ -35,7 +34,7 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach with RegistrationData {
+class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 

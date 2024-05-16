@@ -16,9 +16,8 @@
 
 package models.registration
 
-import models.etmp.AdminUse
 import models.exclusions.ExcludedTrader
-import models.{BankDetails, NiPresence, PreviousRegistration}
+import models.{AdminUse, BankDetails, NiPresence, PreviousRegistration}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Vrn
 
