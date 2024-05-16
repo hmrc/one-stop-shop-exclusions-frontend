@@ -18,6 +18,7 @@ package data
 
 import base.SpecBase
 import models.etmp._
+import models.exclusions.EtmpExclusion
 import models.{BankDetails, Bic, Country, Iban}
 import models.requests.EtmpAmendRegistrationRequest
 import org.scalacheck.Arbitrary.arbitrary
