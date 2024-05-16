@@ -42,11 +42,9 @@ class CancelLeaveSchemeRequestController @Inject()(
   protected val controllerComponents: MessagesControllerComponents = cc
   val form: Form[Boolean] = formProvider()
 
-  // TODO -> Remove authAndGetOptionalData and replace with either authAndGetData or new filter
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalData {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader {
     implicit request =>
 
-      // TODO -> Remove getOrElse
       val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(CancelLeaveSchemeRequestPage) match {
         case None => form
         case Some(value) => form.fill(value)
@@ -55,8 +53,7 @@ class CancelLeaveSchemeRequestController @Inject()(
       Ok(view(preparedForm, waypoints))
   }
 
-  // TODO -> Remove authAndGetOptionalData and replace with either authAndGetData or new filter
-  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalData.async {
+  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader.async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -64,7 +61,6 @@ class CancelLeaveSchemeRequestController @Inject()(
           BadRequest(view(formWithErrors, waypoints)).toFuture,
 
         value => {
-          // TODO -> Remove getOrElse and use request
           val originalAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
           for {
             updatedAnswers <- Future.fromTry(originalAnswers.set(CancelLeaveSchemeRequestPage, value))

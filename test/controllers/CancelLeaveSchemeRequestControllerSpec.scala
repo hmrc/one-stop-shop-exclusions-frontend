@@ -18,7 +18,10 @@ package controllers
 
 import base.SpecBase
 import forms.CancelLeaveSchemeRequestFormProvider
-import models.UserAnswers
+import models.exclusions.{ExcludedTrader, ExclusionReason}
+import models.registration.Registration
+import models.requests.OptionalDataRequest
+import models.{Period, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -31,28 +34,85 @@ import repositories.SessionRepository
 import utils.FutureSyntax.FutureOps
 import views.html.CancelLeaveSchemeRequestView
 
+import java.time.{Clock, LocalDate, ZoneId}
+
 class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new CancelLeaveSchemeRequestFormProvider()
   private val form: Form[Boolean] = formProvider()
+  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
+
+  private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+  )
 
   private lazy val cancelLeaveSchemeRequestRoute: String = routes.CancelLeaveSchemeRequestController.onPageLoad(emptyWaypoints).url
 
   "CancelLeaveSchemeRequest Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "when trader is excluded with code 5 and today is before the exclusion effective date" - {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct view for a GET" in {
 
-      running(application) {
-        val request = FakeRequest(GET, cancelLeaveSchemeRequestRoute)
+        val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+        val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
 
-        val result = route(application, request).value
+        val application = applicationBuilder(
+          userAnswers = Some(emptyUserAnswers),
+          maybeRegistration = Some(excludedRegistrationCode5)
+        ).build()
 
-        val view = application.injector.instanceOf[CancelLeaveSchemeRequestView]
+        running(application) {
 
-        status(result) mustBe OK
-        contentAsString(result) mustBe view(form, emptyWaypoints)(request, messages(application)).toString
+          val request = OptionalDataRequest(
+            FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+            userAnswersId,
+            vrn,
+            excludedRegistrationCode5,
+            Some(emptyUserAnswers)
+          )
+
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[CancelLeaveSchemeRequestView]
+
+          status(result) mustBe OK
+          contentAsString(result) mustBe view(form, emptyWaypoints)(request, messages(application)).toString
+        }
+      }
+    }
+
+    "when trader is excluded with code 6 and today is before the tenth day of the following month of the exclusion effective date" - {
+
+      "must return OK and the correct view for a GET " in {
+
+        val today: LocalDate = LocalDate.of(2024, 5, 10)
+        val clock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+
+        val effectiveDate: LocalDate = today.minusMonths(1)
+        val excludedRegistrationCode6 = excludedRegistration(ExclusionReason.TransferringMSID, effectiveDate)
+
+        val application = applicationBuilder(
+          clock = Some(clock),
+          userAnswers = Some(emptyUserAnswers),
+          maybeRegistration = Some(excludedRegistrationCode6)
+        ).build()
+
+        running(application) {
+
+          val request = OptionalDataRequest(
+            FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+            userAnswersId,
+            vrn,
+            excludedRegistrationCode6,
+            Some(emptyUserAnswers)
+          )
+
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[CancelLeaveSchemeRequestView]
+
+          status(result) mustBe OK
+          contentAsString(result) mustBe view(form, emptyWaypoints)(request, messages(application)).toString
+        }
       }
     }
 
@@ -60,10 +120,23 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
       val userAnswers = UserAnswers(userAnswersId).set(CancelLeaveSchemeRequestPage, true).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(userAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).build()
 
       running(application) {
-        val request = FakeRequest(GET, cancelLeaveSchemeRequestRoute)
+
+        val request = OptionalDataRequest(
+          FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(userAnswers)
+        )
 
         val view = application.injector.instanceOf[CancelLeaveSchemeRequestView]
 
@@ -74,23 +147,30 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must save the answer and redirect to the next page when valid data is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn true.toFuture
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, cancelLeaveSchemeRequestRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+
+        val request = OptionalDataRequest(
+          FakeRequest(POST, cancelLeaveSchemeRequestRoute).withFormUrlEncodedBody(("value", "true")),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(emptyUserAnswers)
+        )
 
         val result = route(application, request).value
         val expectedAnswers = emptyUserAnswers.set(CancelLeaveSchemeRequestPage, true).success.value
@@ -103,12 +183,23 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, cancelLeaveSchemeRequestRoute)
-            .withFormUrlEncodedBody(("value", ""))
+
+        val request = OptionalDataRequest(
+          FakeRequest(POST, cancelLeaveSchemeRequestRoute),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(emptyUserAnswers)
+        )
 
         val boundForm = form.bind(Map("value" -> ""))
 

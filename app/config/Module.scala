@@ -31,6 +31,7 @@ class Module extends AbstractModule {
 
     // For session based storage instead of cred based, change to SessionIdentifierAction
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
+    bind(classOf[CheckCancelRequestToLeaveFilter]).to(classOf[CheckCancelRequestToLeaveFilterImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Dates.clock)
     bind(classOf[AuthenticatedControllerComponents]).to(classOf[DefaultAuthenticatedControllerComponents]).asEagerSingleton()

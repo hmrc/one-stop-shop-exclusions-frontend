@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-package models.exclusions
+package config
 
-import logging.Logging
-import models.Period
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.domain.Vrn
-
-import java.time.LocalDate
-
-case class ExcludedTrader(
-                           vrn: Vrn,
-                           exclusionReason: ExclusionReason, // TODO -> Make this change in reg BE and returns FE
-                           effectivePeriod: Period,
-                           effectiveDate: LocalDate
-                         )
+object Constants {
 
 
-object ExcludedTrader extends Logging {
-
-  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
+  val exclusionCodeSixFollowingMonth: Int = 1
+  val exclusionCodeSixTenthOfMonth: Int = 10
 }
-
-
