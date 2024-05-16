@@ -19,10 +19,14 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.AuthenticatedControllerComponents
 import date.Dates
+import logging.Logging
 import models.CheckMode
+import models.audit.ExclusionAuditType
+import models.exclusions.EtmpExclusionReason
 import pages.{CheckYourAnswersPage, EmptyWaypoints, Waypoint, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CompletionChecks
 import utils.FutureSyntax.FutureOps
@@ -30,12 +34,16 @@ import viewmodels.checkAnswers.{EuCountrySummary, EuVatNumberSummary, MoveDateSu
 import viewmodels.govuk.summarylist._
 import views.html.CheckYourAnswersView
 
+import scala.concurrent.ExecutionContext
+
 
 class CheckYourAnswersController @Inject()(
                                             cc: AuthenticatedControllerComponents,
                                             dates: Dates,
-                                            view: CheckYourAnswersView
-                                          ) extends FrontendBaseController with I18nSupport with CompletionChecks {
+                                            view: CheckYourAnswersView,
+                                            registrationService: RegistrationService
+                                          )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with CompletionChecks with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
@@ -73,7 +81,20 @@ class CheckYourAnswersController @Inject()(
         }
 
         case None =>
-          Redirect(CheckYourAnswersPage.navigate(waypoints, request.userAnswers, request.userAnswers).route).toFuture
+          registrationService.amendRegistrationAndAudit(
+            request.userId,
+            request.vrn,
+            request.userAnswers,
+            request.registration,
+            Some(EtmpExclusionReason.TransferringMSID),
+            ExclusionAuditType.ExclusionRequestSubmitted
+          ).map {
+            case Right(_) =>
+              Redirect(CheckYourAnswersPage.navigate(waypoints, request.userAnswers, request.userAnswers).route)
+            case Left(e) =>
+              logger.error(s"Failure to submit self exclusion ${e.body}")
+              Redirect(routes.SubmissionFailureController.onPageLoad())
+          }
       }
   }
 }

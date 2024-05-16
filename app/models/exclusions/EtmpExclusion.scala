@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.etmp
+package models.exclusions
 
 import models.{Enumerable, WithName}
 import play.api.libs.json.{Json, OFormat}

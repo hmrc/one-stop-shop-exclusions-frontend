@@ -17,33 +17,65 @@
 package models.exclusions
 
 import logging.Logging
-import models.Period
+import models.exclusions.EtmpExclusionReason._
+import models.{Period, Quarter, StandardPeriod}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Vrn
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import scala.util.{Failure, Success}
 
 case class ExcludedTrader(
                            vrn: Vrn,
                            exclusionReason: Int,
                            effectivePeriod: Period,
                            effectiveDate: Option[LocalDate]
-                         ){
-  val exclusionSource: String = derriveExclusionSource(exclusionReason)
-
-  private def derriveExclusionSource(code: Int) = {
-    code match {
-      case x if x == 2 || x == 4 => "HMRC"
-      case _ => "TRADER"
-    }
-  }
-}
+                         )
 
 
 object ExcludedTrader extends Logging {
 
-  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
+  def fromEtmpExclusion(
+                         vrn: Vrn,
+                         etmpExclusion: EtmpExclusion
+                       ): ExcludedTrader = {
+    ExcludedTrader(
+      vrn = vrn,
+      exclusionReason = convertExclusionReason(etmpExclusion.exclusionReason),
+      effectivePeriod = getPeriod(etmpExclusion.effectiveDate),
+      effectiveDate = Some(etmpExclusion.effectiveDate)
+    )
+  }
 
+  private def convertExclusionReason(exclusionReason: EtmpExclusionReason): Int = {
+    exclusionReason match {
+      case Reversal => -1
+      case NoLongerSupplies => 1
+      case CeasedTrade => 2
+      case NoLongerMeetsConditions => 3
+      case FailsToComply => 4
+      case VoluntarilyLeaves => 5
+      case TransferringMSID => 6
+      case _ =>
+        val message: String = "Invalid Exclusion Reason"
+        logger.error(message)
+        throw new IllegalStateException(message)
+    }
+  }
+
+  private def getPeriod(date: LocalDate): Period = {
+    val quarter = Quarter.fromString(date.format(DateTimeFormatter.ofPattern("QQQ")))
+
+    quarter match {
+      case Success(value) =>
+        StandardPeriod(date.getYear, value)
+      case Failure(exception) =>
+        throw exception
+    }
+  }
+
+  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
 }
 
 

@@ -17,6 +17,7 @@
 package models.etmp
 
 import models.BankDetails
+import models.exclusions.EtmpExclusion
 import play.api.libs.json.{Json, OFormat}
 
 case class EtmpDisplayRegistration(

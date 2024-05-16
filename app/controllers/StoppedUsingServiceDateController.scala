@@ -19,10 +19,15 @@ package controllers
 import controllers.actions._
 import date.Dates
 import forms.StoppedUsingServiceDateFormProvider
+import logging.Logging
+import models.audit.ExclusionAuditType
+import models.exclusions.EtmpExclusionReason
+
 import javax.inject.Inject
 import pages.{StoppedUsingServiceDatePage, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedUsingServiceDateView
@@ -33,8 +38,9 @@ class StoppedUsingServiceDateController @Inject()(
                                                    cc: AuthenticatedControllerComponents,
                                                    formProvider: StoppedUsingServiceDateFormProvider,
                                                    dates: Dates,
-                                                   view: StoppedUsingServiceDateView
-                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                   view: StoppedUsingServiceDateView,
+                                                   registrationService: RegistrationService
+                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
@@ -65,7 +71,21 @@ class StoppedUsingServiceDateController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(StoppedUsingServiceDatePage, value))
             _              <- cc.sessionRepository.set(updatedAnswers)
-          } yield Redirect(StoppedUsingServiceDatePage.navigate(waypoints, updatedAnswers, updatedAnswers).url)
+            result <- registrationService.amendRegistrationAndAudit(
+              request.userId,
+              request.vrn,
+              updatedAnswers,
+              request.registration,
+              Some(EtmpExclusionReason.VoluntarilyLeaves),
+              ExclusionAuditType.ExclusionRequestSubmitted
+            ).map {
+              case Right(_) =>
+                Redirect(StoppedUsingServiceDatePage.navigate(waypoints, request.userAnswers, updatedAnswers).url)
+              case Left(e) =>
+                logger.error(s"Failure to submit self exclusion ${e.body}")
+                Redirect(routes.SubmissionFailureController.onPageLoad())
+            }
+          } yield result
       )
   }
 }

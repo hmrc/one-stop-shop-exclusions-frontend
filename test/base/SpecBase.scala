@@ -21,7 +21,9 @@ import date.Dates
 import generators.Generators
 import models.CountryWithValidationDetails.euCountriesWithVRNValidationRules
 import models.registration.Registration
+import models.requests.RegistrationRequest
 import models.{CheckMode, Country, CountryWithValidationDetails, UserAnswers}
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -37,7 +39,7 @@ import play.api.mvc.BodyParsers
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.Vrn
 
-import java.time.LocalDate
+import java.time.{Clock, LocalDate, ZoneId}
 
 trait SpecBase
   extends AnyFreeSpec
@@ -61,6 +63,8 @@ trait SpecBase
     euCountriesWithVRNValidationRules.find(_.country == country).value
   val vrn: Vrn = Vrn(countryWithValidationDetails.exampleVrn)
   val registration: Registration = Arbitrary.arbitrary[Registration].sample.value
+  val registrationRequest: RegistrationRequest = arbitrary[RegistrationRequest].sample.value
+  val stubClock: Clock = Clock.fixed(LocalDate.now.atStartOfDay(ZoneId.systemDefault).toInstant, ZoneId.systemDefault)
 
   def completeUserAnswers: UserAnswers =
     emptyUserAnswers

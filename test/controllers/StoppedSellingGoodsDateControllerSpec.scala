@@ -18,18 +18,30 @@ package controllers
 
 import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
+import connectors.RegistrationConnector
 import date.{Dates, Today, TodayImpl}
 import forms.StoppedSellingGoodsDateFormProvider
 import models.UserAnswers
+import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
+import models.exclusions.EtmpExclusionReason
+import models.responses.UnexpectedResponseStatus
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchersSugar.eqTo
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import pages.StoppedSellingGoodsDatePage
 import play.api.data.Form
+import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.AuditService
 import views.html.StoppedSellingGoodsDateView
 
+import scala.concurrent.Future
 
-class StoppedSellingGoodsDateControllerSpec extends SpecBase {
+
+class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfterEach {
 
   val today: Today = new TodayImpl(Dates.clock)
   val dates = new Dates(today)
@@ -43,6 +55,9 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase {
   lazy val stoppedSellingGoodsDateRoute: String = routes.StoppedSellingGoodsDateController.onPageLoad(emptyWaypoints).url
 
   override val emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
+
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+  private val mockAuditService = mock[AuditService]
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, stoppedSellingGoodsDateRoute)
@@ -103,16 +118,70 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockRegistrationConnector.amend(any())(any())) thenReturn Future.successful(Right(()))
+
+      val userAnswers = UserAnswers(userAnswersId).set(StoppedSellingGoodsDatePage, validAnswer).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+          bind[AuditService].toInstance(mockAuditService)
+        )
+        .build()
 
       running(application) {
         val result = route(application, postRequest()).value
 
-        val userAnswers = UserAnswers(userAnswersId).set(StoppedSellingGoodsDatePage, validAnswer).success.value
+        val expectedAuditEvent = ExclusionAuditModel(
+          ExclusionAuditType.ExclusionRequestSubmitted,
+          userAnswersId,
+          "",
+          vrn.vrn,
+          userAnswers.toUserAnswersForAudit,
+          registration,
+          Some(EtmpExclusionReason.NoLongerSupplies),
+          SubmissionResult.Success
+        )
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual StoppedSellingGoodsDatePage.navigate(emptyWaypoints, emptyUserAnswers, userAnswers).url
+        verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
       }
+    }
+
+    "must redirect to the failure page when valid data is submitted but api returns failure" in {
+
+      when(mockRegistrationConnector.amend(any())(any())) thenReturn
+        Future.successful(Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "Error occurred")))
+
+      val userAnswers = UserAnswers(userAnswersId).set(StoppedSellingGoodsDatePage, validAnswer).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+          bind[AuditService].toInstance(mockAuditService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        val expectedAuditEvent = ExclusionAuditModel(
+          ExclusionAuditType.ExclusionRequestSubmitted,
+          userAnswersId,
+          "",
+          vrn.vrn,
+          userAnswers.toUserAnswersForAudit,
+          registration,
+          Some(EtmpExclusionReason.NoLongerSupplies),
+          SubmissionResult.Failure
+        )
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.SubmissionFailureController.onPageLoad().url
+        verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
+      }
+
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {

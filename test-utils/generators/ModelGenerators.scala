@@ -19,6 +19,8 @@ package generators
 import models.etmp.{NonCompliantDetails, _}
 import models.registration._
 import models._
+import models.exclusions.{EtmpExclusion, EtmpExclusionReason, ExcludedTrader}
+import models.requests.RegistrationRequest
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.option
 import org.scalacheck.{Arbitrary, Gen}
@@ -399,7 +401,7 @@ trait ModelGenerators {
     }
   }
 
-   def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
+  def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
 
     def toMillis(date: LocalDate): Long =
       date.atStartOfDay.atZone(ZoneOffset.UTC).toInstant.toEpochMilli
@@ -424,6 +426,58 @@ trait ModelGenerators {
         adminUse <- arbitrary[AdminUse]
       } yield Registration(vrn, name, Nil, vatDetails, Nil, contactDetails, Nil, commencementDate, Nil, bankDetails, isOnlineMarketplace, None, None, None, None, None, None, None, None, adminUse)
     }
+
+  implicit val arbitraryRegistrationRequest: Arbitrary[RegistrationRequest] = Arbitrary {
+    for {
+      vrn <- arbitrary[Vrn]
+      registeredCompanyName <- Gen.alphaStr
+      tradingNames <- Gen.listOf(Gen.alphaStr)
+      vatDetails <- arbitrary[VatDetails]
+      euRegistrations <- Gen.listOf(arbitrary[EuTaxRegistration])
+      contactDetails <- arbitrary[ContactDetails]
+      websites <- Gen.listOf(Gen.alphaStr)
+      commencementDate <- Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now)
+      previousRegistrations <- Gen.listOf(arbitrary[PreviousRegistration])
+      bankDetails <- arbitrary[BankDetails]
+      isOnlineMarketplace <- Gen.oneOf(true, false)
+      niPresence <- Gen.option(arbitrary[NiPresence])
+      dateOfFirstSale <- Gen.option(Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now))
+      nonCompliantReturns <- Gen.option(Gen.alphaStr)
+      nonCompliantPayments <- Gen.option(Gen.alphaStr)
+      submissionReceived <- Gen.option(Gen.choose(Instant.ofEpochMilli(0), Instant.now))
+    } yield RegistrationRequest(
+      vrn,
+      registeredCompanyName,
+      tradingNames,
+      vatDetails,
+      euRegistrations,
+      contactDetails,
+      websites,
+      commencementDate,
+      previousRegistrations,
+      bankDetails,
+      isOnlineMarketplace,
+      niPresence,
+      dateOfFirstSale,
+      nonCompliantReturns,
+      nonCompliantPayments,
+      submissionReceived
+    )
+  }
+
+  implicit val arbitraryExcludedTrader: Arbitrary[ExcludedTrader] = Arbitrary {
+    for {
+      vrn <- arbitrary[Vrn]
+      exclusionReason <- Gen.oneOf(-1, 1, 2, 3, 4, 5, 6) // Based on the exclusion reasons in convertExclusionReason
+      effectivePeriod <- arbitrary[StandardPeriod]
+      effectiveDate <- Gen.option(Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now))
+    } yield ExcludedTrader(
+      vrn,
+      exclusionReason,
+      effectivePeriod,
+      effectiveDate
+    )
+  }
 
   implicit val arbitraryStandardPeriod: Arbitrary[StandardPeriod] =
     Arbitrary {

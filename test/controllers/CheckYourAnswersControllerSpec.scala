@@ -17,14 +17,34 @@
 package controllers
 
 import base.SpecBase
+import connectors.RegistrationConnector
 import models.CheckMode
+import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
+import models.exclusions.EtmpExclusionReason
+import models.responses.UnexpectedResponseStatus
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchersSugar.eqTo
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import pages._
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.AuditService
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
+import scala.concurrent.Future
+
+class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with BeforeAndAfterEach {
+
+  private val mockAuditService: AuditService = mock[AuditService]
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+
+  override protected def beforeEach(): Unit = {
+    reset(mockRegistrationConnector)
+    reset(mockAuditService)
+  }
 
   "Check Your Answers Controller" - {
 
@@ -53,15 +73,71 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
       "must redirect to the correct page when the validation passes" in {
 
-        val application = applicationBuilder(userAnswers = Some(completeUserAnswers)).build()
+        when(mockRegistrationConnector.amend(any())(any())) thenReturn
+          Future.successful(Right(()))
+
+        val userAnswers = completeUserAnswers
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[AuditService].toInstance(mockAuditService)
+          )
+          .build()
 
         running(application) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onSubmit(emptyWaypoints, incompletePrompt = false).url)
 
           val result = route(application, request).value
 
+          val expectedAuditEvent = ExclusionAuditModel(
+            ExclusionAuditType.ExclusionRequestSubmitted,
+            userAnswersId,
+            "",
+            vrn.vrn,
+            userAnswers.toUserAnswersForAudit,
+            registration,
+            Some(EtmpExclusionReason.TransferringMSID),
+            SubmissionResult.Success
+          )
+
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe ApplicationCompletePage.route(emptyWaypoints).url
+          verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
+        }
+      }
+
+      "must redirect to the failure page and audit a failure event when the validation passes but amend call failures" in {
+
+        when(mockRegistrationConnector.amend(any())(any())) thenReturn
+          Future.successful(Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "Error occurred")))
+
+        val userAnswers = completeUserAnswers
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[AuditService].toInstance(mockAuditService)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onSubmit(emptyWaypoints, incompletePrompt = false).url)
+
+          val result = route(application, request).value
+
+          val expectedAuditEvent = ExclusionAuditModel(
+            ExclusionAuditType.ExclusionRequestSubmitted,
+            userAnswersId,
+            "",
+            vrn.vrn,
+            userAnswers.toUserAnswersForAudit,
+            registration,
+            Some(EtmpExclusionReason.TransferringMSID),
+            SubmissionResult.Failure
+          )
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe routes.SubmissionFailureController.onPageLoad().url
+          verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
         }
       }
 

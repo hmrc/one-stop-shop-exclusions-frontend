@@ -16,18 +16,34 @@
 
 package models.requests
 
-import models.registration.Registration
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import models._
+import models.registration.{ContactDetails, EuTaxRegistration, VatDetails}
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Vrn
 
+import java.time.{Instant, LocalDate}
 
-case class RegistrationRequest[A](
-                                   request: Request[A],
-                                   credentials: Credentials,
-                                   vrn: Vrn,
-                                   registration: Registration
-                                 ) extends WrappedRequest[A](request) {
 
-  val userId: String = credentials.providerId
+case class RegistrationRequest(
+                                vrn: Vrn,
+                                registeredCompanyName: String,
+                                tradingNames: Seq[String],
+                                vatDetails: VatDetails,
+                                euRegistrations: Seq[EuTaxRegistration],
+                                contactDetails: ContactDetails,
+                                websites: Seq[String],
+                                commencementDate: LocalDate,
+                                previousRegistrations: Seq[PreviousRegistration],
+                                bankDetails: BankDetails,
+                                isOnlineMarketplace: Boolean,
+                                niPresence: Option[NiPresence],
+                                dateOfFirstSale: Option[LocalDate],
+                                nonCompliantReturns: Option[String],
+                                nonCompliantPayments: Option[String],
+                                submissionReceived: Option[Instant]
+                              )
+
+object RegistrationRequest {
+
+  implicit val format: OFormat[RegistrationRequest] = Json.format[RegistrationRequest]
 }
