@@ -17,22 +17,26 @@
 package controllers.actions
 
 import config.Constants.{exclusionCodeSixFollowingMonth, exclusionCodeSixTenthOfMonth}
+import connectors.VatReturnsConnector
 import logging.Logging
-import models.Period
-import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
+import models.Quarter.{Q1, Q2, Q3, Q4}
 import models.exclusions.ExcludedTrader
+import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.requests.OptionalDataRequest
+import models.{Period, StandardPeriod}
 import pages.{EmptyWaypoints, JourneyRecoveryPage}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, LocalDate, Month}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-// TOOO - Rename to CheckCancelRequestToLeaveFilter
-class CheckCancelRequestToLeaveFilterImpl @Inject()(clock: Clock)(implicit val executionContext: ExecutionContext)
+class CheckCancelRequestToLeaveFilterImpl @Inject()(
+                                                     clock: Clock,
+                                                     vatReturnsConnector: VatReturnsConnector
+                                                   )(implicit val executionContext: ExecutionContext)
   extends CheckCancelRequestToLeaveFilter with Logging {
 
   private val today: LocalDate = LocalDate.now(clock)
@@ -45,9 +49,13 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(clock: Clock)(implicit val e
       case Some(excludedTrader) if TransferringMSID == excludedTrader.exclusionReason &&
         isEqualToOrBeforeTenthOfFollowingMonth(excludedTrader.effectiveDate) =>
 
-        // Check returns period here. Check if effective date is within current period, then can't have been submitted and won't
-        // need to check returns. If effective is in previous period then call returns to check if return is submitted.
-        None.toFuture
+        val currentPeriod: Period = getPeriod(LocalDate.now(clock))
+
+        if (excludedTrader.effectivePeriod == currentPeriod) {
+          None.toFuture
+        } else {
+          checkVatReturnSubmissionStatus(excludedTrader)
+        }
 
       case Some(excludedTrader) if Seq(NoLongerSupplies, VoluntarilyLeaves).contains(excludedTrader.exclusionReason) &&
         LocalDate.now(clock).isBefore(excludedTrader.effectiveDate) =>
@@ -58,11 +66,33 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(clock: Clock)(implicit val e
     }
   }
 
+  private def checkVatReturnSubmissionStatus(excludedTrader: ExcludedTrader): Future[Option[Result]] = {
+    vatReturnsConnector.getSubmittedVatReturns.map { vatReturns =>
+      val periods = vatReturns.map(_.period)
+
+      if (periods.contains(excludedTrader.effectivePeriod)) {
+        // TODO -> Redirect to correct error page......???
+        Some(Redirect(JourneyRecoveryPage.route(EmptyWaypoints).url))
+      } else {
+        None
+      }
+    }
+  }
+
   private def isEqualToOrBeforeTenthOfFollowingMonth(effectiveDate: LocalDate): Boolean = {
     val tenthOfFollowingMonth = effectiveDate
       .plusMonths(exclusionCodeSixFollowingMonth)
       .withDayOfMonth(exclusionCodeSixTenthOfMonth)
     today.isBefore(tenthOfFollowingMonth) || today.isEqual(tenthOfFollowingMonth)
+  }
+
+  private def getPeriod(effectiveDate: LocalDate): Period = {
+    effectiveDate.getMonth match {
+      case Month.JANUARY | Month.FEBRUARY | Month.MARCH => StandardPeriod(effectiveDate.getYear, Q1)
+      case Month.APRIL | Month.MAY | Month.JUNE => StandardPeriod(effectiveDate.getYear, Q2)
+      case Month.JULY | Month.AUGUST | Month.SEPTEMBER => StandardPeriod(effectiveDate.getYear, Q3)
+      case Month.OCTOBER | Month.NOVEMBER | Month.DECEMBER => StandardPeriod(effectiveDate.getYear, Q4)
+    }
   }
 }
 

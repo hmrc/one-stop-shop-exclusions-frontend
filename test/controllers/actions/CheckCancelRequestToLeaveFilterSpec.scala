@@ -18,16 +18,21 @@ package controllers.actions
 
 import base.SpecBase
 import config.Constants.{exclusionCodeSixFollowingMonth, exclusionCodeSixTenthOfMonth}
-import models.exclusions.{ExcludedTrader, ExclusionReason}
+import connectors.VatReturnsConnector
 import models.exclusions.ExclusionReason.{CeasedTrade, FailsToComply, NoLongerMeetsConditions, NoLongerSupplies, Reversal, VoluntarilyLeaves}
+import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
-import models.{Period, Quarter, StandardPeriod}
+import models.{Period, Quarter, StandardPeriod, VatReturn}
+import org.mockito.Mockito.when
+import org.scalacheck.Gen
 import pages.JourneyRecoveryPage
+import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
+import utils.FutureSyntax.FutureOps
 
 import java.time.temporal.IsoFields
 import java.time.{Clock, LocalDate, ZoneId}
@@ -36,7 +41,10 @@ import scala.concurrent.Future
 
 class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
-  class Harness(clock: Option[Clock] = None) extends CheckCancelRequestToLeaveFilterImpl(clock.getOrElse(stubClockAtArbitraryDate)) {
+  private val submittedVatReturns: Seq[VatReturn] = Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value
+  private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
+
+  class Harness(clock: Option[Clock] = None) extends CheckCancelRequestToLeaveFilterImpl(clock.getOrElse(stubClockAtArbitraryDate), mockVatReturnsConnector) {
     def callFilter(request: OptionalDataRequest[_]): Future[Option[Result]] = filter(request)
   }
 
@@ -116,6 +124,8 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
       "must return None when the effective date is on the 10th day of the following month they changed country" in {
 
+        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturns.toFuture
+
         val today: LocalDate = LocalDate.of(2024, 5, exclusionCodeSixTenthOfMonth)
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 
@@ -124,7 +134,9 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val excludedRegistration: Registration = registration
           .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
 
-        val application = applicationBuilder(clock = Some(newClock)).build()
+        val application = applicationBuilder(clock = Some(newClock))
+          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .build()
 
         running(application) {
 
@@ -157,6 +169,101 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
           val result = controller.callFilter(request).futureValue
 
           result must not be defined
+        }
+      }
+
+      "must return None when the effective date is on or before the 10th day of the following month they changed country" +
+        "and effective period is equal to the current period (too early to submit return for that period)" in {
+
+        val today: LocalDate = LocalDate.of(2024, 5, 9)
+        val quarter = Quarter.fromString(s"Q${today.get(IsoFields.QUARTER_OF_YEAR)}").get
+        val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
+
+        val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+
+        val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
+
+        val excludedRegistration: Registration = registration
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+
+        val application = applicationBuilder(clock = Some(newClock)).build()
+
+        running(application) {
+
+          val request = OptionalDataRequest(FakeRequest(), userAnswersId, vrn, excludedRegistration, Some(completeUserAnswers))
+          val controller = new Harness(Some(newClock))
+
+          val result = controller.callFilter(request).futureValue
+
+          result must not be defined
+        }
+      }
+
+      "must return None when the effective date is on or before the 10th day of the following month they changed country" +
+        "and effective period does not have an associated submitted return " in {
+
+        val today: LocalDate = LocalDate.of(2024, 5, 9)
+        val quarter = Quarter.fromString(s"Q${today.minusMonths(3).get(IsoFields.QUARTER_OF_YEAR)}").get
+        val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
+
+        val submittedVatReturnsWithoutEffectivePeriod: Seq[VatReturn] =
+          Gen.listOfN(4, arbitraryVatReturn.arbitrary.suchThat(vr => vr.period != effectivePeriod)).sample.value
+
+        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturnsWithoutEffectivePeriod.toFuture
+
+        val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+
+        val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
+
+        val excludedRegistration: Registration = registration
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+
+        val application = applicationBuilder(clock = Some(newClock))
+          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .build()
+
+        running(application) {
+
+          val request = OptionalDataRequest(FakeRequest(), userAnswersId, vrn, excludedRegistration, Some(completeUserAnswers))
+          val controller = new Harness(Some(newClock))
+
+          val result = controller.callFilter(request).futureValue
+
+          result must not be defined
+        }
+      }
+
+      "must redirect to Journey Recovery Page when the effective date is on or before the 10th day of the following month they changed country" +
+        "and effective period has an associated submitted return " in {
+
+        val today: LocalDate = LocalDate.of(2024, 5, 9)
+        val quarter = Quarter.fromString(s"Q${today.minusMonths(3).get(IsoFields.QUARTER_OF_YEAR)}").get
+        val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
+
+        val submittedVatReturnsWithEffectivePeriod: Seq[VatReturn] =
+          Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value ++ Seq(VatReturn(period = effectivePeriod))
+
+        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturnsWithEffectivePeriod.toFuture
+
+        val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+
+        val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
+
+        val excludedRegistration: Registration = registration
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+
+        val application = applicationBuilder(clock = Some(newClock))
+          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .build()
+
+        running(application) {
+
+          val request = OptionalDataRequest(FakeRequest(), userAnswersId, vrn, excludedRegistration, Some(completeUserAnswers))
+          val controller = new Harness(Some(newClock))
+
+          val result = controller.callFilter(request).futureValue
+
+          result.value mustBe Redirect(JourneyRecoveryPage.route(emptyWaypoints).url)
         }
       }
 

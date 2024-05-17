@@ -393,4 +393,11 @@ trait ModelGenerators {
         effectiveDate = effectiveDate
       )
     }
+
+  implicit lazy val arbitraryVatReturn: Arbitrary[VatReturn] =
+    Arbitrary {
+      for {
+        period <- arbitraryStandardPeriod.arbitrary
+      } yield VatReturn(period = period)
+    }
 }

@@ -17,7 +17,6 @@
 package pages
 
 import controllers.routes
-import models.UserAnswers
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,14 +27,5 @@ case object CancelLeaveSchemeRequestPage extends QuestionPage[Boolean] {
   override def toString: String = "cancelLeaveSchemeRequest"
 
   override def route(waypoints: Waypoints): Call =
-    routes.CancelLeaveSchemeRequestController.onPageLoad(waypoints)
-
-  override protected def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page =
-    answers.get(this) match {
-      case Some(true) =>
-        CancelLeaveSchemeAcknowledgementPage
-      case Some(false) =>
-      // TODO -> To returns yourAccount
-      ???
-    }
+    routes.CancelLeaveSchemeAcknowledgementController.onPageLoad()
 }

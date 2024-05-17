@@ -18,17 +18,33 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
+import models.Period
+import models.exclusions.{ExcludedTrader, ExclusionReason}
+import models.registration.Registration
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.CancelLeaveSchemeAcknowledgementView
 
+import java.time.LocalDate
+
 class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase {
+
+  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
+  private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+  )
 
   "CancelLeaveSchemeAcknowledgement Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.CancelLeaveSchemeAcknowledgementController.onPageLoad().url)

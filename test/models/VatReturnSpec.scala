@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package models.exclusions
+package models
 
-import logging.Logging
-import models.Period
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.domain.Vrn
+import base.SpecBase
+import play.api.libs.json.{JsSuccess, Json}
 
-import java.time.LocalDate
+class VatReturnSpec extends SpecBase {
 
-case class ExcludedTrader(
-                           vrn: Vrn,
-                           exclusionReason: ExclusionReason,
-                           effectivePeriod: Period,
-                           effectiveDate: LocalDate
-                         )
+  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
 
+  "VatReturn" - {
 
-object ExcludedTrader extends Logging {
+    "must serialise/deserialise to and from VatReturn" in {
 
-  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
+      val json = Json.obj(
+        "period" -> period
+      )
+
+      val expectedResult: VatReturn = VatReturn(
+        period = period
+      )
+
+      Json.toJson(expectedResult) mustBe json
+      json.validate[VatReturn] mustBe JsSuccess(expectedResult)
+    }
+  }
 }
-
-

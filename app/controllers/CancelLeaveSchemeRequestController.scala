@@ -20,10 +20,11 @@ import config.FrontendAppConfig
 import controllers.actions._
 import forms.CancelLeaveSchemeRequestFormProvider
 import models.UserAnswers
+import models.requests.OptionalDataRequest
 import pages.{CancelLeaveSchemeRequestPage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.CancelLeaveSchemeRequestView
@@ -65,8 +66,22 @@ class CancelLeaveSchemeRequestController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(originalAnswers.set(CancelLeaveSchemeRequestPage, value))
             _ <- cc.sessionRepository.set(updatedAnswers)
-          } yield Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)
+          } yield determineRedirect(waypoints, value, originalAnswers, updatedAnswers)
         }
       )
+  }
+
+  private def determineRedirect(
+                                 waypoints: Waypoints,
+                                 cancelLeaveRequest: Boolean,
+                                 originalAnswers: UserAnswers,
+                                 updatedAnswers: UserAnswers
+                               ): Result = {
+    if (cancelLeaveRequest) {
+      // TODO -> Update excluded trader reason in reg?
+      Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)
+    } else {
+      Redirect(frontendAppConfig.ossYourAccountUrl)
+    }
   }
 }

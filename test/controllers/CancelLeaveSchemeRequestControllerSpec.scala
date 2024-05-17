@@ -17,13 +17,15 @@
 package controllers
 
 import base.SpecBase
+import connectors.VatReturnsConnector
 import forms.CancelLeaveSchemeRequestFormProvider
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
-import models.{Period, UserAnswers}
+import models.{Period, UserAnswers, VatReturn}
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito.{times, verify, when}
+import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{CancelLeaveSchemeRequestPage, JourneyRecoveryPage}
 import play.api.data.Form
@@ -41,6 +43,8 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
   private val formProvider = new CancelLeaveSchemeRequestFormProvider()
   private val form: Form[Boolean] = formProvider()
   private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
+
+  private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
 
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
     excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
@@ -85,6 +89,9 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
       "must return OK and the correct view for a GET " in {
 
+        val submittedVatReturns: Seq[VatReturn] = Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value
+        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturns.toFuture
+
         val today: LocalDate = LocalDate.of(2024, 5, 10)
         val clock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 
@@ -95,7 +102,9 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
           clock = Some(clock),
           userAnswers = Some(emptyUserAnswers),
           maybeRegistration = Some(excludedRegistrationCode6)
-        ).build()
+        )
+          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .build()
 
         running(application) {
 

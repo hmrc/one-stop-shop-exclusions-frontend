@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package models.exclusions
+package models
 
-import logging.Logging
-import models.Period
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.domain.Vrn
 
-import java.time.LocalDate
+case class VatReturn(period: Period)
 
-case class ExcludedTrader(
-                           vrn: Vrn,
-                           exclusionReason: ExclusionReason,
-                           effectivePeriod: Period,
-                           effectiveDate: LocalDate
-                         )
+object VatReturn {
 
-
-object ExcludedTrader extends Logging {
-
-  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
+  implicit val format: OFormat[VatReturn] = Json.format[VatReturn]
 }
-
-

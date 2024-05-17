@@ -34,8 +34,7 @@ class CancelLeaveSchemeAcknowledgementController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  // TODO -> Replace authAndGetOptionalData with new filter when created
-  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalData {
+  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader {
     implicit request =>
       Ok(view(frontendAppConfig.ossYourAccountUrl))
   }
