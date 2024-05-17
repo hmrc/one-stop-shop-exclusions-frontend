@@ -76,7 +76,7 @@ class CancelLeaveSchemeRequestController @Inject()(
                                  cancelLeaveRequest: Boolean,
                                  originalAnswers: UserAnswers,
                                  updatedAnswers: UserAnswers
-                               ): Result = {
+                               )(implicit request: OptionalDataRequest[AnyContent]): Result = {
     if (cancelLeaveRequest) {
       // TODO -> Update excluded trader reason in reg?
       Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)

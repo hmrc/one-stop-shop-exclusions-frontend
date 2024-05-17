@@ -23,7 +23,7 @@ import date.{Dates, Today, TodayImpl}
 import forms.StoppedSellingGoodsDateFormProvider
 import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -139,7 +139,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           userAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.NoLongerSupplies),
+          Some(ExclusionReason.NoLongerSupplies),
           SubmissionResult.Success
         )
 
@@ -173,7 +173,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           userAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.NoLongerSupplies),
+          Some(ExclusionReason.NoLongerSupplies),
           SubmissionResult.Failure
         )
 

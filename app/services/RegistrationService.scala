@@ -18,20 +18,22 @@ package services
 
 import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
-import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.{EtmpExclusion, EtmpExclusionReason, ExcludedTrader}
+import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
+import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.RegistrationRequest
+import models.{Period, Quarter, StandardPeriod, UserAnswers}
 import pages._
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.format.DateTimeFormatter
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
+import scala.util.{Failure, Success, Try}
 
 class RegistrationService @Inject()(
                                      clock: Clock,
@@ -40,13 +42,13 @@ class RegistrationService @Inject()(
                                    )(implicit ec: ExecutionContext) {
 
   def amendRegistrationAndAudit(
-                              userId: String,
-                              vrn: Vrn,
-                              answers: UserAnswers,
-                              registration: Registration,
-                              exclusionReason: Option[EtmpExclusionReason],
-                              exclusionAuditType: ExclusionAuditType
-                            )(implicit hc: HeaderCarrier, request: Request[_]): Future[AmendRegistrationResultResponse] = {
+                                 userId: String,
+                                 vrn: Vrn,
+                                 answers: UserAnswers,
+                                 registration: Registration,
+                                 exclusionReason: Option[ExclusionReason],
+                                 exclusionAuditType: ExclusionAuditType
+                               )(implicit hc: HeaderCarrier, request: Request[_]): Future[AmendRegistrationResultResponse] = {
 
     val success: ExclusionAuditModel = ExclusionAuditModel(
       exclusionAuditType = exclusionAuditType,
@@ -68,7 +70,7 @@ class RegistrationService @Inject()(
 
   private def amendRegistration(
                                  answers: UserAnswers,
-                                 exclusionReason: Option[EtmpExclusionReason],
+                                 exclusionReason: Option[ExclusionReason],
                                  vrn: Vrn,
                                  registration: Registration,
                                )(implicit hc: HeaderCarrier): Future[AmendRegistrationResultResponse] = {
@@ -78,7 +80,7 @@ class RegistrationService @Inject()(
 
   private def buildRegistration(
                                  answers: UserAnswers,
-                                 exclusionReason: Option[EtmpExclusionReason],
+                                 exclusionReason: Option[ExclusionReason],
                                  vrn: Vrn,
                                  registration: Registration,
                                ): RegistrationRequest = {
@@ -103,28 +105,36 @@ class RegistrationService @Inject()(
     )
   }
 
-  private def getExcludedTrader(exclusionReason: EtmpExclusionReason, answers: UserAnswers, vrn: Vrn): ExcludedTrader = {
+  private def getExcludedTrader(exclusionReason: ExclusionReason, answers: UserAnswers, vrn: Vrn): ExcludedTrader = {
 
     val effectiveDate = exclusionReason match {
-      case EtmpExclusionReason.TransferringMSID =>
+      case TransferringMSID =>
         answers.get(MoveDatePage).getOrElse(throw new Exception("No move date provided"))
-      case EtmpExclusionReason.NoLongerSupplies =>
+      case NoLongerSupplies =>
         answers.get(StoppedSellingGoodsDatePage).getOrElse(throw new Exception("No stopped selling goods date provided"))
-      case EtmpExclusionReason.VoluntarilyLeaves =>
+      case VoluntarilyLeaves =>
         answers.get(StoppedUsingServiceDatePage).getOrElse(throw new Exception("No stopped using service date provided"))
       //todo case EtmpExclusionReason.Reversal =>
       case _ => throw new Exception("Exclusion reason not valid")
     }
 
-    val etmpExclusion = EtmpExclusion(
+    ExcludedTrader(
+      vrn = vrn,
       exclusionReason = exclusionReason,
-      effectiveDate = effectiveDate,
-      decisionDate = LocalDate.now(clock),
-      quarantine = false
+      effectivePeriod = determinePeriod(effectiveDate),
+      effectiveDate = effectiveDate
     )
-
-    ExcludedTrader.fromEtmpExclusion(vrn, etmpExclusion)
-
   }
 
+  private def determinePeriod(effectiveDate: LocalDate): Period = {
+
+    val quarter: Try[Quarter] = Quarter.fromString(effectiveDate.format(DateTimeFormatter.ofPattern("QQQ")))
+
+    quarter match {
+      case Success(value) =>
+        StandardPeriod(effectiveDate.getYear, value)
+      case Failure(exception) =>
+        throw exception
+    }
+  }
 }

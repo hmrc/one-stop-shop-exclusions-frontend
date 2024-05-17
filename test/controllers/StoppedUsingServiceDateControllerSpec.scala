@@ -23,7 +23,7 @@ import date.{Dates, Today, TodayImpl}
 import forms.StoppedUsingServiceDateFormProvider
 import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -139,7 +139,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           updatedUserAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.VoluntarilyLeaves),
+          Some(ExclusionReason.VoluntarilyLeaves),
           SubmissionResult.Success
         )
 
@@ -174,7 +174,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           updatedUserAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.VoluntarilyLeaves),
+          Some(ExclusionReason.VoluntarilyLeaves),
           SubmissionResult.Failure
         )
 
