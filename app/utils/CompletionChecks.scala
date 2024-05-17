@@ -59,6 +59,8 @@ trait CompletionChecks {
 
   def validate()(implicit request: DataRequest[AnyContent]): Boolean = {
     isEuCountryValid()
+    isMoveDateValid()
+    isEuVatNumberValid()
   }
 
   def getFirstValidationErrorRedirect(waypoints: Waypoints)(implicit request: DataRequest[AnyContent]): Option[Result] = {
