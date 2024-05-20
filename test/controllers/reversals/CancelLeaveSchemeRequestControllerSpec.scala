@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.VatReturnsConnector
-import forms.CancelLeaveSchemeRequestFormProvider
+import forms.reversals.CancelLeaveSchemeRequestFormProvider
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
@@ -29,7 +29,7 @@ import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{CancelLeaveSchemeErrorPage, CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage}
+import pages.reversals.{CancelLeaveSchemeErrorPage, CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -37,7 +37,7 @@ import play.api.test.Helpers._
 import repositories.SessionRepository
 import services.RegistrationService
 import utils.FutureSyntax.FutureOps
-import views.html.CancelLeaveSchemeRequestView
+import views.html.reversals.CancelLeaveSchemeRequestView
 
 import java.time.{Clock, LocalDate, ZoneId}
 

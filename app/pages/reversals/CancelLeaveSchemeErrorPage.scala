@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.reversals
 
-import controllers.routes
+import controllers.reversals.routes
+import pages.{Page, Waypoints}
 import play.api.mvc.Call
 
-case object CancelLeaveSchemeSubmissionFailurePage extends Page {
+case object CancelLeaveSchemeErrorPage extends Page {
 
   override def route(waypoints: Waypoints): Call =
-    routes.CancelLeaveSchemeSubmissionFailureController.onPageLoad()
+    routes.CancelLeaveSchemeErrorController.onPageLoad()
 }

@@ -50,11 +50,11 @@ GET         /successful                                    controllers.Applicati
 
 GET         /submissionFailure                             controllers.SubmissionFailureController.onPageLoad()
 
-GET         /cancel-leave-scheme                           controllers.CancelLeaveSchemeRequestController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
-POST        /cancel-leave-scheme                           controllers.CancelLeaveSchemeRequestController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints)
+GET         /cancel-leave-scheme                           controllers.reversals.CancelLeaveSchemeRequestController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+POST        /cancel-leave-scheme                           controllers.reversals.CancelLeaveSchemeRequestController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints)
 
-GET         /cancel-leave-scheme-acknowledgement           controllers.CancelLeaveSchemeAcknowledgementController.onPageLoad()
+GET         /cancel-leave-scheme-acknowledgement           controllers.reversals.CancelLeaveSchemeAcknowledgementController.onPageLoad()
 
-GET         /cancel-leave-scheme-submission-failure        controllers.CancelLeaveSchemeSubmissionFailureController.onPageLoad()
+GET         /cancel-leave-scheme-submission-failure        controllers.reversals.CancelLeaveSchemeSubmissionFailureController.onPageLoad()
 
-GET         /cancel-leave-scheme-error                     controllers.CancelLeaveSchemeErrorController.onPageLoad()
+GET         /cancel-leave-scheme-error                     controllers.reversals.CancelLeaveSchemeErrorController.onPageLoad()

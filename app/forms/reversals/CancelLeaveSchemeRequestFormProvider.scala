@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms.reversals
 
-import controllers.routes
-import play.api.mvc.Call
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object CancelLeaveSchemeErrorPage extends Page {
+import javax.inject.Inject
 
-  override def route(waypoints: Waypoints): Call =
-    routes.CancelLeaveSchemeErrorController.onPageLoad()
+class CancelLeaveSchemeRequestFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("cancelLeaveSchemeRequest.error.required")
+    )
 }

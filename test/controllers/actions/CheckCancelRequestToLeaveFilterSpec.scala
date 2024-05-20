@@ -26,7 +26,7 @@ import models.requests.OptionalDataRequest
 import models.{Period, Quarter, StandardPeriod, VatReturn}
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
-import pages.CancelLeaveSchemeErrorPage
+import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect

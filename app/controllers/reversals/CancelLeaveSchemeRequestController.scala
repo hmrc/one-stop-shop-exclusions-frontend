@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.reversals
 
 import config.FrontendAppConfig
 import controllers.actions._
-import forms.CancelLeaveSchemeRequestFormProvider
+import forms.reversals.CancelLeaveSchemeRequestFormProvider
 import logging.Logging
 import models.UserAnswers
 import models.audit.ExclusionAuditType
 import models.exclusions.ExclusionReason
 import models.requests.OptionalDataRequest
-import pages.{CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage, Waypoints}
+import pages.Waypoints
+import pages.reversals.{CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
-import views.html.CancelLeaveSchemeRequestView
+import views.html.reversals.CancelLeaveSchemeRequestView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

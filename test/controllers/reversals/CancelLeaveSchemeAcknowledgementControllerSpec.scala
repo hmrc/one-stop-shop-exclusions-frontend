@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
@@ -23,38 +23,41 @@ import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.CancelLeaveSchemeErrorView
+import views.html.reversals.CancelLeaveSchemeAcknowledgementView
 
 import java.time.LocalDate
 
-class CancelLeaveSchemeErrorControllerSpec extends SpecBase {
+class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase {
 
   private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
-  private val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
-  private val excludedRegistration: Registration = registration.copy(
-    excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.VoluntarilyLeaves, period, effectiveDate))
+
+  private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
   )
 
-  "CancelLeaveSchemeError Controller" - {
+  "CancelLeaveSchemeAcknowledgement Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
       val application = applicationBuilder(
         userAnswers = Some(emptyUserAnswers),
-        maybeRegistration = Some(excludedRegistration)
+        maybeRegistration = Some(excludedRegistrationCode5)
       ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.CancelLeaveSchemeErrorController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.CancelLeaveSchemeAcknowledgementController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CancelLeaveSchemeErrorView]
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
-        val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[CancelLeaveSchemeAcknowledgementView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(frontendAppConfig.ossYourAccountUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(config.ossYourAccountUrl)(request, messages(application)).toString
       }
     }
   }

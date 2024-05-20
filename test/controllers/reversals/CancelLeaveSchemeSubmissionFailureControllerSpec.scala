@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
@@ -23,40 +23,38 @@ import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.CancelLeaveSchemeAcknowledgementView
+import views.html.reversals.CancelLeaveSchemeSubmissionFailureView
 
 import java.time.LocalDate
 
-class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase {
+class CancelLeaveSchemeSubmissionFailureControllerSpec extends SpecBase {
 
   private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
-  private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
-    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+  private val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+  private val excludedRegistration: Registration = registration.copy(
+    excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.VoluntarilyLeaves, period, effectiveDate))
   )
 
-  "CancelLeaveSchemeAcknowledgement Controller" - {
+  "CancelLeaveSchemeSubmissionFailure Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
-      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
-
       val application = applicationBuilder(
         userAnswers = Some(emptyUserAnswers),
-        maybeRegistration = Some(excludedRegistrationCode5)
-      ).build()
+        maybeRegistration = Some(excludedRegistration))
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.CancelLeaveSchemeAcknowledgementController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.CancelLeaveSchemeSubmissionFailureController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val config = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[CancelLeaveSchemeSubmissionFailureView]
 
-        val view = application.injector.instanceOf[CancelLeaveSchemeAcknowledgementView]
+        val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.ossYourAccountUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(frontendAppConfig.ossYourAccountUrl)(request, messages(application)).toString
       }
     }
   }

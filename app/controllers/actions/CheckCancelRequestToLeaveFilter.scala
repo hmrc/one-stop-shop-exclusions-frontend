@@ -24,7 +24,8 @@ import models.exclusions.ExcludedTrader
 import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.requests.OptionalDataRequest
 import models.{Period, StandardPeriod}
-import pages.{CancelLeaveSchemeErrorPage, EmptyWaypoints}
+import pages.EmptyWaypoints
+import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps

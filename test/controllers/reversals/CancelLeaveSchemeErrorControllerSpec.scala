@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
@@ -23,11 +23,11 @@ import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.CancelLeaveSchemeSubmissionFailureView
+import views.html.reversals.CancelLeaveSchemeErrorView
 
 import java.time.LocalDate
 
-class CancelLeaveSchemeSubmissionFailureControllerSpec extends SpecBase {
+class CancelLeaveSchemeErrorControllerSpec extends SpecBase {
 
   private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
   private val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
@@ -35,21 +35,21 @@ class CancelLeaveSchemeSubmissionFailureControllerSpec extends SpecBase {
     excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.VoluntarilyLeaves, period, effectiveDate))
   )
 
-  "CancelLeaveSchemeSubmissionFailure Controller" - {
+  "CancelLeaveSchemeError Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(
         userAnswers = Some(emptyUserAnswers),
-        maybeRegistration = Some(excludedRegistration))
-        .build()
+        maybeRegistration = Some(excludedRegistration)
+      ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.CancelLeaveSchemeSubmissionFailureController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.CancelLeaveSchemeErrorController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CancelLeaveSchemeSubmissionFailureView]
+        val view = application.injector.instanceOf[CancelLeaveSchemeErrorView]
 
         val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
 
