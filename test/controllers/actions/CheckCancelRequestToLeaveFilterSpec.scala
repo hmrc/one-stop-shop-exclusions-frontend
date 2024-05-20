@@ -26,7 +26,7 @@ import models.requests.OptionalDataRequest
 import models.{Period, Quarter, StandardPeriod, VatReturn}
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
-import pages.JourneyRecoveryPage
+import pages.CancelLeaveSchemeErrorPage
 import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
@@ -76,7 +76,8 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         }
       }
 
-      s"must redirect to Journey Recovery Page when exclusion reason is code $exclusionReason and today is equal to or after the exclusion effective date" in {
+      s"must redirect to the Cancel Leave Scheme Error Page when exclusion reason is code $exclusionReason and" +
+        s"today is equal to or after the exclusion effective date" in {
 
         val effectiveDate = today
 
@@ -92,14 +93,14 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
           val result = controller.callFilter(request).futureValue
 
-          result.value mustBe Redirect(JourneyRecoveryPage.route(emptyWaypoints).url)
+          result.value mustBe Redirect(CancelLeaveSchemeErrorPage.route(emptyWaypoints).url)
         }
       }
     }
 
     Seq(Reversal, CeasedTrade, NoLongerMeetsConditions, FailsToComply).foreach { exclusionReason =>
 
-      s"must redirect to Journey Recovery Page when exclusion reason code is code $exclusionReason irrespective of date" in {
+      s"must redirect to the Cancel Leave Scheme Error Page when exclusion reason code is code $exclusionReason irrespective of date" in {
 
         val effectiveDate = arbitraryDate.arbitrary.sample.value
 
@@ -115,7 +116,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
           val result = controller.callFilter(request).futureValue
 
-          result.value mustBe Redirect(JourneyRecoveryPage.route(emptyWaypoints).url)
+          result.value mustBe Redirect(CancelLeaveSchemeErrorPage.route(emptyWaypoints).url)
         }
       }
     }
@@ -233,7 +234,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery Page when the effective date is on or before the 10th day of the following month they changed country" +
+      "must redirect to the Cancel Leave Scheme Error Page when the effective date is on or before the 10th day of the following month they changed country" +
         "and effective period has an associated submitted return " in {
 
         val today: LocalDate = LocalDate.of(2024, 5, 9)
@@ -263,11 +264,11 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
           val result = controller.callFilter(request).futureValue
 
-          result.value mustBe Redirect(JourneyRecoveryPage.route(emptyWaypoints).url)
+          result.value mustBe Redirect(CancelLeaveSchemeErrorPage.route(emptyWaypoints).url)
         }
       }
 
-      "must redirect to Journey Recovery Page when the effective date is after the 10th day of the following month they changed country" in {
+      "must redirect to the Cancel Leave Scheme Error Page when the effective date is after the 10th day of the following month they changed country" in {
 
         val today: LocalDate = LocalDate.of(2024, 5, 11)
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
@@ -285,7 +286,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
           val result = controller.callFilter(request).futureValue
 
-          result.value mustBe Redirect(JourneyRecoveryPage.route(emptyWaypoints).url)
+          result.value mustBe Redirect(CancelLeaveSchemeErrorPage.route(emptyWaypoints).url)
         }
       }
     }

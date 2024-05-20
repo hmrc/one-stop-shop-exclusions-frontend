@@ -19,12 +19,16 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions._
 import forms.CancelLeaveSchemeRequestFormProvider
+import logging.Logging
 import models.UserAnswers
+import models.audit.ExclusionAuditType
+import models.exclusions.ExclusionReason
 import models.requests.OptionalDataRequest
-import pages.{CancelLeaveSchemeRequestPage, Waypoints}
+import pages.{CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.CancelLeaveSchemeRequestView
@@ -37,8 +41,10 @@ class CancelLeaveSchemeRequestController @Inject()(
                                                     cc: AuthenticatedControllerComponents,
                                                     frontendAppConfig: FrontendAppConfig,
                                                     formProvider: CancelLeaveSchemeRequestFormProvider,
+                                                    registrationService: RegistrationService,
                                                     view: CancelLeaveSchemeRequestView
-                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                  )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
   val form: Form[Boolean] = formProvider()
@@ -66,7 +72,8 @@ class CancelLeaveSchemeRequestController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(originalAnswers.set(CancelLeaveSchemeRequestPage, value))
             _ <- cc.sessionRepository.set(updatedAnswers)
-          } yield determineRedirect(waypoints, value, originalAnswers, updatedAnswers)
+            amendRegistrationAndRedirect <- determineRedirect(waypoints, value, originalAnswers, updatedAnswers)
+          } yield amendRegistrationAndRedirect
         }
       )
   }
@@ -76,12 +83,24 @@ class CancelLeaveSchemeRequestController @Inject()(
                                  cancelLeaveRequest: Boolean,
                                  originalAnswers: UserAnswers,
                                  updatedAnswers: UserAnswers
-                               )(implicit request: OptionalDataRequest[AnyContent]): Result = {
+                               )(implicit request: OptionalDataRequest[AnyContent]): Future[Result] = {
     if (cancelLeaveRequest) {
-      // TODO -> Update excluded trader reason in reg?
-      Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)
+      registrationService.amendRegistrationAndAudit(
+        userId = request.userId,
+        vrn = request.vrn,
+        answers = updatedAnswers,
+        registration = request.registration,
+        exclusionReason = Some(ExclusionReason.Reversal),
+        exclusionAuditType = ExclusionAuditType.ReversalRequestSubmitted
+      ).map {
+        case Right(_) =>
+          Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)
+        case Left(error) =>
+          logger.error(s"Failed to update self exclusion status with error: ${error.body}")
+          Redirect(CancelLeaveSchemeSubmissionFailurePage.route(waypoints).url)
+      }
     } else {
-      Redirect(frontendAppConfig.ossYourAccountUrl)
+      Redirect(frontendAppConfig.ossYourAccountUrl).toFuture
     }
   }
 }

@@ -24,7 +24,7 @@ import models.exclusions.ExcludedTrader
 import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.requests.OptionalDataRequest
 import models.{Period, StandardPeriod}
-import pages.{EmptyWaypoints, JourneyRecoveryPage}
+import pages.{CancelLeaveSchemeErrorPage, EmptyWaypoints}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps
@@ -61,8 +61,8 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
         LocalDate.now(clock).isBefore(excludedTrader.effectiveDate) =>
         None.toFuture
 
-      case _ => // TODO -> Redirect to Api failure error page
-        Some(Redirect(JourneyRecoveryPage.route(EmptyWaypoints).url)).toFuture
+      case _ =>
+        Some(Redirect(CancelLeaveSchemeErrorPage.route(EmptyWaypoints).url)).toFuture
     }
   }
 
@@ -71,8 +71,7 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
       val periods = vatReturns.map(_.period)
 
       if (periods.contains(excludedTrader.effectivePeriod)) {
-        // TODO -> Redirect to correct error page......???
-        Some(Redirect(JourneyRecoveryPage.route(EmptyWaypoints).url))
+        Some(Redirect(CancelLeaveSchemeErrorPage.route(EmptyWaypoints).url))
       } else {
         None
       }

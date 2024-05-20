@@ -17,22 +17,25 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.VatReturnsConnector
 import forms.CancelLeaveSchemeRequestFormProvider
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
+import models.responses.UnexpectedResponseStatus
 import models.{Period, UserAnswers, VatReturn}
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{CancelLeaveSchemeRequestPage, JourneyRecoveryPage}
+import pages.{CancelLeaveSchemeErrorPage, CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissionFailurePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
+import services.RegistrationService
 import utils.FutureSyntax.FutureOps
 import views.html.CancelLeaveSchemeRequestView
 
@@ -45,6 +48,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
   private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
 
   private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
+  private val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
     excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
@@ -156,11 +160,13 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must save the answer and redirect to the next page when valid data is submitted" in {
+    "must save the answer and redirect to the Cancel Leave Acknowledgement page when user answers Yes" in {
 
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn true.toFuture
+      when(mockRegistrationService.amendRegistrationAndAudit(any(), any(), any(), any(), any(), any())(any(), any())) thenReturn
+        Right(()).toFuture
 
       val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
       val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
@@ -169,6 +175,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
         userAnswers = Some(emptyUserAnswers),
         maybeRegistration = Some(excludedRegistrationCode5)
       ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
         .build()
 
       running(application) {
@@ -186,6 +193,79 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe CancelLeaveSchemeRequestPage.navigate(emptyWaypoints, emptyUserAnswers, expectedAnswers).route.url
+        verify(mockSessionRepository, times(1)).set(refEq(expectedAnswers, "lastUpdated"))
+      }
+    }
+
+    "must save the answer and redirect to the Your account page when user answers No" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn true.toFuture
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+
+        val request = OptionalDataRequest(
+          FakeRequest(POST, cancelLeaveSchemeRequestRoute).withFormUrlEncodedBody(("value", "false")),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(emptyUserAnswers)
+        )
+
+        val result = route(application, request).value
+        val expectedAnswers = emptyUserAnswers.set(CancelLeaveSchemeRequestPage, false).success.value
+
+        val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe frontendAppConfig.ossYourAccountUrl
+        verify(mockSessionRepository, times(1)).set(refEq(expectedAnswers, "lastUpdated"))
+      }
+    }
+
+    "must redirect to the Cancel Leave Scheme Submission Failure page when service returns an error" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn true.toFuture
+      when(mockRegistrationService.amendRegistrationAndAudit(any(), any(), any(), any(), any(), any())(any(), any())) thenReturn
+        Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "error")).toFuture
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+
+        val request = OptionalDataRequest(
+          FakeRequest(POST, cancelLeaveSchemeRequestRoute).withFormUrlEncodedBody(("value", "true")),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(emptyUserAnswers)
+        )
+
+        val result = route(application, request).value
+        val expectedAnswers = emptyUserAnswers.set(CancelLeaveSchemeRequestPage, true).success.value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe CancelLeaveSchemeSubmissionFailurePage.route(emptyWaypoints).url
         verify(mockSessionRepository, times(1)).set(refEq(expectedAnswers, "lastUpdated"))
       }
     }
@@ -221,33 +301,30 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must redirect to the Cancel Leave Scheme Error Page when user tries to cancel the leave scheme request and today is after exclusion effective date" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).minusDays(1)
+      val excludedRegistrationCode5WithInvalidEffectiveDate = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5WithInvalidEffectiveDate)
+      ).build()
 
       running(application) {
-        val request = FakeRequest(GET, cancelLeaveSchemeRequestRoute)
+
+        val request = OptionalDataRequest(
+          FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5WithInvalidEffectiveDate,
+          Some(emptyUserAnswers)
+        )
 
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe JourneyRecoveryPage.route(emptyWaypoints).url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, cancelLeaveSchemeRequestRoute)
-            .withFormUrlEncodedBody(("value", "true"))
-
-        val result = route(application, request).value
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe JourneyRecoveryPage.route(emptyWaypoints).url
+        redirectLocation(result).value mustBe CancelLeaveSchemeErrorPage.route(emptyWaypoints).url
       }
     }
   }
