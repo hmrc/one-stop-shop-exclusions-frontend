@@ -122,7 +122,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfter
 
       val userAnswers = UserAnswers(userAnswersId).set(StoppedSellingGoodsDatePage, validAnswer).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)
@@ -156,7 +156,7 @@ class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfter
 
       val userAnswers = UserAnswers(userAnswersId).set(StoppedSellingGoodsDatePage, validAnswer).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)

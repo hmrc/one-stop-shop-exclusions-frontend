@@ -120,7 +120,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
       when(mockRegistrationConnector.amend(any())(any())) thenReturn Future.successful(Right(()))
 
       val userAnswers = emptyUserAnswers
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)
@@ -155,7 +155,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
         Future.successful(Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "Error occurred")))
 
       val userAnswers = emptyUserAnswers
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)
