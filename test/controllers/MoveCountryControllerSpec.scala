@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import date.Dates
 import forms.MoveCountryFormProvider
-import models.{Period, UserAnswers}
+import models.UserAnswers
 import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
@@ -36,10 +36,9 @@ class MoveCountryControllerSpec extends SpecBase {
 
   val formProvider = new MoveCountryFormProvider()
   val form: Form[Boolean] = formProvider()
-  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
 
   private def excludedRegistration(exclusionReason: EtmpExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
-    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate))
   )
   lazy val moveCountryRoute: String = routes.MoveCountryController.onPageLoad(emptyWaypoints).url
 

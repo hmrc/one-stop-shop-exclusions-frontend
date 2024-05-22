@@ -20,7 +20,7 @@ import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
 import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.{EtmpExclusion, EtmpExclusionReason, ExcludedTrader}
+import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
 import models.registration.Registration
 import models.requests.RegistrationRequest
 import pages._
@@ -28,7 +28,7 @@ import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.{Clock, LocalDate}
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
@@ -116,14 +116,11 @@ class RegistrationService @Inject()(
       case _ => throw new Exception("Exclusion reason not valid")
     }
 
-    val etmpExclusion = EtmpExclusion(
+    ExcludedTrader(
+      vrn = vrn,
       exclusionReason = exclusionReason,
-      effectiveDate = effectiveDate,
-      decisionDate = LocalDate.now(clock),
-      quarantine = false
+      effectiveDate = effectiveDate
     )
-
-    ExcludedTrader.fromEtmpExclusion(vrn, etmpExclusion)
 
   }
 

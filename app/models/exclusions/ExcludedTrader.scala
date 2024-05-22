@@ -17,47 +17,19 @@
 package models.exclusions
 
 import logging.Logging
-import models.exclusions.EtmpExclusionReason._
-import models.{Period, Quarter, StandardPeriod}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Vrn
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import scala.util.{Failure, Success}
 
 case class ExcludedTrader(
                            vrn: Vrn,
                            exclusionReason: EtmpExclusionReason,
-                           effectivePeriod: Period,
                            effectiveDate: LocalDate
                          )
 
 
 object ExcludedTrader extends Logging {
-
-  def fromEtmpExclusion(
-                         vrn: Vrn,
-                         etmpExclusion: EtmpExclusion
-                       ): ExcludedTrader = {
-    ExcludedTrader(
-      vrn = vrn,
-      exclusionReason = etmpExclusion.exclusionReason,
-      effectivePeriod = getPeriod(etmpExclusion.effectiveDate),
-      effectiveDate = etmpExclusion.effectiveDate
-    )
-  }
-
-  private def getPeriod(date: LocalDate): Period = {
-    val quarter = Quarter.fromString(date.format(DateTimeFormatter.ofPattern("QQQ")))
-
-    quarter match {
-      case Success(value) =>
-        StandardPeriod(date.getYear, value)
-      case Failure(exception) =>
-        throw exception
-    }
-  }
 
   implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
 }

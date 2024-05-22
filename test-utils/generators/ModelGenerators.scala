@@ -345,7 +345,6 @@ trait ModelGenerators {
     } yield ExcludedTrader(
       vrn,
       exclusionReason,
-      effectivePeriod,
       effectiveDate
     )
   }
