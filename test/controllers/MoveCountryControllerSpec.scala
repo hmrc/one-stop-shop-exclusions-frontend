@@ -17,20 +17,30 @@
 package controllers
 
 import base.SpecBase
+import date.Dates
 import forms.MoveCountryFormProvider
-import models.UserAnswers
+import models.{Period, UserAnswers}
+import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
+import models.registration.Registration
+import models.requests.OptionalDataRequest
 import pages.MoveCountryPage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.MoveCountryView
 
+import java.time.LocalDate
+
 
 class MoveCountryControllerSpec extends SpecBase {
 
   val formProvider = new MoveCountryFormProvider()
   val form: Form[Boolean] = formProvider()
+  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
 
+  private def excludedRegistration(exclusionReason: EtmpExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+  )
   lazy val moveCountryRoute: String = routes.MoveCountryController.onPageLoad(emptyWaypoints).url
 
   "MoveCountry Controller" - {
@@ -100,6 +110,32 @@ class MoveCountryControllerSpec extends SpecBase {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, emptyWaypoints)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Already Left Scheme Error when a trader is already excluded" in {
+
+      val effectiveDate: LocalDate = LocalDate.now(Dates.clock)
+      val noLongerSupplies = excludedRegistration(EtmpExclusionReason.NoLongerSupplies, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(noLongerSupplies)
+      ).build()
+
+      running(application) {
+        val request = OptionalDataRequest(
+          FakeRequest(GET, moveCountryRoute),
+          userAnswersId,
+          vrn,
+          noLongerSupplies,
+          Some(emptyUserAnswers)
+        )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.AlreadyLeftSchemeErrorController.onPageLoad().url
       }
     }
 

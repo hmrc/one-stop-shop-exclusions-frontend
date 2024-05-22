@@ -40,7 +40,7 @@ class MoveCountryController @Inject()(
   protected val controllerComponents: MessagesControllerComponents = cc
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalData {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndCheckAlreadyLeft {
     implicit request =>
 
       val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(MoveCountryPage) match {
@@ -51,7 +51,7 @@ class MoveCountryController @Inject()(
       Ok(view(preparedForm, waypoints))
   }
 
-  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalData.async {
+  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndCheckAlreadyLeft.async {
     implicit request =>
 
       form.bindFromRequest().fold(

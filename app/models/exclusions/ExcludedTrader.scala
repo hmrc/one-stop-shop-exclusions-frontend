@@ -28,9 +28,9 @@ import scala.util.{Failure, Success}
 
 case class ExcludedTrader(
                            vrn: Vrn,
-                           exclusionReason: Int,
+                           exclusionReason: EtmpExclusionReason,
                            effectivePeriod: Period,
-                           effectiveDate: Option[LocalDate]
+                           effectiveDate: LocalDate
                          )
 
 
@@ -42,26 +42,10 @@ object ExcludedTrader extends Logging {
                        ): ExcludedTrader = {
     ExcludedTrader(
       vrn = vrn,
-      exclusionReason = convertExclusionReason(etmpExclusion.exclusionReason),
+      exclusionReason = etmpExclusion.exclusionReason,
       effectivePeriod = getPeriod(etmpExclusion.effectiveDate),
-      effectiveDate = Some(etmpExclusion.effectiveDate)
+      effectiveDate = etmpExclusion.effectiveDate
     )
-  }
-
-  private def convertExclusionReason(exclusionReason: EtmpExclusionReason): Int = {
-    exclusionReason match {
-      case Reversal => -1
-      case NoLongerSupplies => 1
-      case CeasedTrade => 2
-      case NoLongerMeetsConditions => 3
-      case FailsToComply => 4
-      case VoluntarilyLeaves => 5
-      case TransferringMSID => 6
-      case _ =>
-        val message: String = "Invalid Exclusion Reason"
-        logger.error(message)
-        throw new IllegalStateException(message)
-    }
   }
 
   private def getPeriod(date: LocalDate): Period = {
