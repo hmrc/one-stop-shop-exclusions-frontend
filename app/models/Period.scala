@@ -16,15 +16,16 @@
 
 package models
 
+import models.Quarter.{Q1, Q2, Q3, Q4}
 import play.api.i18n.Messages
-import play.api.libs.json.{Format, Json, OFormat, Reads, Writes}
+import play.api.libs.json._
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-import java.time.format.DateTimeFormatter
 import java.time.LocalDate
-import scala.util.Try
+import java.time.format.DateTimeFormatter
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 
 trait Period {
   val year: Int
@@ -41,6 +42,32 @@ trait Period {
     s"${lastDay.format(lastDayFormatter)}"
 
   override def toString: String = s"$year-${quarter.toString}"
+
+  def getNextPeriod: Period = {
+    quarter match {
+      case Q4 =>
+        StandardPeriod(year + 1, Q1)
+      case Q3 =>
+        StandardPeriod(year, Q4)
+      case Q2 =>
+        StandardPeriod(year, Q3)
+      case Q1 =>
+        StandardPeriod(year, Q2)
+    }
+  }
+
+  def getPreviousPeriod: Period = {
+    quarter match {
+      case Q4 =>
+        StandardPeriod(year, Q3)
+      case Q3 =>
+        StandardPeriod(year, Q2)
+      case Q2 =>
+        StandardPeriod(year, Q1)
+      case Q1 =>
+        StandardPeriod(year - 1, Q4)
+    }
+  }
 }
 
 
@@ -77,6 +104,7 @@ object StandardPeriod {
   def fromPeriod(period: Period): StandardPeriod = {
     StandardPeriod(period.year, period.quarter)
   }
+
   implicit val format: OFormat[StandardPeriod] = Json.format[StandardPeriod]
 }
 
@@ -101,6 +129,16 @@ object Period {
     case p: PartialReturnPeriod => Json.toJson(p)(PartialReturnPeriod.format)
   }
 
-  implicit def format: Format[Period] = Format(reads, writes)
+  def getPeriod(date: LocalDate): Period = {
+    val quarter = Quarter.fromString(date.format(DateTimeFormatter.ofPattern("QQQ")))
 
+    quarter match {
+      case Success(value) =>
+        StandardPeriod(date.getYear, value)
+      case Failure(exception) =>
+        throw exception
+    }
+  }
+
+  implicit def format: Format[Period] = Format(reads, writes)
 }

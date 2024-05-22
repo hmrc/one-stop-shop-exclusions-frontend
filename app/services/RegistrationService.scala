@@ -18,22 +18,21 @@ package services
 
 import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
+import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
 import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.RegistrationRequest
-import models.{Period, Quarter, StandardPeriod, UserAnswers}
 import pages._
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.format.DateTimeFormatter
-import java.time.{Clock, LocalDate}
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Success
 
 class RegistrationService @Inject()(
                                      clock: Clock,
@@ -121,20 +120,7 @@ class RegistrationService @Inject()(
     ExcludedTrader(
       vrn = vrn,
       exclusionReason = exclusionReason,
-      effectivePeriod = determinePeriod(effectiveDate),
       effectiveDate = effectiveDate
     )
-  }
-
-  private def determinePeriod(effectiveDate: LocalDate): Period = {
-
-    val quarter: Try[Quarter] = Quarter.fromString(effectiveDate.format(DateTimeFormatter.ofPattern("QQQ")))
-
-    quarter match {
-      case Success(value) =>
-        StandardPeriod(effectiveDate.getYear, value)
-      case Failure(exception) =>
-        throw exception
-    }
   }
 }

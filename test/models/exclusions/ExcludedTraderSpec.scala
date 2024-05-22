@@ -19,7 +19,6 @@ package models.exclusions
 import base.SpecBase
 import play.api.libs.json.{JsSuccess, Json}
 
-
 class ExcludedTraderSpec extends SpecBase {
 
   private val excludedTrader: ExcludedTrader = arbitraryExcludedTrader.arbitrary.sample.value
@@ -31,14 +30,12 @@ class ExcludedTraderSpec extends SpecBase {
       val json = Json.obj(
         "vrn" -> excludedTrader.vrn,
         "exclusionReason" -> excludedTrader.exclusionReason,
-        "effectivePeriod" -> excludedTrader.effectivePeriod,
         "effectiveDate" -> excludedTrader.effectiveDate
       )
 
       val expectedResult = ExcludedTrader(
         vrn = excludedTrader.vrn,
         exclusionReason = excludedTrader.exclusionReason,
-        effectivePeriod = excludedTrader.effectivePeriod,
         effectiveDate = excludedTrader.effectiveDate
       )
 

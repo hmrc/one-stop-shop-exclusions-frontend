@@ -359,12 +359,10 @@ trait ModelGenerators {
       for {
         vrn <- arbitraryVrn.arbitrary
         exclusionReason <- arbitraryExclusionReason.arbitrary
-        effectivePeriod <- arbitraryStandardPeriod.arbitrary
         effectiveDate <- arbitraryDate.arbitrary
       } yield ExcludedTrader(
         vrn = vrn,
         exclusionReason = exclusionReason,
-        effectivePeriod = effectivePeriod,
         effectiveDate = effectiveDate
       )
     }

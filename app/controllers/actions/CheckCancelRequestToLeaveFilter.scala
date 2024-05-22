@@ -19,18 +19,18 @@ package controllers.actions
 import config.Constants.{exclusionCodeSixFollowingMonth, exclusionCodeSixTenthOfMonth}
 import connectors.VatReturnsConnector
 import logging.Logging
-import models.Quarter.{Q1, Q2, Q3, Q4}
+import models.Period
+import models.Period.getPeriod
 import models.exclusions.ExcludedTrader
 import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.requests.OptionalDataRequest
-import models.{Period, StandardPeriod}
 import pages.EmptyWaypoints
 import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps
 
-import java.time.{Clock, LocalDate, Month}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,7 +52,7 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
 
         val currentPeriod: Period = getPeriod(LocalDate.now(clock))
 
-        if (excludedTrader.effectivePeriod == currentPeriod) {
+        if (excludedTrader.finalReturnPeriod == currentPeriod) {
           None.toFuture
         } else {
           checkVatReturnSubmissionStatus(excludedTrader)
@@ -71,7 +71,7 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
     vatReturnsConnector.getSubmittedVatReturns.map { vatReturns =>
       val periods = vatReturns.map(_.period)
 
-      if (periods.contains(excludedTrader.effectivePeriod)) {
+      if (periods.contains(excludedTrader.finalReturnPeriod)) {
         Some(Redirect(CancelLeaveSchemeErrorPage.route(EmptyWaypoints).url))
       } else {
         None
@@ -84,15 +84,6 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
       .plusMonths(exclusionCodeSixFollowingMonth)
       .withDayOfMonth(exclusionCodeSixTenthOfMonth)
     today.isBefore(tenthOfFollowingMonth) || today.isEqual(tenthOfFollowingMonth)
-  }
-
-  private def getPeriod(effectiveDate: LocalDate): Period = {
-    effectiveDate.getMonth match {
-      case Month.JANUARY | Month.FEBRUARY | Month.MARCH => StandardPeriod(effectiveDate.getYear, Q1)
-      case Month.APRIL | Month.MAY | Month.JUNE => StandardPeriod(effectiveDate.getYear, Q2)
-      case Month.JULY | Month.AUGUST | Month.SEPTEMBER => StandardPeriod(effectiveDate.getYear, Q3)
-      case Month.OCTOBER | Month.NOVEMBER | Month.DECEMBER => StandardPeriod(effectiveDate.getYear, Q4)
-    }
   }
 }
 

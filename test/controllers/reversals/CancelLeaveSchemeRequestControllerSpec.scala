@@ -24,7 +24,7 @@ import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
 import models.responses.UnexpectedResponseStatus
-import models.{Period, UserAnswers, VatReturn}
+import models.{UserAnswers, VatReturn}
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
@@ -45,13 +45,12 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
   private val formProvider = new CancelLeaveSchemeRequestFormProvider()
   private val form: Form[Boolean] = formProvider()
-  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
 
   private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
   private val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
-    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate))
   )
 
   private lazy val cancelLeaveSchemeRequestRoute: String = routes.CancelLeaveSchemeRequestController.onPageLoad(emptyWaypoints).url

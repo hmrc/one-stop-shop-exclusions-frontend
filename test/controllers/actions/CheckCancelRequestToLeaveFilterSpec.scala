@@ -50,7 +50,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
   private val today: LocalDate = LocalDate.now(stubClockAtArbitraryDate)
   private val quarter = Quarter.fromString(s"Q${today.get(IsoFields.QUARTER_OF_YEAR)}").get
-  private val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
+  private val finalReturnPeriod: Period = StandardPeriod(today.getYear, quarter)
 
   ".filter" - {
 
@@ -58,10 +58,10 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
       s"must return None when exclusion reason is code $exclusionReason and today is before the exclusion effective date" in {
 
-        val effectiveDate = effectivePeriod.lastDay.plusDays(1)
+        val effectiveDate = finalReturnPeriod.lastDay.plusDays(1)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate)))
 
         val application = applicationBuilder().build()
 
@@ -82,7 +82,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = today
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate)))
 
         val application = applicationBuilder().build()
 
@@ -105,7 +105,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = arbitraryDate.arbitrary.sample.value
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate)))
 
         val application = applicationBuilder().build()
 
@@ -133,7 +133,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
           .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
@@ -158,7 +158,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock)).build()
 
@@ -174,18 +174,16 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
       }
 
       "must return None when the effective date is on or before the 10th day of the following month they changed country" +
-        "and effective period is equal to the current period (too early to submit return for that period)" in {
+        "and final return period is equal to the current period (too early to submit return for that period)" in {
 
         val today: LocalDate = LocalDate.of(2024, 5, 9)
-        val quarter = Quarter.fromString(s"Q${today.get(IsoFields.QUARTER_OF_YEAR)}").get
-        val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
 
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 
         val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock)).build()
 
@@ -201,7 +199,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
       }
 
       "must return None when the effective date is on or before the 10th day of the following month they changed country" +
-        "and effective period does not have an associated submitted return " in {
+        "and final return period does not have an associated submitted return" in {
 
         val today: LocalDate = LocalDate.of(2024, 5, 9)
         val quarter = Quarter.fromString(s"Q${today.minusMonths(3).get(IsoFields.QUARTER_OF_YEAR)}").get
@@ -217,7 +215,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
           .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
@@ -235,23 +233,23 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
       }
 
       "must redirect to the Cancel Leave Scheme Error Page when the effective date is on or before the 10th day of the following month they changed country" +
-        "and effective period has an associated submitted return " in {
+        "and final return period has an associated submitted return" in {
 
         val today: LocalDate = LocalDate.of(2024, 5, 9)
         val quarter = Quarter.fromString(s"Q${today.minusMonths(3).get(IsoFields.QUARTER_OF_YEAR)}").get
-        val effectivePeriod: Period = StandardPeriod(today.getYear, quarter)
+        val finalReturnPeriod: Period = StandardPeriod(today.getYear, quarter)
 
-        val submittedVatReturnsWithEffectivePeriod: Seq[VatReturn] =
-          Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value ++ Seq(VatReturn(period = effectivePeriod))
+        val submittedVatReturnsWithFinalReturnPeriod: Seq[VatReturn] =
+          Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value ++ Seq(VatReturn(period = finalReturnPeriod))
 
-        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturnsWithEffectivePeriod.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturnsWithFinalReturnPeriod.toFuture
 
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 
-        val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
+        val effectiveDate = today.minusMonths(2)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
           .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
@@ -275,7 +273,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val effectiveDate = today.minusMonths(exclusionCodeSixFollowingMonth)
 
         val excludedRegistration: Registration = registration
-          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectivePeriod, effectiveDate)))
+          .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock)).build()
 

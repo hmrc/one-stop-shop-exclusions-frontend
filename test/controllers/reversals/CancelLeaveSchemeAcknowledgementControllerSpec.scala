@@ -18,7 +18,6 @@ package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.Period
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import play.api.test.FakeRequest
@@ -29,10 +28,8 @@ import java.time.LocalDate
 
 class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase {
 
-  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
-
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
-    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, period, effectiveDate))
+    excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate))
   )
 
   "CancelLeaveSchemeAcknowledgement Controller" - {
