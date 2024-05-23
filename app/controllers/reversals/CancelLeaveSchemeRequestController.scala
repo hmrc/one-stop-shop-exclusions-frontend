@@ -95,7 +95,7 @@ class CancelLeaveSchemeRequestController @Inject()(
         exclusionAuditType = ExclusionAuditType.ReversalRequestSubmitted
       ).map {
         case Right(_) =>
-          Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).route)
+          Redirect(CancelLeaveSchemeRequestPage.navigate(waypoints, originalAnswers, updatedAnswers).url)
         case Left(error) =>
           logger.error(s"Failed to update self exclusion status with error: ${error.body}")
           Redirect(CancelLeaveSchemeSubmissionFailurePage.route(waypoints).url)

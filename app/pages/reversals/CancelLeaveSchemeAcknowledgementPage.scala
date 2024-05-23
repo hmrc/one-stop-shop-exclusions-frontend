@@ -17,20 +17,11 @@
 package pages.reversals
 
 import controllers.reversals.routes
-import models.UserAnswers
-import pages.{Page, QuestionPage, Waypoints}
-import play.api.libs.json.JsPath
+import pages.{Page, Waypoints}
 import play.api.mvc.Call
 
-case object CancelLeaveSchemeRequestPage extends QuestionPage[Boolean] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "cancelLeaveSchemeRequest"
+case object CancelLeaveSchemeAcknowledgementPage extends Page {
 
   override def route(waypoints: Waypoints): Call =
-    routes.CancelLeaveSchemeRequestController.onPageLoad()
-
-  override protected def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page =
-    CancelLeaveSchemeAcknowledgementPage
+    routes.CancelLeaveSchemeAcknowledgementController.onPageLoad()
 }
