@@ -166,3 +166,8 @@ cancelLeaveSchemeSubmissionFailure.returnToAccount = Back to your account
 cancelLeaveSchemeError.title = You can no longer cancel your request to leave the One Stop Shop scheme
 cancelLeaveSchemeError.heading = You can no longer cancel your request to leave the One Stop Shop scheme
 cancelLeaveSchemeError.returnToAccount = Return to your account
+
+cannotUseThisService.title = You cannot use this service
+cannotUseThisService.heading = You cannot use this service
+cannotUseThisService.returnToAccount = Return to your account
+

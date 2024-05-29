@@ -24,7 +24,7 @@ import models.Period.getPeriod
 import models.exclusions.ExcludedTrader
 import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
 import models.requests.OptionalDataRequest
-import pages.EmptyWaypoints
+import pages.{CannotUseThisServicePage, EmptyWaypoints}
 import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
@@ -46,24 +46,28 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
 
     val maybeExclusion: Option[ExcludedTrader] = request.registration.excludedTrader
 
-    maybeExclusion match {
-      case Some(excludedTrader) if TransferringMSID == excludedTrader.exclusionReason &&
-        isEqualToOrBeforeTenthOfFollowingMonth(excludedTrader.effectiveDate) =>
+    if (maybeExclusion.isEmpty) {
+      Some(Redirect(CannotUseThisServicePage.route(EmptyWaypoints).url)).toFuture
+    } else {
+      maybeExclusion match {
+        case Some(excludedTrader) if TransferringMSID == excludedTrader.exclusionReason &&
+          isEqualToOrBeforeTenthOfFollowingMonth(excludedTrader.effectiveDate) =>
 
-        val currentPeriod: Period = getPeriod(LocalDate.now(clock))
+          val currentPeriod: Period = getPeriod(LocalDate.now(clock))
 
-        if (excludedTrader.finalReturnPeriod == currentPeriod) {
+          if (excludedTrader.finalReturnPeriod == currentPeriod) {
+            None.toFuture
+          } else {
+            checkVatReturnSubmissionStatus(excludedTrader)
+          }
+
+        case Some(excludedTrader) if Seq(NoLongerSupplies, VoluntarilyLeaves).contains(excludedTrader.exclusionReason) &&
+          LocalDate.now(clock).isBefore(excludedTrader.effectiveDate) =>
           None.toFuture
-        } else {
-          checkVatReturnSubmissionStatus(excludedTrader)
-        }
 
-      case Some(excludedTrader) if Seq(NoLongerSupplies, VoluntarilyLeaves).contains(excludedTrader.exclusionReason) &&
-        LocalDate.now(clock).isBefore(excludedTrader.effectiveDate) =>
-        None.toFuture
-
-      case _ =>
-        Some(Redirect(CancelLeaveSchemeErrorPage.route(EmptyWaypoints).url)).toFuture
+        case _ =>
+          Some(Redirect(CancelLeaveSchemeErrorPage.route(EmptyWaypoints).url)).toFuture
+      }
     }
   }
 

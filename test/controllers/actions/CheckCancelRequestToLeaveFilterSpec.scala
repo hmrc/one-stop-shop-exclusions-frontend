@@ -26,6 +26,7 @@ import models.requests.OptionalDataRequest
 import models.{Period, Quarter, StandardPeriod, VatReturn}
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
+import pages.CannotUseThisServicePage
 import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.inject.bind
 import play.api.mvc.Result
@@ -53,6 +54,21 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
   private val finalReturnPeriod: Period = StandardPeriod(today.getYear, quarter)
 
   ".filter" - {
+
+    "must redirect to Cannot Use This Service page when trader is not excluded" in {
+
+      val application = applicationBuilder().build()
+
+      running(application) {
+
+        val request = OptionalDataRequest(FakeRequest(), userAnswersId, vrn, registration, Some(completeUserAnswers))
+        val controller = new Harness()
+
+        val result = controller.callFilter(request).futureValue
+
+        result.value mustBe Redirect(CannotUseThisServicePage.route(emptyWaypoints).url)
+      }
+    }
 
     Seq(NoLongerSupplies, VoluntarilyLeaves).foreach { exclusionReason =>
 
