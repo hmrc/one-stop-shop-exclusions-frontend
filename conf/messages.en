@@ -1,0 +1,149 @@
+service.name = one-stop-shop-exclusions-frontend
+service.text = This is your new service
+
+site.back = Back
+site.remove = Remove
+site.change = Change
+site.no = No
+site.yes = Yes
+site.continue = Continue
+site.submit = Submit
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+date.day = Day
+date.month = Month
+date.year = Year
+date.error.day = day
+date.error.month = month
+date.error.year = year
+
+timeout.title = You’'re about to be signed out
+timeout.message = For security reasons, you will be signed out of this service in
+timeout.keepAlive = Stay signed in
+timeout.signOut = Sign out
+
+error.browser.title.prefix = Error:
+error.boolean = Please give an answer
+error.invalid_date = Give a correct date
+error.date.day_blank = Enter a day
+error.date.day_invalid = Give a correct day using numbers 1 to 31
+error.date.month_blank = Enter a month
+error.date.month_invalid = Give a correct month using numbers 1 to 12
+error.date.year_blank = Enter a year
+error.date.year_invalid = Give a correct year
+error.integer = Give an answer in whole numbers
+error.non_numeric = Give a value using only numbers
+error.number = Please enter a valid number
+error.required = Please enter a value
+error.summary.title = There is a problem
+error.missing_answers = Some of your information is missing. You must complete this before you can submit your changes.
+error.missing_answers_header = Some information is missing.
+error.missing_answers_prompt.general = You need to complete the missing information before you continue.
+error.resolve_missing_answers = Resolve missing answers
+
+index.title = one-stop-shop-exclusions-frontend
+index.heading = one-stop-shop-exclusions-frontend
+index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
+
+checkYourAnswers.title = Check your answers
+checkYourAnswers.heading = Check your answers
+checkYourAnswers.hint = I confirm I want to leave the OSS scheme.
+
+journeyRecovery.continue.title = Sorry, there is a problem with the service
+journeyRecovery.continue.heading = Sorry, there is a problem with the service
+journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
+journeyRecovery.startAgain.title = Sorry, there is a problem with the service
+journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
+journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+unauthorised.title = You can’t access this service with this account
+unauthorised.heading = You can’t access this service with this account
+
+moveCountry.title = Are you moving your business to an EU country?
+moveCountry.heading = Are you moving your business to an EU country?
+moveCountry.checkYourAnswersLabel = Moved to an EU country
+moveCountry.error.required = Select yes if you moved your business to an EU country
+moveCountry.change.hidden = if you moved to an EU country
+
+euCountry.title = Which country is your business moving to?
+euCountry.heading = Which country is your business moving to?
+euCountry.checkYourAnswersLabel = New country
+euCountry.error.required = Select the country your business is moving to
+euCountry.change.hidden = EU Country
+
+euVatNumber.title = What is your VAT registration number for {0}?
+euVatNumber.heading = What is your VAT registration number for {0}?
+euVatNumber.hint = This will start with {0}, for example {0}{1}
+euVatNumber.checkYourAnswersLabel = VAT Number
+euVatNumber.error.required = Enter your VAT registration number for {0}
+euVatNumber.error.invalid = Enter a registration number in the correct format
+euVatNumber.change.hidden = VAT registration number
+
+moveDate.title = When did or when will your business move to {0}?
+moveDate.heading = When did or when will your business move to {0}?
+moveDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
+moveDate.checkYourAnswersLabel = Business move date
+moveDate.error.required.all = Enter the move date
+moveDate.error.required.two = The move date must include {0} and {1}
+moveDate.error.required = The move date must include {0}
+moveDate.error.invalid = Enter a valid move date
+moveDate.error.invalid.invalidDateRage = The date must be between {0} and {1} inclusively
+moveDate.error.invalid.minDate = The date your business moved must be on or after {0}
+moveDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
+moveDate.change.hidden = Move Date
+
+stopSellingGoods.title = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
+stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
+stopSellingGoods.error.required = Select yes if you want to stop selling goods
+
+leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
+leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?
+leaveScheme.checkYourAnswersLabel = leave scheme
+leaveScheme.error.required = Select yes if you want to leave the Import One Stop Shop scheme
+leaveScheme.change.hidden = Leave scheme
+
+stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
+stoppedSellingGoodsDate.heading = When did or when will your business stop selling eligible goods?
+stoppedSellingGoodsDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
+stoppedSellingGoodsDate.error.required.all = Enter the date you stopped selling goods
+stoppedSellingGoodsDate.error.required.two = The date you stopped selling goods must include {0} and {1}
+stoppedSellingGoodsDate.error.required = The date you stopped selling goods must include the {0}
+stoppedSellingGoodsDate.error.invalid = Give a correct date
+stoppedSellingGoodsDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
+
+stoppedUsingServiceDate.title = When did you or when will you stop using this service?
+stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
+stoppedUsingServiceDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
+stoppedUsingServiceDate.error.required.all = Enter the date you stopped using this service
+stoppedUsingServiceDate.error.required.two = The date you stopped using this service must include {0} and {1}
+stoppedUsingServiceDate.error.required = The date you stopped using this service must include {0}
+stoppedUsingServiceDate.error.invalid = Give a correct date
+stoppedUsingServiceDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
+
+applicationComplete.title = We have received your request to leave
+applicationComplete.heading = We have received your request to leave
+applicationComplete.stopSellingGoods.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.
+applicationComplete.moving.text = You are moving your business operations to {0}.
+applicationComplete.leave.text = You will leave this service on {0}.
+applicationComplete.left.text = You have now left the service.
+applicationComplete.next.heading = What happens next
+applicationComplete.next.info.top = You must:
+applicationComplete.next.info.bullet0 = register for the One Stop Shop scheme in {0} by {1} to continue using the scheme without a break
+applicationComplete.next.info.bullet1 = complete a VAT return for your final period
+applicationComplete.next.info.bullet2 = pay any VAT you still owe
+applicationComplete.next.info.bottom = You have until {0} to cancel this request and stay on the service.
+applicationComplete.next.info.bottom.continue = If you wish to continue using the One Stop Shop scheme you can register in {0} from {1}.
+applicationComplete.next.info.returnToAccount = Return to your account
+
+submissionFailure.title = We have a problem with our service right now
+submissionFailure.heading = We have not received your request to leave
+submissionFailure.tryAgainLater = Please try again later.
+submissionFailure.contactUs = If the problem continues, you can email us at <a class="govuk-link" href="mailto:vatoss.contact@hmrc.gov.uk">vatoss.contact@hmrc.gov.uk</a>
+submissionFailure.next.info.returnToAccount = Back to your account
