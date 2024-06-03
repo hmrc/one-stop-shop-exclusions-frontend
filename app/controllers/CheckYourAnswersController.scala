@@ -22,7 +22,7 @@ import date.Dates
 import logging.Logging
 import models.CheckMode
 import models.audit.ExclusionAuditType
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import pages.{CheckYourAnswersPage, EmptyWaypoints, Waypoint, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -86,7 +86,7 @@ class CheckYourAnswersController @Inject()(
             request.vrn,
             request.userAnswers,
             request.registration,
-            Some(EtmpExclusionReason.TransferringMSID),
+            Some(ExclusionReason.TransferringMSID),
             ExclusionAuditType.ExclusionRequestSubmitted
           ).map {
             case Right(_) =>

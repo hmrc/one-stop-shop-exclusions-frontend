@@ -17,6 +17,8 @@
 package models.exclusions
 
 import logging.Logging
+import models.Period
+import models.Period.getPeriod
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Vrn
 
@@ -24,9 +26,18 @@ import java.time.LocalDate
 
 case class ExcludedTrader(
                            vrn: Vrn,
-                           exclusionReason: EtmpExclusionReason,
+                           exclusionReason: ExclusionReason,
                            effectiveDate: LocalDate
-                         )
+                         ) {
+
+  val finalReturnPeriod: Period = {
+    if (exclusionReason == ExclusionReason.TransferringMSID) {
+      getPeriod(effectiveDate)
+    } else {
+      getPeriod(effectiveDate).getPreviousPeriod
+    }
+  }
+}
 
 
 object ExcludedTrader extends Logging {

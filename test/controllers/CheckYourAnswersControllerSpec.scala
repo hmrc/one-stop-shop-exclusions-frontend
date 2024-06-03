@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.RegistrationConnector
 import models.CheckMode
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -96,7 +96,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             vrn.vrn,
             userAnswers.toUserAnswersForAudit,
             registration,
-            Some(EtmpExclusionReason.TransferringMSID),
+            Some(ExclusionReason.TransferringMSID),
             SubmissionResult.Success
           )
 
@@ -131,7 +131,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             vrn.vrn,
             userAnswers.toUserAnswersForAudit,
             registration,
-            Some(EtmpExclusionReason.TransferringMSID),
+            Some(ExclusionReason.TransferringMSID),
             SubmissionResult.Failure
           )
 

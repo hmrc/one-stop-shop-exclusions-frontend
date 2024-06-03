@@ -106,7 +106,7 @@ class MoveDateControllerSpec extends SpecBase {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), clock = Some(Dates.clock)).build()
 
       running(application) {
         val result = route(application, postRequest()).value

@@ -32,6 +32,7 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def identify: IdentifierAction
   def getData: DataRetrievalAction
   def requireData: DataRequiredAction
+  def checkExcludedTrader: CheckCancelRequestToLeaveFilter
   def checkAlreadyLeft: CheckAlreadyLeftSchemeFilter
 
   def auth: ActionBuilder[IdentifierRequest, AnyContent] =
@@ -42,6 +43,9 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
 
   def authAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =
     auth andThen getData
+
+  def authAndGetOptionalDataAndEvaluateExcludedTrader: ActionBuilder[OptionalDataRequest, AnyContent] =
+    authAndGetOptionalData andThen checkExcludedTrader
 
   def authAndGetOptionalDataAndCheckAlreadyLeft: ActionBuilder[OptionalDataRequest, AnyContent] =
     authAndGetOptionalData andThen checkAlreadyLeft
@@ -58,6 +62,8 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                sessionRepository: SessionRepository,
                                                                identify: IdentifierAction,
                                                                getData: DataRetrievalAction,
+                                                               requireData: DataRequiredAction,
+                                                               checkExcludedTrader: CheckCancelRequestToLeaveFilter
                                                                requireData: DataRequiredAction,
                                                                checkAlreadyLeft: CheckAlreadyLeftSchemeFilter
                                                              ) extends AuthenticatedControllerComponents

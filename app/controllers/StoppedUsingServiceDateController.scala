@@ -21,9 +21,7 @@ import date.Dates
 import forms.StoppedUsingServiceDateFormProvider
 import logging.Logging
 import models.audit.ExclusionAuditType
-import models.exclusions.EtmpExclusionReason
-
-import javax.inject.Inject
+import models.exclusions.ExclusionReason
 import pages.{StoppedUsingServiceDatePage, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedUsingServiceDateView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StoppedUsingServiceDateController @Inject()(
@@ -76,7 +75,7 @@ class StoppedUsingServiceDateController @Inject()(
               request.vrn,
               updatedAnswers,
               request.registration,
-              Some(EtmpExclusionReason.VoluntarilyLeaves),
+              Some(ExclusionReason.VoluntarilyLeaves),
               ExclusionAuditType.ExclusionRequestSubmitted
             ).map {
               case Right(_) =>

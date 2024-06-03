@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.RegistrationConnector
 import models.audit.ExclusionAuditType
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -40,7 +40,7 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
 
   private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
   private val mockAuditService: AuditService = mock[AuditService]
-  private val registrationService = new RegistrationService(stubClock, mockRegistrationConnector, mockAuditService)
+  private val registrationService = new RegistrationService(stubClockAtArbitraryDate, mockRegistrationConnector, mockAuditService)
 
   override def beforeEach(): Unit = {
     reset(mockRegistrationConnector)
@@ -90,7 +90,7 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
             vrn,
             completeUserAnswers,
             registration,
-            Some(EtmpExclusionReason.TransferringMSID),
+            Some(ExclusionReason.TransferringMSID),
             ExclusionAuditType.ExclusionRequestSubmitted
           ).futureValue mustBe Right(())
           verify(mockRegistrationConnector, times(1)).amend(eqTo(expectedAmendRegistrationRequest))(any())
@@ -122,7 +122,7 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
             vrn,
             userAnswers,
             registration,
-            Some(EtmpExclusionReason.NoLongerSupplies),
+            Some(ExclusionReason.NoLongerSupplies),
             ExclusionAuditType.ExclusionRequestSubmitted
           ).futureValue mustBe Right(())
           verify(mockRegistrationConnector, times(1)).amend(eqTo(expectedAmendRegistrationRequest))(any())
@@ -157,7 +157,7 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
             vrn,
             userAnswers,
             registration,
-            Some(EtmpExclusionReason.VoluntarilyLeaves),
+            Some(ExclusionReason.VoluntarilyLeaves),
             ExclusionAuditType.ExclusionRequestSubmitted
           ).futureValue mustBe Right(())
           verify(mockRegistrationConnector, times(1)).amend(eqTo(exceptedAmendRegistrationRequest))(any())
