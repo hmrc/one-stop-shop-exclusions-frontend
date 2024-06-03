@@ -17,23 +17,23 @@
 package connectors
 
 import config.FrontendAppConfig
+import connectors.VatReturnHttpParser.VatReturnMultipleResponse
 import logging.Logging
-import models.VatReturn
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class VatReturnsConnector @Inject()(
-                                     frontendAppConfig: FrontendAppConfig,
-                                     httpClientV2: HttpClientV2
-                                   )(implicit ec: ExecutionContext) extends HttpErrorFunctions with Logging {
+class VatReturnConnector @Inject()(
+                                    frontendAppConfig: FrontendAppConfig,
+                                    httpClientV2: HttpClientV2
+                                  )(implicit ec: ExecutionContext) extends HttpErrorFunctions with Logging {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
   private val baseUrl: String = frontendAppConfig.returnsServiceUrl
 
-  def getSubmittedVatReturns: Future[Seq[VatReturn]] = {
-    httpClientV2.get(url"$baseUrl/vat-returns").execute[Seq[VatReturn]]
+  def getSubmittedVatReturns(): Future[VatReturnMultipleResponse] = {
+    httpClientV2.get(url"$baseUrl/vat-returns").execute[VatReturnMultipleResponse]
   }
 }

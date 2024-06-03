@@ -18,7 +18,7 @@ package controllers.reversals
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.VatReturnsConnector
+import connectors.VatReturnConnector
 import forms.reversals.CancelLeaveSchemeRequestFormProvider
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
@@ -46,7 +46,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
   private val formProvider = new CancelLeaveSchemeRequestFormProvider()
   private val form: Form[Boolean] = formProvider()
 
-  private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
+  private val mockVatReturnsConnector: VatReturnConnector = mock[VatReturnConnector]
   private val mockRegistrationService: RegistrationService = mock[RegistrationService]
 
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
@@ -106,7 +106,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
           userAnswers = Some(emptyUserAnswers),
           maybeRegistration = Some(excludedRegistrationCode6)
         )
-          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .overrides(bind[VatReturnConnector].toInstance(mockVatReturnsConnector))
           .build()
 
         running(application) {

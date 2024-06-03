@@ -17,6 +17,7 @@
 package controllers
 
 import config.FrontendAppConfig
+import controllers.actions.AuthenticatedControllerComponents
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -25,12 +26,14 @@ import views.html.CannotUseThisServiceView
 import javax.inject.Inject
 
 class CannotUseThisServiceController @Inject()(
-                                                val controllerComponents: MessagesControllerComponents,
+                                                cc: AuthenticatedControllerComponents,
                                                 frontendAppConfig: FrontendAppConfig,
                                                 view: CannotUseThisServiceView
                                               ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action {
+  protected val controllerComponents: MessagesControllerComponents = cc
+
+  def onPageLoad: Action[AnyContent] = (cc.auth andThen cc.identify) {
     implicit request =>
       Ok(view(frontendAppConfig.ossYourAccountUrl))
   }

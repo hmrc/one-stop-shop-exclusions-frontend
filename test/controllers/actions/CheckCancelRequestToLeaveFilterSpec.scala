@@ -18,7 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import config.Constants.{exclusionCodeSixFollowingMonth, exclusionCodeSixTenthOfMonth}
-import connectors.VatReturnsConnector
+import connectors.VatReturnConnector
 import models.exclusions.ExclusionReason.{CeasedTrade, FailsToComply, NoLongerMeetsConditions, NoLongerSupplies, Reversal, VoluntarilyLeaves}
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
@@ -43,7 +43,7 @@ import scala.concurrent.Future
 class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
   private val submittedVatReturns: Seq[VatReturn] = Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value
-  private val mockVatReturnsConnector: VatReturnsConnector = mock[VatReturnsConnector]
+  private val mockVatReturnsConnector: VatReturnConnector = mock[VatReturnConnector]
 
   class Harness(clock: Option[Clock] = None) extends CheckCancelRequestToLeaveFilterImpl(clock.getOrElse(stubClockAtArbitraryDate), mockVatReturnsConnector) {
     def callFilter(request: OptionalDataRequest[_]): Future[Option[Result]] = filter(request)
@@ -152,7 +152,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
           .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
-          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .overrides(bind[VatReturnConnector].toInstance(mockVatReturnsConnector))
           .build()
 
         running(application) {
@@ -234,7 +234,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
           .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
-          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .overrides(bind[VatReturnConnector].toInstance(mockVatReturnsConnector))
           .build()
 
         running(application) {
@@ -268,7 +268,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
           .copy(excludedTrader = Some(ExcludedTrader(vrn, ExclusionReason.TransferringMSID, effectiveDate)))
 
         val application = applicationBuilder(clock = Some(newClock))
-          .overrides(bind[VatReturnsConnector].toInstance(mockVatReturnsConnector))
+          .overrides(bind[VatReturnConnector].toInstance(mockVatReturnsConnector))
           .build()
 
         running(application) {

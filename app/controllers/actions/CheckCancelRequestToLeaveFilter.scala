@@ -17,7 +17,7 @@
 package controllers.actions
 
 import config.Constants.{exclusionCodeSixFollowingMonth, exclusionCodeSixTenthOfMonth}
-import connectors.VatReturnsConnector
+import connectors.VatReturnConnector
 import logging.Logging
 import models.Period
 import models.Period.getPeriod
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CheckCancelRequestToLeaveFilterImpl @Inject()(
                                                      clock: Clock,
-                                                     vatReturnsConnector: VatReturnsConnector
+                                                     vatReturnsConnector: VatReturnConnector
                                                    )(implicit val executionContext: ExecutionContext)
   extends CheckCancelRequestToLeaveFilter with Logging {
 
