@@ -27,14 +27,13 @@ object VatReturnHttpParser extends Logging {
   type VatReturnMultipleResponse = Seq[VatReturn]
 
   implicit object VatReturnMultipleReads extends HttpReads[VatReturnMultipleResponse] {
-
     override def read(method: String, url: String, response: HttpResponse): VatReturnMultipleResponse = {
       response.status match {
         case OK =>
           response.json.validate[Seq[VatReturn]] match {
             case JsSuccess(vatReturns, _) => vatReturns
             case JsError(errors) =>
-              logger.warn(s"Failed trying to parse JSON $errors. JSON was ${response.json}")
+              logger.warn(s"Failed trying to parse JSON $errors. JSON was ${response.json}", errors)
               Seq.empty
           }
 
