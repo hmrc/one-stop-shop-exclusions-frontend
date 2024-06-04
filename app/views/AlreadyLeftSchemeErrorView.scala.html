@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,26 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models.exclusions
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
 
-import logging.Logging
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.domain.Vrn
+@(yourAccountUrl: String)(implicit request: Request[_], messages: Messages)
 
-import java.time.LocalDate
+@layout(pageTitle = titleNoForm(messages("alreadyLeftSchemeError.title"))) {
 
-case class ExcludedTrader(
-                           vrn: Vrn,
-                           exclusionReason: EtmpExclusionReason,
-                           effectiveDate: LocalDate
-                         )
+    <h1 class="govuk-heading-l">@messages("alreadyLeftSchemeError.heading")</h1>
 
-
-object ExcludedTrader extends Logging {
-
-  implicit val format: OFormat[ExcludedTrader] = Json.format[ExcludedTrader]
+    <p class="govuk-body">
+        <a href="@yourAccountUrl" class="govuk-link govuk-link--no-visited-state">
+            @messages("alreadyLeftSchemeError.returnToAccount")
+        </a>
+    </p>
 }
-
-

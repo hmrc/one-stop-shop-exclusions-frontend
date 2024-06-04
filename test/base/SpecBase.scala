@@ -78,14 +78,17 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder = {
+  protected def applicationBuilder(
+                                    userAnswers: Option[UserAnswers] = None,
+                                    maybeRegistration: Option[Registration] = None
+                                  ): GuiceApplicationBuilder = {
     val application = new GuiceApplicationBuilder()
     val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
       application
         .overrides(
           bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].toInstance(new FakeIdentifierAction(bodyParsers, vrn, registration)),
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, vrn, registration))
+          bind[IdentifierAction].toInstance(new FakeIdentifierAction(bodyParsers, vrn, maybeRegistration.getOrElse(registration))),
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, vrn, maybeRegistration.getOrElse(registration)))
         )
   }
 

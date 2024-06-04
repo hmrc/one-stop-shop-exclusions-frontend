@@ -18,7 +18,7 @@ package generators
 
 import models.registration._
 import models._
-import models.exclusions.ExcludedTrader
+import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
 import models.requests.RegistrationRequest
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
@@ -339,13 +339,12 @@ trait ModelGenerators {
   implicit val arbitraryExcludedTrader: Arbitrary[ExcludedTrader] = Arbitrary {
     for {
       vrn <- arbitrary[Vrn]
-      exclusionReason <- Gen.oneOf(-1, 1, 2, 3, 4, 5, 6) // Based on the exclusion reasons in convertExclusionReason
+      exclusionReason <- Gen.oneOf[EtmpExclusionReason](EtmpExclusionReason.values)
       effectivePeriod <- arbitrary[StandardPeriod]
-      effectiveDate <- Gen.option(Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now))
+      effectiveDate <- Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now)
     } yield ExcludedTrader(
       vrn,
       exclusionReason,
-      effectivePeriod,
       effectiveDate
     )
   }
