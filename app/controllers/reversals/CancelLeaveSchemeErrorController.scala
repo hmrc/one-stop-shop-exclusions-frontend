@@ -34,7 +34,7 @@ class CancelLeaveSchemeErrorController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader {
+  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalData {
     implicit request =>
       Ok(view(frontendAppConfig.ossYourAccountUrl))
   }

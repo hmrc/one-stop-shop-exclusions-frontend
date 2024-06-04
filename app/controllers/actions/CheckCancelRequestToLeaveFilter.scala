@@ -72,7 +72,7 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
   }
 
   private def checkVatReturnSubmissionStatus(excludedTrader: ExcludedTrader): Future[Option[Result]] = {
-    vatReturnsConnector.getSubmittedVatReturns.map { vatReturns =>
+    vatReturnsConnector.getSubmittedVatReturns().map { vatReturns =>
       val periods = vatReturns.map(_.period)
 
       if (periods.contains(excludedTrader.finalReturnPeriod)) {
