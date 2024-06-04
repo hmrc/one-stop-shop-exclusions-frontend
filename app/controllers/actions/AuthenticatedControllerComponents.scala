@@ -19,7 +19,7 @@ package controllers.actions
 import models.requests.{DataRequest, IdentifierRequest, OptionalDataRequest}
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
-import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder, MessagesActionBuilder, MessagesControllerComponents, PlayBodyParsers}
+import play.api.mvc._
 import repositories.SessionRepository
 
 import javax.inject.Inject
@@ -63,8 +63,7 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                identify: IdentifierAction,
                                                                getData: DataRetrievalAction,
                                                                requireData: DataRequiredAction,
-                                                               checkExcludedTrader: CheckCancelRequestToLeaveFilter
-                                                               requireData: DataRequiredAction,
+                                                               checkExcludedTrader: CheckCancelRequestToLeaveFilter,
                                                                checkAlreadyLeft: CheckAlreadyLeftSchemeFilter
                                                              ) extends AuthenticatedControllerComponents
 

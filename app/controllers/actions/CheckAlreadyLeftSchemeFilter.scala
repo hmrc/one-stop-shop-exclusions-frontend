@@ -17,15 +17,15 @@
 package controllers.actions
 
 import logging.Logging
-import models.exclusions.EtmpExclusionReason.Reversal
 import models.exclusions.ExcludedTrader
+import models.exclusions.ExclusionReason.Reversal
 import models.requests.OptionalDataRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps
 
-import javax.inject.Inject
 import java.time.Clock
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CheckAlreadyLeftSchemeFilterImpl @Inject()(clock: Clock)(implicit val executionContext: ExecutionContext)
