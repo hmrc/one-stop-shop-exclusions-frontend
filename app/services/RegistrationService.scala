@@ -20,7 +20,8 @@ import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
 import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
+import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
+import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.RegistrationRequest
 import pages._
@@ -40,13 +41,13 @@ class RegistrationService @Inject()(
                                    )(implicit ec: ExecutionContext) {
 
   def amendRegistrationAndAudit(
-                              userId: String,
-                              vrn: Vrn,
-                              answers: UserAnswers,
-                              registration: Registration,
-                              exclusionReason: Option[EtmpExclusionReason],
-                              exclusionAuditType: ExclusionAuditType
-                            )(implicit hc: HeaderCarrier, request: Request[_]): Future[AmendRegistrationResultResponse] = {
+                                 userId: String,
+                                 vrn: Vrn,
+                                 answers: UserAnswers,
+                                 registration: Registration,
+                                 exclusionReason: Option[ExclusionReason],
+                                 exclusionAuditType: ExclusionAuditType
+                               )(implicit hc: HeaderCarrier, request: Request[_]): Future[AmendRegistrationResultResponse] = {
 
     val success: ExclusionAuditModel = ExclusionAuditModel(
       exclusionAuditType = exclusionAuditType,
@@ -68,7 +69,7 @@ class RegistrationService @Inject()(
 
   private def amendRegistration(
                                  answers: UserAnswers,
-                                 exclusionReason: Option[EtmpExclusionReason],
+                                 exclusionReason: Option[ExclusionReason],
                                  vrn: Vrn,
                                  registration: Registration,
                                )(implicit hc: HeaderCarrier): Future[AmendRegistrationResultResponse] = {
@@ -78,7 +79,7 @@ class RegistrationService @Inject()(
 
   private def buildRegistration(
                                  answers: UserAnswers,
-                                 exclusionReason: Option[EtmpExclusionReason],
+                                 exclusionReason: Option[ExclusionReason],
                                  vrn: Vrn,
                                  registration: Registration,
                                ): RegistrationRequest = {
@@ -103,14 +104,14 @@ class RegistrationService @Inject()(
     )
   }
 
-  private def getExcludedTrader(exclusionReason: EtmpExclusionReason, answers: UserAnswers, vrn: Vrn): ExcludedTrader = {
+  private def getExcludedTrader(exclusionReason: ExclusionReason, answers: UserAnswers, vrn: Vrn): ExcludedTrader = {
 
     val effectiveDate = exclusionReason match {
-      case EtmpExclusionReason.TransferringMSID =>
+      case TransferringMSID =>
         answers.get(MoveDatePage).getOrElse(throw new Exception("No move date provided"))
-      case EtmpExclusionReason.NoLongerSupplies =>
+      case NoLongerSupplies =>
         answers.get(StoppedSellingGoodsDatePage).getOrElse(throw new Exception("No stopped selling goods date provided"))
-      case EtmpExclusionReason.VoluntarilyLeaves =>
+      case VoluntarilyLeaves =>
         answers.get(StoppedUsingServiceDatePage).getOrElse(throw new Exception("No stopped using service date provided"))
       //todo case EtmpExclusionReason.Reversal =>
       case _ => throw new Exception("Exclusion reason not valid")
@@ -121,7 +122,5 @@ class RegistrationService @Inject()(
       exclusionReason = exclusionReason,
       effectiveDate = effectiveDate
     )
-
   }
-
 }

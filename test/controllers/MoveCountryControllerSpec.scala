@@ -20,7 +20,7 @@ import base.SpecBase
 import date.Dates
 import forms.MoveCountryFormProvider
 import models.UserAnswers
-import models.exclusions.{EtmpExclusionReason, ExcludedTrader}
+import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
 import pages.MoveCountryPage
@@ -37,7 +37,7 @@ class MoveCountryControllerSpec extends SpecBase {
   val formProvider = new MoveCountryFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  private def excludedRegistration(exclusionReason: EtmpExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
+  private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
     excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate))
   )
   lazy val moveCountryRoute: String = routes.MoveCountryController.onPageLoad(emptyWaypoints).url
@@ -115,7 +115,7 @@ class MoveCountryControllerSpec extends SpecBase {
     "must redirect to Already Left Scheme Error when a trader is already excluded" in {
 
       val effectiveDate: LocalDate = LocalDate.now(Dates.clock)
-      val noLongerSupplies = excludedRegistration(EtmpExclusionReason.NoLongerSupplies, effectiveDate)
+      val noLongerSupplies = excludedRegistration(ExclusionReason.NoLongerSupplies, effectiveDate)
 
       val application = applicationBuilder(
         userAnswers = Some(emptyUserAnswers),

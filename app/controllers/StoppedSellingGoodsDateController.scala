@@ -21,9 +21,7 @@ import date.Dates
 import forms.StoppedSellingGoodsDateFormProvider
 import logging.Logging
 import models.audit.ExclusionAuditType
-import models.exclusions.EtmpExclusionReason
-
-import javax.inject.Inject
+import models.exclusions.ExclusionReason
 import pages.{StoppedSellingGoodsDatePage, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedSellingGoodsDateView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StoppedSellingGoodsDateController @Inject()(
@@ -69,13 +68,13 @@ class StoppedSellingGoodsDateController @Inject()(
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(StoppedSellingGoodsDatePage, value))
-            _              <- cc.sessionRepository.set(updatedAnswers)
+            _ <- cc.sessionRepository.set(updatedAnswers)
             result <- registrationService.amendRegistrationAndAudit(
               request.userId,
               request.vrn,
               updatedAnswers,
               request.registration,
-              Some(EtmpExclusionReason.NoLongerSupplies),
+              Some(ExclusionReason.NoLongerSupplies),
               ExclusionAuditType.ExclusionRequestSubmitted
             ).map {
               case Right(_) =>

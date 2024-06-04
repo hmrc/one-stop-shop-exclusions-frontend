@@ -17,7 +17,7 @@
 package models.audit
 
 import models.UserAnswersForAudit
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import models.registration.Registration
 import play.api.libs.json.{JsValue, Json}
 
@@ -28,9 +28,9 @@ case class ExclusionAuditModel(
                                 vrn: String,
                                 userAnswers: UserAnswersForAudit,
                                 registration: Registration,
-                                exclusionReason: Option[EtmpExclusionReason],
+                                exclusionReason: Option[ExclusionReason],
                                 submissionResult: SubmissionResult
-                                 ) extends JsonAuditModel {
+                              ) extends JsonAuditModel {
 
   override val auditType: String = exclusionAuditType.auditType
 

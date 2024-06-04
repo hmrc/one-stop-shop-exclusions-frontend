@@ -23,7 +23,7 @@ import date.{Dates, Today, TodayImpl}
 import forms.StoppedUsingServiceDateFormProvider
 import models.UserAnswers
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -120,7 +120,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
       when(mockRegistrationConnector.amend(any())(any())) thenReturn Future.successful(Right(()))
 
       val userAnswers = emptyUserAnswers
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)
@@ -139,7 +139,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           updatedUserAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.VoluntarilyLeaves),
+          Some(ExclusionReason.VoluntarilyLeaves),
           SubmissionResult.Success
         )
 
@@ -155,7 +155,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
         Future.successful(Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "Error occurred")))
 
       val userAnswers = emptyUserAnswers
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector),
           bind[AuditService].toInstance(mockAuditService)
@@ -174,7 +174,7 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
           vrn.vrn,
           updatedUserAnswers.toUserAnswersForAudit,
           registration,
-          Some(EtmpExclusionReason.VoluntarilyLeaves),
+          Some(ExclusionReason.VoluntarilyLeaves),
           SubmissionResult.Failure
         )
 

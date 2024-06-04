@@ -39,7 +39,7 @@ import play.api.mvc.BodyParsers
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.Vrn
 
-import java.time.{Clock, LocalDate, ZoneId}
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 
 trait SpecBase
   extends AnyFreeSpec
@@ -50,6 +50,9 @@ trait SpecBase
     with MockitoSugar
     with IntegrationPatience
     with Generators {
+
+  val arbitraryInstant: Instant = arbitraryDate.arbitrary.sample.value.atStartOfDay(ZoneId.systemDefault()).toInstant
+  val stubClockAtArbitraryDate: Clock = Clock.fixed(arbitraryInstant, ZoneId.systemDefault())
 
   val userAnswersId: String = "id"
   val emptyWaypoints: Waypoints = EmptyWaypoints
@@ -64,7 +67,6 @@ trait SpecBase
   val vrn: Vrn = Vrn(countryWithValidationDetails.exampleVrn)
   val registration: Registration = Arbitrary.arbitrary[Registration].sample.value
   val registrationRequest: RegistrationRequest = arbitrary[RegistrationRequest].sample.value
-  val stubClock: Clock = Clock.fixed(LocalDate.now.atStartOfDay(ZoneId.systemDefault).toInstant, ZoneId.systemDefault)
 
   def completeUserAnswers: UserAnswers =
     emptyUserAnswers
@@ -74,22 +76,26 @@ trait SpecBase
       .set(EuVatNumberPage, taxNumber).success.value
 
 
-  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
+  def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
   protected def applicationBuilder(
                                     userAnswers: Option[UserAnswers] = None,
+                                    clock: Option[Clock] = None,
                                     maybeRegistration: Option[Registration] = None
                                   ): GuiceApplicationBuilder = {
     val application = new GuiceApplicationBuilder()
     val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-      application
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].toInstance(new FakeIdentifierAction(bodyParsers, vrn, maybeRegistration.getOrElse(registration))),
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, vrn, maybeRegistration.getOrElse(registration)))
-        )
+    val clockToBind = clock.getOrElse(stubClockAtArbitraryDate)
+
+    application
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].toInstance(new FakeIdentifierAction(bodyParsers, vrn, maybeRegistration.getOrElse(registration))),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, vrn, maybeRegistration.getOrElse(registration))),
+        bind[Clock].toInstance(clockToBind)
+      )
   }
 
   def getEuVatNumber(countryCode: String): String =

@@ -21,21 +21,23 @@ import connectors.RegistrationHttpParser._
 import models.registration.Registration
 import models.requests.RegistrationRequest
 import play.api.Configuration
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpErrorFunctions}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegistrationConnector @Inject()(config: Configuration, httpClient: HttpClient)
+class RegistrationConnector @Inject()(config: Configuration, httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpErrorFunctions {
 
   private val baseUrl = config.get[Service]("microservice.services.one-stop-shop-registration")
 
   def get()(implicit hc: HeaderCarrier): Future[Registration] = {
-    httpClient.GET[Registration](s"$baseUrl/registration")
+    httpClient.get(url"$baseUrl/registration").execute[Registration]
   }
 
   def amend(registrationRequest: RegistrationRequest)(implicit hc: HeaderCarrier): Future[AmendRegistrationResultResponse] = {
-    httpClient.POST[RegistrationRequest, AmendRegistrationResultResponse](s"$baseUrl/amend", registrationRequest)
+    httpClient.post(url"$baseUrl/amend").withBody(Json.toJson(registrationRequest)).execute[AmendRegistrationResultResponse]
   }
 }
