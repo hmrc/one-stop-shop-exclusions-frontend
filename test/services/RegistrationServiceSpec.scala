@@ -43,7 +43,7 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
 
   private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
   private val mockAuditService: AuditService = mock[AuditService]
-  private val registrationService = new RegistrationService(stubClockAtArbitraryDate, mockRegistrationConnector, mockAuditService)
+  private val registrationService = new RegistrationService(mockRegistrationConnector, mockAuditService)
 
   override def beforeEach(): Unit = {
     reset(mockRegistrationConnector)

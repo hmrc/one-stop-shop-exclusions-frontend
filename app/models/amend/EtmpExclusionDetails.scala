@@ -16,7 +16,7 @@
 
 package models.amend
 
-import models.exclusions.EtmpExclusionReason
+import models.exclusions.ExclusionReason
 import play.api.libs.json.{Format, Json}
 
 import java.time.LocalDate
@@ -24,7 +24,7 @@ import java.time.LocalDate
 case class EtmpExclusionDetails(
                                  partyType: String = "NETP",
                                  exclusionRequestDate: LocalDate,
-                                 exclusionReason: EtmpExclusionReason,
+                                 exclusionReason: ExclusionReason,
                                  movePOBDate: Option[LocalDate],
                                  issuedBy: Option[String],
                                  vatNumber: Option[String]

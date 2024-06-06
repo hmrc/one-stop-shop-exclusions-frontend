@@ -21,8 +21,7 @@ import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
 import models.amend.EtmpExclusionDetails
 import models.{CountryWithValidationDetails, UserAnswers}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
-import models.exclusions.{ExcludedTrader, ExclusionReason}
+import models.exclusions.ExclusionReason
 import models.registration.Registration
 import models.requests.AmendRegistrationRequest
 import pages._
@@ -30,13 +29,12 @@ import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.{Clock, LocalDate}
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class RegistrationService @Inject()(
-                                     clock: Clock,
                                      registrationConnector: RegistrationConnector,
                                      auditService: AuditService
                                    )(implicit ec: ExecutionContext) {
@@ -123,7 +121,7 @@ class RegistrationService @Inject()(
     val convertedVatNumber = CountryWithValidationDetails.convertTaxIdentifierForTransfer(euVatNumber, country.code)
 
     EtmpExclusionDetails(
-      exclusionRequestDate = LocalDate.now(clock),
+      exclusionRequestDate = LocalDate.now(),
       exclusionReason = exclusionReason,
       movePOBDate = Some(moveDate),
       issuedBy = Some(country.code),
@@ -131,7 +129,7 @@ class RegistrationService @Inject()(
     )
   }
 
-  private def getExclusionDetailsForNoLongerSupplies(exclusionReason: EtmpExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+  private def getExclusionDetailsForNoLongerSupplies(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
     val stoppedSellingGoodsDate = answers.get(StoppedSellingGoodsDatePage).getOrElse(throw new Exception("No stopped selling goods date provided"))
     EtmpExclusionDetails(
       exclusionRequestDate = stoppedSellingGoodsDate,
@@ -142,7 +140,7 @@ class RegistrationService @Inject()(
     )
   }
 
-  private def getExclusionDetailsForVoluntarilyLeaves(exclusionReason: EtmpExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+  private def getExclusionDetailsForVoluntarilyLeaves(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
     val stoppedUsingServiceDate = answers.get(StoppedUsingServiceDatePage).getOrElse(throw new Exception("No stopped using service date provided"))
     EtmpExclusionDetails(
       exclusionRequestDate = stoppedUsingServiceDate,
@@ -155,7 +153,7 @@ class RegistrationService @Inject()(
 
   private def getExclusionDetailsForReversal(exclusionReason: ExclusionReason): EtmpExclusionDetails = {
     EtmpExclusionDetails(
-      exclusionRequestDate = LocalDate.now(clock),
+      exclusionRequestDate = LocalDate.now(),
       exclusionReason = exclusionReason,
       movePOBDate = None,
       issuedBy = None,
