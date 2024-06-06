@@ -21,7 +21,7 @@ import date.Dates
 import generators.Generators
 import models.CountryWithValidationDetails.euCountriesWithVRNValidationRules
 import models.registration.Registration
-import models.requests.RegistrationRequest
+import models.requests.{AmendRegistrationRequest, RegistrationRequest}
 import models.{CheckMode, Country, CountryWithValidationDetails, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
@@ -67,6 +67,8 @@ trait SpecBase
   val vrn: Vrn = Vrn(countryWithValidationDetails.exampleVrn)
   val registration: Registration = Arbitrary.arbitrary[Registration].sample.value
   val registrationRequest: RegistrationRequest = arbitrary[RegistrationRequest].sample.value
+  val amendRegistrationRequest: AmendRegistrationRequest = arbitrary[AmendRegistrationRequest].sample.value
+  val stubClock: Clock = Clock.fixed(LocalDate.now.atStartOfDay(ZoneId.systemDefault).toInstant, ZoneId.systemDefault)
 
   def completeUserAnswers: UserAnswers =
     emptyUserAnswers

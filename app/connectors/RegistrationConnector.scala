@@ -19,7 +19,7 @@ package connectors
 import config.Service
 import connectors.RegistrationHttpParser._
 import models.registration.Registration
-import models.requests.RegistrationRequest
+import models.requests.AmendRegistrationRequest
 import play.api.Configuration
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -37,7 +37,7 @@ class RegistrationConnector @Inject()(config: Configuration, httpClient: HttpCli
     httpClient.get(url"$baseUrl/registration").execute[Registration]
   }
 
-  def amend(registrationRequest: RegistrationRequest)(implicit hc: HeaderCarrier): Future[AmendRegistrationResultResponse] = {
-    httpClient.post(url"$baseUrl/amend").withBody(Json.toJson(registrationRequest)).execute[AmendRegistrationResultResponse]
+  def amend(amendRegistrationRequest: AmendRegistrationRequest)(implicit hc: HeaderCarrier): Future[AmendRegistrationResultResponse] = {
+    httpClient.post(url"$baseUrl/amend").withBody(Json.toJson(amendRegistrationRequest)).execute[AmendRegistrationResultResponse]
   }
 }
