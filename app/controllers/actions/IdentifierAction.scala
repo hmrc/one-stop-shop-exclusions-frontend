@@ -56,16 +56,13 @@ class AuthenticatedIdentifierAction @Inject()(
     ).retrieve(Retrievals.internalId and
       Retrievals.allEnrolments and
       Retrievals.affinityGroup and
-      Retrievals.confidenceLevel and
-      Retrievals.credentialRole) {
+      Retrievals.confidenceLevel
+    ) {
 
-      case Some(internalId) ~ enrolments ~ Some(Organisation) ~ _ ~ Some(credentialRole) if credentialRole == User =>
+      case Some(internalId) ~ enrolments ~ Some(Organisation) ~ _ =>
         getRegistrationAndBlock(request, block, internalId, enrolments)
 
-      case _ ~ _ ~ Some(Organisation) ~ _ ~ Some(credentialRole) if credentialRole == Assistant =>
-        throw UnsupportedCredentialRole()
-
-      case Some(internalId) ~ enrolments ~ Some(Individual) ~ confidence ~ _ =>
+      case Some(internalId) ~ enrolments ~ Some(Individual) ~ confidence =>
         if (confidence >= ConfidenceLevel.L200) {
           getRegistrationAndBlock(request, block, internalId, enrolments)
         } else {
