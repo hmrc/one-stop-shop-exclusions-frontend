@@ -72,7 +72,7 @@ class RegistrationConnectorSpec
         server.stubFor(post(urlEqualTo(url))
           .willReturn(ok()))
 
-        val result = connector.amend(registrationRequest).futureValue
+        val result = connector.amend(amendRegistrationRequest).futureValue
 
         result mustBe Right(())
       }
@@ -85,7 +85,7 @@ class RegistrationConnectorSpec
 
         server.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(123)))
 
-        val result = connector.amend(registrationRequest).futureValue
+        val result = connector.amend(amendRegistrationRequest).futureValue
 
         result mustBe Left(UnexpectedResponseStatus(123, "Unexpected amend response, status 123 returned"))
       }

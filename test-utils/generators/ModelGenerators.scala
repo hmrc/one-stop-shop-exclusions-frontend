@@ -17,9 +17,10 @@
 package generators
 
 import models._
+import models.amend.EtmpExclusionDetails
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration._
-import models.requests.RegistrationRequest
+import models.requests.{AmendRegistrationRequest, RegistrationRequest}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.domain.Vrn
@@ -373,4 +374,62 @@ trait ModelGenerators {
         period <- arbitraryStandardPeriod.arbitrary
       } yield VatReturn(period = period)
     }
+
+  implicit val arbitraryEtmpExclusionDetails: Arbitrary[EtmpExclusionDetails] = Arbitrary {
+    for {
+      partyType <- Gen.const("NETP")
+      exclusionRequestDate <- Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now)
+      exclusionReason <- Gen.oneOf[ExclusionReason](ExclusionReason.values)
+      movePOBDate <- Gen.option(Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now))
+      issuedBy <- Gen.option(Gen.alphaStr)
+      vatNumber <- Gen.option(Gen.alphaStr)
+    } yield EtmpExclusionDetails(
+      partyType,
+      exclusionRequestDate,
+      exclusionReason,
+      movePOBDate,
+      issuedBy,
+      vatNumber
+    )
+  }
+
+  implicit val arbitraryAmendRegistrationRequest: Arbitrary[AmendRegistrationRequest] = Arbitrary {
+    for {
+      vrn <- arbitrary[Vrn]
+      registeredCompanyName <- Gen.alphaStr
+      tradingNames <- Gen.listOf(Gen.alphaStr)
+      vatDetails <- arbitrary[VatDetails]
+      euRegistrations <- Gen.listOf(arbitrary[EuTaxRegistration])
+      contactDetails <- arbitrary[ContactDetails]
+      websites <- Gen.listOf(Gen.alphaStr)
+      commencementDate <- Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now)
+      previousRegistrations <- Gen.listOf(arbitrary[PreviousRegistration])
+      bankDetails <- arbitrary[BankDetails]
+      isOnlineMarketplace <- Gen.oneOf(true, false)
+      niPresence <- Gen.option(arbitrary[NiPresence])
+      dateOfFirstSale <- Gen.option(Gen.choose(LocalDate.of(2000, 1, 1), LocalDate.now))
+      nonCompliantReturns <- Gen.option(Gen.alphaStr)
+      nonCompliantPayments <- Gen.option(Gen.alphaStr)
+      submissionReceived <- Gen.option(Gen.choose(Instant.ofEpochMilli(0), Instant.now))
+      exclusionDetails <- Gen.option(arbitrary[EtmpExclusionDetails])
+    } yield AmendRegistrationRequest(
+      vrn,
+      registeredCompanyName,
+      tradingNames,
+      vatDetails,
+      euRegistrations,
+      contactDetails,
+      websites,
+      commencementDate,
+      previousRegistrations,
+      bankDetails,
+      isOnlineMarketplace,
+      niPresence,
+      dateOfFirstSale,
+      nonCompliantReturns,
+      nonCompliantPayments,
+      submissionReceived,
+      exclusionDetails
+    )
+  }
 }

@@ -18,24 +18,23 @@ package services
 
 import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
-import models.UserAnswers
+import models.amend.EtmpExclusionDetails
+import models.{CountryWithValidationDetails, UserAnswers}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.ExclusionReason.{NoLongerSupplies, TransferringMSID, VoluntarilyLeaves}
-import models.exclusions.{ExcludedTrader, ExclusionReason}
+import models.exclusions.ExclusionReason
 import models.registration.Registration
-import models.requests.RegistrationRequest
+import models.requests.AmendRegistrationRequest
 import pages._
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.Clock
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class RegistrationService @Inject()(
-                                     clock: Clock,
                                      registrationConnector: RegistrationConnector,
                                      auditService: AuditService
                                    )(implicit ec: ExecutionContext) {
@@ -82,9 +81,9 @@ class RegistrationService @Inject()(
                                  exclusionReason: Option[ExclusionReason],
                                  vrn: Vrn,
                                  registration: Registration,
-                               ): RegistrationRequest = {
+                               ): AmendRegistrationRequest = {
 
-    RegistrationRequest(
+    AmendRegistrationRequest(
       vrn = vrn,
       registeredCompanyName = registration.registeredCompanyName,
       tradingNames = registration.tradingNames,
@@ -100,27 +99,65 @@ class RegistrationService @Inject()(
       dateOfFirstSale = registration.dateOfFirstSale,
       nonCompliantReturns = registration.nonCompliantReturns,
       nonCompliantPayments = registration.nonCompliantPayments,
-      submissionReceived = registration.submissionReceived
+      submissionReceived = registration.submissionReceived,
+      exclusionDetails = exclusionReason.map(getExclusionDetailsType(_, answers))
     )
   }
 
-  private def getExcludedTrader(exclusionReason: ExclusionReason, answers: UserAnswers, vrn: Vrn): ExcludedTrader = {
-
-    val effectiveDate = exclusionReason match {
-      case TransferringMSID =>
-        answers.get(MoveDatePage).getOrElse(throw new Exception("No move date provided"))
-      case NoLongerSupplies =>
-        answers.get(StoppedSellingGoodsDatePage).getOrElse(throw new Exception("No stopped selling goods date provided"))
-      case VoluntarilyLeaves =>
-        answers.get(StoppedUsingServiceDatePage).getOrElse(throw new Exception("No stopped using service date provided"))
-      //todo case EtmpExclusionReason.Reversal =>
+  private def getExclusionDetailsType(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+    exclusionReason match {
+      case ExclusionReason.TransferringMSID => getExclusionDetailsForTransferringMSID(exclusionReason, answers)
+      case ExclusionReason.NoLongerSupplies => getExclusionDetailsForNoLongerSupplies(exclusionReason, answers)
+      case ExclusionReason.VoluntarilyLeaves => getExclusionDetailsForVoluntarilyLeaves(exclusionReason, answers)
+      case ExclusionReason.Reversal => getExclusionDetailsForReversal(exclusionReason)
       case _ => throw new Exception("Exclusion reason not valid")
     }
+  }
 
-    ExcludedTrader(
-      vrn = vrn,
+  private def getExclusionDetailsForTransferringMSID(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+    val country = answers.get(EuCountryPage).getOrElse(throw new Exception("No country provided"))
+    val moveDate = answers.get(MoveDatePage).getOrElse(throw new Exception("No move date provided"))
+    val euVatNumber = answers.get(EuVatNumberPage).getOrElse(throw new Exception("No VAT number provided"))
+    val convertedVatNumber = CountryWithValidationDetails.convertTaxIdentifierForTransfer(euVatNumber, country.code)
+
+    EtmpExclusionDetails(
+      exclusionRequestDate = LocalDate.now(),
       exclusionReason = exclusionReason,
-      effectiveDate = effectiveDate
+      movePOBDate = Some(moveDate),
+      issuedBy = Some(country.code),
+      vatNumber = Some(convertedVatNumber)
+    )
+  }
+
+  private def getExclusionDetailsForNoLongerSupplies(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+    val stoppedSellingGoodsDate = answers.get(StoppedSellingGoodsDatePage).getOrElse(throw new Exception("No stopped selling goods date provided"))
+    EtmpExclusionDetails(
+      exclusionRequestDate = stoppedSellingGoodsDate,
+      exclusionReason = exclusionReason,
+      movePOBDate = None,
+      issuedBy = None,
+      vatNumber = None
+    )
+  }
+
+  private def getExclusionDetailsForVoluntarilyLeaves(exclusionReason: ExclusionReason, answers: UserAnswers): EtmpExclusionDetails = {
+    val stoppedUsingServiceDate = answers.get(StoppedUsingServiceDatePage).getOrElse(throw new Exception("No stopped using service date provided"))
+    EtmpExclusionDetails(
+      exclusionRequestDate = stoppedUsingServiceDate,
+      exclusionReason = exclusionReason,
+      movePOBDate = None,
+      issuedBy = None,
+      vatNumber = None
+    )
+  }
+
+  private def getExclusionDetailsForReversal(exclusionReason: ExclusionReason): EtmpExclusionDetails = {
+    EtmpExclusionDetails(
+      exclusionRequestDate = LocalDate.now(),
+      exclusionReason = exclusionReason,
+      movePOBDate = None,
+      issuedBy = None,
+      vatNumber = None
     )
   }
 }
