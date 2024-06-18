@@ -18,9 +18,10 @@ package controllers
 
 import base.SpecBase
 import connectors.RegistrationConnector
-import models.CheckMode
+import models.{CheckMode, UserAnswers}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
 import models.exclusions.ExclusionReason
+import models.requests.OptionalDataRequest
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -28,12 +29,15 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import pages._
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.AuditService
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with BeforeAndAfterEach {
@@ -65,6 +69,19 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(waypoints, list, isValid = false)(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to kick out page via url tourism for code 1 and 5" in {
+
+        val userAnswers = UserAnswers(userAnswersId).set(MoveCountryPage, false)
+        val application = applicationBuilder(userAnswers = Some(userAnswers.get)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url).withFormUrlEncodedBody(("value", "false"))
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
         }
       }
     }

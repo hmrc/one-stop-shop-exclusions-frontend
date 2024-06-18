@@ -174,3 +174,5 @@ cannotUseThisService.returnToAccount = Return to your account
 alreadyLeftSchemeError.title = You have already left the One Stop Shop scheme
 alreadyLeftSchemeError.heading = You have already left the One Stop Shop scheme
 alreadyLeftSchemeError.returnToAccount = Return to your account
+kickOut.title = You cannot access this page
+kickOut.heading = You cannot access this page
