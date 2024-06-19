@@ -62,3 +62,5 @@ GET         /cancel-leave-scheme-submission-failure        controllers.reversals
 GET         /cancel-leave-scheme-error                     controllers.reversals.CancelLeaveSchemeErrorController.onPageLoad()
 
 GET         /cannot-use-this-service                       controllers.CannotUseThisServiceController.onPageLoad()
+
+GET         /cannot-access                                 controllers.KickOutController.onPageLoad()

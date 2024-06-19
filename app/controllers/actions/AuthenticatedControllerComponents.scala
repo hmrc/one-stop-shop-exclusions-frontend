@@ -34,12 +34,16 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def requireData: DataRequiredAction
   def checkExcludedTrader: CheckCancelRequestToLeaveFilter
   def checkAlreadyLeft: CheckAlreadyLeftSchemeFilter
+  def checkYourAnswers: CheckYourAnswersFilter
 
   def auth: ActionBuilder[IdentifierRequest, AnyContent] =
     actionBuilder andThen identify
 
   def authAndGetData: ActionBuilder[DataRequest, AnyContent] =
     authAndGetOptionalData andThen requireData
+
+  def authAndGetDataWithCYA: ActionBuilder[DataRequest, AnyContent] =
+    authAndGetOptionalData andThen checkYourAnswers andThen requireData
 
   def authAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =
     auth andThen getData
@@ -64,6 +68,7 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                getData: DataRetrievalAction,
                                                                requireData: DataRequiredAction,
                                                                checkExcludedTrader: CheckCancelRequestToLeaveFilter,
-                                                               checkAlreadyLeft: CheckAlreadyLeftSchemeFilter
+                                                               checkAlreadyLeft: CheckAlreadyLeftSchemeFilter,
+                                                               checkYourAnswers: CheckYourAnswersFilter
                                                              ) extends AuthenticatedControllerComponents
 
