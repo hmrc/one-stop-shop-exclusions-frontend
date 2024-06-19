@@ -31,13 +31,12 @@ class CheckYourAnswersFilterImpl @Inject()(implicit val executionContext: Execut
   extends CheckYourAnswersFilter with Logging {
 
   override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
-    val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(MoveCountryPage) match {
+    request.userAnswers.getOrElse(UserAnswers(request.userId)).get(MoveCountryPage) match {
       case None => Future.successful(None)
       case Some(value) if !value && request.uri.contains(routes.CheckYourAnswersController.onPageLoad().url) =>
         Future.successful(Some(Redirect(routes.KickOutController.onPageLoad())))
       case Some(_) => Future.successful(None)
     }
-    preparedForm
   }
 }
 

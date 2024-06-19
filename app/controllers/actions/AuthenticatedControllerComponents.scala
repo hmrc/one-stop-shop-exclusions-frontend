@@ -40,6 +40,9 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
     actionBuilder andThen identify
 
   def authAndGetData: ActionBuilder[DataRequest, AnyContent] =
+    authAndGetOptionalData andThen requireData
+
+  def authAndGetDataWithCYA: ActionBuilder[DataRequest, AnyContent] =
     authAndGetOptionalData andThen checkYourAnswers andThen requireData
 
   def authAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =

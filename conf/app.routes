@@ -63,4 +63,4 @@ GET         /cancel-leave-scheme-error                     controllers.reversals
 
 GET         /cannot-use-this-service                       controllers.CannotUseThisServiceController.onPageLoad()
 
-GET         /url-tourism-kickout                           controllers.KickOutController.onPageLoad()
+GET         /cannot-access                                 controllers.KickOutController.onPageLoad()
