@@ -1,5 +1,4 @@
-service.name = one-stop-shop-exclusions-frontend
-service.text = This is your new service
+service.name = Leave the One Stop Shop service
 
 site.back = Back
 site.remove = Remove
@@ -12,6 +11,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.warning = Warning
 
 date.day = Day
 date.month = Month
