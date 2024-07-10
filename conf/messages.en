@@ -44,10 +44,6 @@ error.missing_answers_header = Some information is missing.
 error.missing_answers_prompt.general = You need to complete the missing information before you continue.
 error.resolve_missing_answers = Resolve missing answers
 
-index.title = one-stop-shop-exclusions-frontend
-index.heading = one-stop-shop-exclusions-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
-
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 checkYourAnswers.hint = I confirm I want to leave the OSS scheme.
@@ -69,8 +65,8 @@ unauthorised.heading = You can’t access this service with this account
 moveCountry.title = Are you moving your business to an EU country?
 moveCountry.heading = Are you moving your business to an EU country?
 moveCountry.checkYourAnswersLabel = Moved to an EU country
-moveCountry.error.required = Select yes if you moved your business to an EU country
-moveCountry.change.hidden = if you moved to an EU country
+moveCountry.error.required = Select yes if you are moving your business to an EU country
+moveCountry.change.hidden = if you are moving your business to an EU country
 
 euCountry.title = Which country is your business moving to?
 euCountry.heading = Which country is your business moving to?
@@ -101,7 +97,7 @@ moveDate.change.hidden = Move Date
 
 stopSellingGoods.title = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
 stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
-stopSellingGoods.error.required = Select yes if you want to stop selling goods
+stopSellingGoods.error.required = Select yes if you stopped selling eligible goods to customers in the EU or Northern Ireland
 
 leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?
@@ -112,18 +108,18 @@ leaveScheme.change.hidden = Leave scheme
 stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
 stoppedSellingGoodsDate.heading = When did or when will your business stop selling eligible goods?
 stoppedSellingGoodsDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
-stoppedSellingGoodsDate.error.required.all = Enter the date you stopped selling goods
-stoppedSellingGoodsDate.error.required.two = The date you stopped selling goods must include {0} and {1}
-stoppedSellingGoodsDate.error.required = The date you stopped selling goods must include the {0}
+stoppedSellingGoodsDate.error.required.all = Enter the date you stopped or will stop selling goods
+stoppedSellingGoodsDate.error.required.two = The date you stopped or will stop selling goods must include {0} and {1}
+stoppedSellingGoodsDate.error.required = The date you stopped or will stop selling goods must include the {0}
 stoppedSellingGoodsDate.error.invalid = Give a correct date
 stoppedSellingGoodsDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
 
 stoppedUsingServiceDate.title = When did you or when will you stop using this service?
 stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
 stoppedUsingServiceDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
-stoppedUsingServiceDate.error.required.all = Enter the date you stopped using this service
-stoppedUsingServiceDate.error.required.two = The date you stopped using this service must include {0} and {1}
-stoppedUsingServiceDate.error.required = The date you stopped using this service must include {0}
+stoppedUsingServiceDate.error.required.all = Enter the date you stopped or will stop using this service
+stoppedUsingServiceDate.error.required.two = The date you stopped or will stop using this service must include {0} and {1}
+stoppedUsingServiceDate.error.required = The date you stopped or will stop using this service must include {0}
 stoppedUsingServiceDate.error.invalid = Give a correct date
 stoppedUsingServiceDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
 
