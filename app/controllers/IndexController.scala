@@ -25,8 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndexView
 
 class IndexController @Inject()(
-                                 cc: AuthenticatedControllerComponents,
-                                 view: IndexView
+                                 cc: AuthenticatedControllerComponents
                                ) extends FrontendBaseController with I18nSupport {
 
   protected val controllerComponents: MessagesControllerComponents = cc
