@@ -89,7 +89,7 @@ moveDate.checkYourAnswersLabel = Business move date
 moveDate.error.required.all = Enter the move date
 moveDate.error.required.two = The move date must include {0} and {1}
 moveDate.error.required = The move date must include {0}
-moveDate.error.invalid = Enter a valid move date
+moveDate.error.invalid = The date you moved or will move your business must be a real date
 moveDate.error.invalid.invalidDateRage = The date must be between {0} and {1} inclusively
 moveDate.error.invalid.minDate = The date your business moved must be on or after {0}
 moveDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
@@ -111,7 +111,7 @@ stoppedSellingGoodsDate.hint = You can enter a date up to {0}.<br/> For example,
 stoppedSellingGoodsDate.error.required.all = Enter the date you stopped or will stop selling goods
 stoppedSellingGoodsDate.error.required.two = The date you stopped or will stop selling goods must include {0} and {1}
 stoppedSellingGoodsDate.error.required = The date you stopped or will stop selling goods must include the {0}
-stoppedSellingGoodsDate.error.invalid = Give a correct date
+stoppedSellingGoodsDate.error.invalid = The date you stopped or will stop selling goods must be a real date
 stoppedSellingGoodsDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
 
 stoppedUsingServiceDate.title = When did you or when will you stop using this service?
@@ -120,7 +120,7 @@ stoppedUsingServiceDate.hint = You can enter a date up to {0}.<br/> For example,
 stoppedUsingServiceDate.error.required.all = Enter the date you stopped or will stop using this service
 stoppedUsingServiceDate.error.required.two = The date you stopped or will stop using this service must include {0} and {1}
 stoppedUsingServiceDate.error.required = The date you stopped or will stop using this service must include {0}
-stoppedUsingServiceDate.error.invalid = Give a correct date
+stoppedUsingServiceDate.error.invalid = The date you stopped or will stop using this service must be a real date
 stoppedUsingServiceDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
 
 applicationComplete.title = We have received your request to leave
