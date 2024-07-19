@@ -13,6 +13,7 @@ site.signIn = Sign in
 site.govuk = GOV.UK
 site.warning = Warning
 site.confirm = Confirm
+site.cancel = Cancel
 
 date.day = Day
 date.month = Month
@@ -99,6 +100,7 @@ moveDate.change.hidden = Move Date
 stopSellingGoods.title = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
 stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
 stopSellingGoods.error.required = Select yes if you stopped selling eligible goods to customers in the EU or Northern Ireland
+stopSellingGoods.checkYourAnswersLabel = Stopped trading goods
 
 leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?

@@ -37,8 +37,7 @@ class StoppedSellingGoodsDateController @Inject()(
                                                    cc: AuthenticatedControllerComponents,
                                                    formProvider: StoppedSellingGoodsDateFormProvider,
                                                    dates: Dates,
-                                                   view: StoppedSellingGoodsDateView,
-                                                   registrationService: RegistrationService
+                                                   view: StoppedSellingGoodsDateView
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
@@ -69,21 +68,7 @@ class StoppedSellingGoodsDateController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(StoppedSellingGoodsDatePage, value))
             _ <- cc.sessionRepository.set(updatedAnswers)
-            result <- registrationService.amendRegistrationAndAudit(
-              request.userId,
-              request.vrn,
-              updatedAnswers,
-              request.registration,
-              Some(ExclusionReason.NoLongerSupplies),
-              ExclusionAuditType.ExclusionRequestSubmitted
-            ).map {
-              case Right(_) =>
-                Redirect(StoppedSellingGoodsDatePage.navigate(waypoints, updatedAnswers, updatedAnswers).url)
-              case Left(e) =>
-                logger.error(s"Failure to submit self exclusion ${e.body}")
-                Redirect(routes.SubmissionFailureController.onPageLoad())
-            }
-          } yield result
+          } yield Redirect(StoppedSellingGoodsDatePage.navigate(waypoints, updatedAnswers, updatedAnswers).url)
       )
   }
 }

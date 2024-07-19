@@ -17,8 +17,11 @@
 package pages
 
 import controllers.routes
+import models.UserAnswers
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
+
+import scala.util.Try
 
 case object LeaveSchemePage extends QuestionPage[Boolean] {
 
@@ -28,4 +31,6 @@ case object LeaveSchemePage extends QuestionPage[Boolean] {
 
   override def route(waypoints: Waypoints): Call =
     routes.LeaveSchemeController.onPageLoad(waypoints)
+
+  override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = CheckYourAnswersPage
 }

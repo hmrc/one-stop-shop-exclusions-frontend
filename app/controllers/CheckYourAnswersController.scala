@@ -17,13 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.AuthenticatedControllerComponents
 import date.Dates
 import logging.Logging
-import models.CheckMode
+import models.{CheckMode, UserAnswers}
 import models.audit.ExclusionAuditType
 import models.exclusions.ExclusionReason
-import pages.{CheckYourAnswersPage, EmptyWaypoints, Waypoint, Waypoints}
+import pages.{CheckYourAnswersPage, EmptyWaypoints, MoveCountryPage, StopSellingGoodsPage, Waypoint, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.RegistrationService
@@ -41,7 +42,8 @@ class CheckYourAnswersController @Inject()(
                                             cc: AuthenticatedControllerComponents,
                                             dates: Dates,
                                             view: CheckYourAnswersView,
-                                            registrationService: RegistrationService
+                                            registrationService: RegistrationService,
+                                            config: FrontendAppConfig
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with CompletionChecks with Logging {
 
@@ -62,17 +64,17 @@ class CheckYourAnswersController @Inject()(
 
       val list = SummaryListViewModel(
         rows = Seq(
+          moveCountrySummaryRow,
+          stopSellingGoodsSummaryRow,
           euCountrySummaryRow,
           moveDateSummaryRow,
-          euVatNumberSummaryRow,
-          moveCountrySummaryRow,
-          stopSellingGoodsSummaryRow
+          euVatNumberSummaryRow
         ).flatten
       )
 
       val isValid = validate()
 
-      Ok(view(waypoints, list, isValid))
+      Ok(view(waypoints, list, isValid, config.ossYourAccountUrl))
   }
 
   def onSubmit(waypoints: Waypoints, incompletePrompt: Boolean): Action[AnyContent] = cc.authAndGetData.async {
@@ -85,12 +87,14 @@ class CheckYourAnswersController @Inject()(
         }
 
         case None =>
+          val exclusionReason = determineExclusionReason(request.userAnswers)
+
           registrationService.amendRegistrationAndAudit(
             request.userId,
             request.vrn,
             request.userAnswers,
             request.registration,
-            Some(ExclusionReason.TransferringMSID),
+            Some(exclusionReason),
             ExclusionAuditType.ExclusionRequestSubmitted
           ).map {
             case Right(_) =>
@@ -100,5 +104,23 @@ class CheckYourAnswersController @Inject()(
               Redirect(routes.SubmissionFailureController.onPageLoad())
           }
       }
+  }
+
+  private def determineExclusionReason(userAnswers: UserAnswers): ExclusionReason = {
+    userAnswers.get(MoveCountryPage) match {
+      case Some(true) =>
+        ExclusionReason.TransferringMSID
+      case Some(false) =>
+        userAnswers.get(StopSellingGoodsPage) match {
+          case Some(true) =>
+            ExclusionReason.NoLongerMeetsConditions
+          case Some(false) =>
+            ExclusionReason.VoluntarilyLeaves
+          case _ =>
+            throw new Exception("Expected stop selling goods page")
+        }
+      case _ =>
+        throw new Exception("Expected move country page")
+    }
   }
 }

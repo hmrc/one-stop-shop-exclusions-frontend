@@ -35,7 +35,7 @@ object StopSellingGoodsSummary {
         val stopSellingGoodsPageChangeUrl = StopSellingGoodsPage.changeLink(waypoints, sourcePage).url
         SummaryListRowViewModel(
           key = "stopSellingGoods.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(value)),
+          value = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", stopSellingGoodsPageChangeUrl)
               .withVisuallyHiddenText(messages("stopSellingGoods.change.hidden"))

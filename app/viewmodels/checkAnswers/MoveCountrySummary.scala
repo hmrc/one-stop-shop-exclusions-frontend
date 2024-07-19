@@ -35,7 +35,7 @@ object MoveCountrySummary {
         val moveCountryPageChangeUrl = MoveCountryPage.changeLink(waypoints, sourcePage).url
         SummaryListRowViewModel(
           key = "moveCountry.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(value)),
+          value = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", moveCountryPageChangeUrl)
               .withVisuallyHiddenText(messages("moveCountry.change.hidden"))

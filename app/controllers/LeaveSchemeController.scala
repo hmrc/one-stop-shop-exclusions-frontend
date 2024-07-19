@@ -19,8 +19,9 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions._
 import forms.LeaveSchemeFormProvider
+
 import javax.inject.Inject
-import pages.{LeaveSchemePage, StoppedUsingServiceDatePage, Waypoints}
+import pages.{CheckYourAnswersPage, LeaveSchemePage, StoppedUsingServiceDatePage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -64,7 +65,7 @@ class LeaveSchemeController @Inject()(
             _              <- cc.sessionRepository.set(updatedAnswers)
           } yield {
             if (value) {
-              Redirect(StoppedUsingServiceDatePage.route(waypoints).url)
+              Redirect(CheckYourAnswersPage.route(waypoints).url)
             } else {
               Redirect(config.ossYourAccountUrl)
             }
