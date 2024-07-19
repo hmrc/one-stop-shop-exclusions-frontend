@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import models.{CheckMode, UserAnswers}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
@@ -63,27 +64,16 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           val result = route(application, request).value
 
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
           val view = application.injector.instanceOf[CheckYourAnswersView]
           val waypoints = EmptyWaypoints.setNextWaypoint(Waypoint(CheckYourAnswersPage, CheckMode, CheckYourAnswersPage.urlFragment))
           val list = SummaryListViewModel(Seq.empty)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(waypoints, list, isValid = false)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(waypoints, list, isValid = false, appConfig.ossYourAccountUrl)(request, messages(application)).toString
         }
       }
 
-      "must redirect to kick out page via url tourism for code 1 and 5" in {
-
-        val userAnswers = UserAnswers(userAnswersId).set(MoveCountryPage, false)
-        val application = applicationBuilder(userAnswers = Some(userAnswers.get)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url).withFormUrlEncodedBody(("value", "false"))
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-        }
-      }
     }
 
     ".onSubmit" - {

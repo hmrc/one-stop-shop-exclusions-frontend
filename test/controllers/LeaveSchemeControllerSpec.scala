@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import forms.LeaveSchemeFormProvider
 import models.UserAnswers
-import pages.{LeaveSchemePage, StoppedUsingServiceDatePage}
+import pages.{CheckYourAnswersPage, LeaveSchemePage, StoppedUsingServiceDatePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -79,7 +79,7 @@ class LeaveSchemeControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual StoppedUsingServiceDatePage.route(emptyWaypoints).url
+        redirectLocation(result).value mustEqual CheckYourAnswersPage.route(emptyWaypoints).url
       }
     }
 

@@ -21,6 +21,8 @@ import models.UserAnswers
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
+import scala.util.Try
+
 case object MoveCountryPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
@@ -29,6 +31,20 @@ case object MoveCountryPage extends QuestionPage[Boolean] {
 
   override def route(waypoints: Waypoints): Call =
     routes.MoveCountryController.onPageLoad(waypoints)
+
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
+    value match {
+      case Some(true) => for {
+        removedStoppedSellingGoodsDatePageUA <- userAnswers.remove(StoppedSellingGoodsDatePage)
+        updatedUserAnswers <- removedStoppedSellingGoodsDatePageUA.remove(StoppedUsingServiceDatePage)
+      } yield updatedUserAnswers
+      case Some(false) => for {
+        removedEuCountryAnswers <- userAnswers.remove(EuCountryPage)
+        updatedUserAnswers <- removedEuCountryAnswers.remove(EuVatNumberPage)
+      } yield updatedUserAnswers
+      case _ => super.cleanup(value, userAnswers)
+    }
+  }
 
   override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page =
     answers.get(this).map {

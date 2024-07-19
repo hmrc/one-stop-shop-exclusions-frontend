@@ -23,6 +23,8 @@ import java.time.LocalDate
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
+import scala.util.Try
+
 case object StoppedUsingServiceDatePage extends QuestionPage[LocalDate] {
 
   override def path: JsPath = JsPath \ toString
@@ -31,5 +33,5 @@ case object StoppedUsingServiceDatePage extends QuestionPage[LocalDate] {
 
   override def route(waypoints: Waypoints): Call = routes.StoppedUsingServiceDateController.onPageLoad(waypoints)
 
-  override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = ApplicationCompletePage
+  override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = CheckYourAnswersPage
 }
