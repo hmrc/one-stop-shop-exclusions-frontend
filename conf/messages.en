@@ -74,7 +74,7 @@ euCountry.title = Which country is your business moving to?
 euCountry.heading = Which country is your business moving to?
 euCountry.checkYourAnswersLabel = New country
 euCountry.error.required = Select the country your business is moving to
-euCountry.change.hidden = EU Country
+euCountry.change.hidden = your new country
 
 euVatNumber.title = What is your VAT registration number for {0}?
 euVatNumber.heading = What is your VAT registration number for {0}?
@@ -82,7 +82,7 @@ euVatNumber.hint = This will start with {0}, for example {0}{1}
 euVatNumber.checkYourAnswersLabel = VAT Number
 euVatNumber.error.required = Enter your VAT registration number for {0}
 euVatNumber.error.invalid = Enter a registration number in the correct format
-euVatNumber.change.hidden = VAT registration number
+euVatNumber.change.hidden = your VAT number
 
 moveDate.title = When did or when will your business move to {0}?
 moveDate.heading = When did or when will your business move to {0}?
@@ -95,7 +95,7 @@ moveDate.error.invalid = The date you moved or will move your business must be a
 moveDate.error.invalid.invalidDateRage = The date must be between {0} and {1} inclusively
 moveDate.error.invalid.minDate = The date your business moved must be on or after {0}
 moveDate.error.invalid.maxDate = The date your business is moving must be on or before {0}
-moveDate.change.hidden = Move Date
+moveDate.change.hidden = your business move date
 
 stopSellingGoods.title = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
 stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
