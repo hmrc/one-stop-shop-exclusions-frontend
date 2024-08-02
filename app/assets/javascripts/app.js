@@ -35,11 +35,11 @@ function upTo(el, tagName) {
   return null;
 }
 
-if (typeof accessibleAutocomplete != 'undefined' && document.querySelector('.autocomplete') != null) {
+if (typeof HMRCAccessibleAutocomplete != 'undefined' && document.querySelector('.autocomplete') != null) {
   // load autocomplete
   var selectEl = document.querySelector('.autocomplete');
   if (selectEl && selectEl.style.display !== "none") {
-    accessibleAutocomplete.enhanceSelectElement({
+    HMRCAccessibleAutocomplete.enhanceSelectElement({
       autoselect: true,
       id: selectEl.id, // Important that id is the same
       defaultValue: "",
