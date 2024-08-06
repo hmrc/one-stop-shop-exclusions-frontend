@@ -29,6 +29,7 @@ import pages.reversals.{CancelLeaveSchemeRequestPage, CancelLeaveSchemeSubmissio
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.SessionRepository
 import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
@@ -43,22 +44,25 @@ class CancelLeaveSchemeRequestController @Inject()(
                                                     frontendAppConfig: FrontendAppConfig,
                                                     formProvider: CancelLeaveSchemeRequestFormProvider,
                                                     registrationService: RegistrationService,
-                                                    view: CancelLeaveSchemeRequestView
+                                                    view: CancelLeaveSchemeRequestView,
+                                                    sessionRepository: SessionRepository
                                                   )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader.async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(CancelLeaveSchemeRequestPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      sessionRepository.clear(request.userId).map { _ =>
+        val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(CancelLeaveSchemeRequestPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      Ok(view(preparedForm, waypoints))
+        Ok(view(preparedForm, waypoints))
+      }
   }
 
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader.async {
