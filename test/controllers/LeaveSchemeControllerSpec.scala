@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import forms.LeaveSchemeFormProvider
 import models.UserAnswers
-import pages.{CheckYourAnswersPage, LeaveSchemePage, StoppedUsingServiceDatePage}
+import pages.{CheckYourAnswersPage, LeaveSchemePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

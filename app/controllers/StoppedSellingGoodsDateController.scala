@@ -20,12 +20,9 @@ import controllers.actions._
 import date.Dates
 import forms.StoppedSellingGoodsDateFormProvider
 import logging.Logging
-import models.audit.ExclusionAuditType
-import models.exclusions.ExclusionReason
 import pages.{StoppedSellingGoodsDatePage, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedSellingGoodsDateView

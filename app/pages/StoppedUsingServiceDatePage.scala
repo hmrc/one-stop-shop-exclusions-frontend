@@ -18,12 +18,10 @@ package pages
 
 import controllers.routes
 import models.UserAnswers
-
-import java.time.LocalDate
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
-import scala.util.Try
+import java.time.LocalDate
 
 case object StoppedUsingServiceDatePage extends QuestionPage[LocalDate] {
 

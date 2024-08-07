@@ -21,9 +21,9 @@ import config.FrontendAppConfig
 import controllers.actions.AuthenticatedControllerComponents
 import date.Dates
 import logging.Logging
-import models.{CheckMode, UserAnswers}
 import models.audit.ExclusionAuditType
 import models.exclusions.ExclusionReason
+import models.{CheckMode, UserAnswers}
 import pages.{CheckYourAnswersPage, EmptyWaypoints, MoveCountryPage, StopSellingGoodsPage, Waypoint, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,7 +31,7 @@ import services.RegistrationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CompletionChecks
 import utils.FutureSyntax.FutureOps
-import viewmodels.checkAnswers.{EuCountrySummary, EuVatNumberSummary, MoveCountrySummary, MoveDateSummary, StopSellingGoodsSummary}
+import viewmodels.checkAnswers._
 import viewmodels.govuk.summarylist._
 import views.html.CheckYourAnswersView
 
@@ -61,6 +61,8 @@ class CheckYourAnswersController @Inject()(
       val euVatNumberSummaryRow = EuVatNumberSummary.rowEuVatNumber(request.userAnswers, waypoints, thisPage)
       val moveCountrySummaryRow = MoveCountrySummary.row(request.userAnswers, waypoints, thisPage)
       val stopSellingGoodsSummaryRow = StopSellingGoodsSummary.row(request.userAnswers, waypoints, thisPage)
+      val stoppedSellingGoodsDateRow = StoppedSellingGoodsDateSummary.row(request.userAnswers, waypoints, thisPage, dates)
+      val stoppedUsingServiceDateRow = StoppedUsingServiceDateSummary.row(request.userAnswers, waypoints, thisPage, dates)
 
       val list = SummaryListViewModel(
         rows = Seq(
@@ -68,7 +70,9 @@ class CheckYourAnswersController @Inject()(
           stopSellingGoodsSummaryRow,
           euCountrySummaryRow,
           moveDateSummaryRow,
-          euVatNumberSummaryRow
+          euVatNumberSummaryRow,
+          stoppedSellingGoodsDateRow,
+          stoppedUsingServiceDateRow
         ).flatten
       )
 
@@ -113,7 +117,7 @@ class CheckYourAnswersController @Inject()(
       case Some(false) =>
         userAnswers.get(StopSellingGoodsPage) match {
           case Some(true) =>
-            ExclusionReason.NoLongerMeetsConditions
+            ExclusionReason.NoLongerSupplies
           case Some(false) =>
             ExclusionReason.VoluntarilyLeaves
           case _ =>

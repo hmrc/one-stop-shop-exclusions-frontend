@@ -30,12 +30,10 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.AuditService
 import views.html.StoppedSellingGoodsDateView
 
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
-
 
 class StoppedSellingGoodsDateControllerSpec extends SpecBase with BeforeAndAfterEach {
 

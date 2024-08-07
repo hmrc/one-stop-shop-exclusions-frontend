@@ -19,8 +19,6 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions._
 import forms.LeaveSchemeFormProvider
-
-import javax.inject.Inject
 import pages.{CheckYourAnswersPage, LeaveSchemePage, StoppedUsingServiceDatePage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -29,6 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.LeaveSchemeView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class LeaveSchemeController @Inject()(
@@ -36,7 +35,7 @@ class LeaveSchemeController @Inject()(
                                        formProvider: LeaveSchemeFormProvider,
                                        config: FrontendAppConfig,
                                        view: LeaveSchemeView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
   protected val controllerComponents: MessagesControllerComponents = cc
@@ -62,10 +61,10 @@ class LeaveSchemeController @Inject()(
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(LeaveSchemePage, value))
-            _              <- cc.sessionRepository.set(updatedAnswers)
+            _ <- cc.sessionRepository.set(updatedAnswers)
           } yield {
             if (value) {
-              Redirect(CheckYourAnswersPage.route(waypoints).url)
+              Redirect(StoppedUsingServiceDatePage.route(waypoints).url)
             } else {
               Redirect(config.ossYourAccountUrl)
             }

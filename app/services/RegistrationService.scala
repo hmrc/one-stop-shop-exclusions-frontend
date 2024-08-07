@@ -19,11 +19,11 @@ package services
 import connectors.RegistrationConnector
 import connectors.RegistrationHttpParser.AmendRegistrationResultResponse
 import models.amend.EtmpExclusionDetails
-import models.{CountryWithValidationDetails, UserAnswers}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
 import models.exclusions.ExclusionReason
 import models.registration.Registration
 import models.requests.AmendRegistrationRequest
+import models.{CountryWithValidationDetails, UserAnswers}
 import pages._
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Vrn

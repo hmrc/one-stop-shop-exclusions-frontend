@@ -110,21 +110,25 @@ leaveScheme.change.hidden = Leave scheme
 
 stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
 stoppedSellingGoodsDate.heading = When did or when will your business stop selling eligible goods?
+stoppedSellingGoodsDate.checkYourAnswersLabel = Stopped trading goods date
 stoppedSellingGoodsDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
 stoppedSellingGoodsDate.error.required.all = Enter the date you stopped or will stop selling goods
 stoppedSellingGoodsDate.error.required.two = The date you stopped or will stop selling goods must include {0} and {1}
 stoppedSellingGoodsDate.error.required = The date you stopped or will stop selling goods must include the {0}
 stoppedSellingGoodsDate.error.invalid = The date you stopped or will stop selling goods must be a real date
 stoppedSellingGoodsDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
+stoppedSellingGoodsDate.change.hidden = stopped trading goods date
 
 stoppedUsingServiceDate.title = When did you or when will you stop using this service?
 stoppedUsingServiceDate.heading = When did you or when will you stop using this service?
+stoppedUsingServiceDate.checkYourAnswersLabel = Leaving date
 stoppedUsingServiceDate.hint = You can enter a date up to {0}.<br/> For example, {1}.
 stoppedUsingServiceDate.error.required.all = Enter the date you stopped or will stop using this service
 stoppedUsingServiceDate.error.required.two = The date you stopped or will stop using this service must include {0} and {1}
 stoppedUsingServiceDate.error.required = The date you stopped or will stop using this service must include {0}
 stoppedUsingServiceDate.error.invalid = The date you stopped or will stop using this service must be a real date
 stoppedUsingServiceDate.error.invalidDateRage = The date must be between {0} and {1} inclusively
+stoppedUsingServiceDate.change.hidden = leaving date
 
 applicationComplete.title = We have received your request to leave
 applicationComplete.heading = We have received your request to leave

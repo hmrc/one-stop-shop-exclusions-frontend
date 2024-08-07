@@ -35,11 +35,14 @@ case object MoveCountryPage extends QuestionPage[Boolean] {
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
     value match {
       case Some(true) => for {
-        removedStoppedSellingGoodsDatePageUA <- userAnswers.remove(StoppedSellingGoodsDatePage)
-        updatedUserAnswers <- removedStoppedSellingGoodsDatePageUA.remove(StoppedUsingServiceDatePage)
+        removedStoppedSellingGoodsPageUA <- userAnswers.remove(StopSellingGoodsPage)
+        removedStoppedSellingGoodsDatePageUA <- removedStoppedSellingGoodsPageUA.remove(StoppedSellingGoodsDatePage)
+        removeStoppedUsingServiceDatePageUA <- removedStoppedSellingGoodsDatePageUA.remove(StoppedUsingServiceDatePage)
+        updatedUserAnswers <- removeStoppedUsingServiceDatePageUA.remove(LeaveSchemePage)
       } yield updatedUserAnswers
       case Some(false) => for {
-        removedEuCountryAnswers <- userAnswers.remove(EuCountryPage)
+        removeMoveDateUA <- userAnswers.remove(MoveDatePage)
+        removedEuCountryAnswers <- removeMoveDateUA.remove(EuCountryPage)
         updatedUserAnswers <- removedEuCountryAnswers.remove(EuVatNumberPage)
       } yield updatedUserAnswers
       case _ => super.cleanup(value, userAnswers)

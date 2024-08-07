@@ -16,28 +16,33 @@
 
 package viewmodels.checkAnswers
 
+import date.Dates
 import models.UserAnswers
-import pages.{CheckAnswersPage, MoveCountryPage, Waypoints}
+import pages.{CheckAnswersPage, StoppedUsingServiceDatePage, Waypoints}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object MoveCountrySummary {
+object StoppedUsingServiceDateSummary {
 
-  def row(answers: UserAnswers, waypoints: Waypoints, sourcePage: CheckAnswersPage)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(MoveCountryPage).map {
+  def row(
+           answers: UserAnswers,
+           waypoints: Waypoints,
+           sourcePage: CheckAnswersPage,
+           dates: Dates
+         )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(StoppedUsingServiceDatePage).map {
       answer =>
+        val value = dates.formatter.format(answer)
 
-        val value = if (answer) "site.yes" else "site.no"
-
-        val moveCountryPageChangeUrl = MoveCountryPage.changeLink(waypoints, sourcePage).url
+        val stopSellingGoodsPageChangeUrl = StoppedUsingServiceDatePage.changeLink(waypoints, sourcePage).url
         SummaryListRowViewModel(
-          key = "moveCountry.checkYourAnswersLabel",
+          key = "stoppedUsingServiceDate.checkYourAnswersLabel",
           value = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", moveCountryPageChangeUrl)
-              .withVisuallyHiddenText(messages("moveCountry.change.hidden"))
+            ActionItemViewModel("site.change", stopSellingGoodsPageChangeUrl)
+              .withVisuallyHiddenText(messages("stoppedUsingServiceDate.change.hidden"))
           )
         )
     }
