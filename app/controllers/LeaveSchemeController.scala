@@ -19,7 +19,7 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions._
 import forms.LeaveSchemeFormProvider
-import pages.{CheckYourAnswersPage, LeaveSchemePage, StoppedUsingServiceDatePage, Waypoints}
+import pages.{LeaveSchemePage, StoppedUsingServiceDatePage, Waypoints}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

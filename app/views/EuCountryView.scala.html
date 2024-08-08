@@ -17,17 +17,18 @@
 @import controllers.routes
 @import pages.EuCountryPage
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import viewmodels.InputWidth.Fixed20
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
+
 @import viewmodels.LabelSize
-@import views.html.components.{AutoComplete, ButtonGroup}
+@import views.html.components.ButtonGroup
+
 
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukSelect: GovukSelect,
-        button: ButtonGroup,
-        autoComplete: AutoComplete
+        button: ButtonGroup
 )
 
 @(form: Form[_], waypoints: Waypoints)(implicit request: Request[_], messages: Messages)
@@ -47,9 +48,11 @@
         label = HmrcPageHeadingLabel(
           content = messages("euCountry.heading")
         ).asPageHeading(size = LabelSize.Large)
-      ).asAccessibleAutocomplete()
-      .withCssClass(Fixed20.toString)
-      .withCssClass("autocomplete")
+      ).asAccessibleAutocomplete(Some(
+        AccessibleAutocomplete(
+          showAllValues = true
+        )
+      ))
     )
 
     @button("site.continue", EuCountryPage.route(waypoints).url, waypoints)
