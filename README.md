@@ -8,20 +8,20 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 ## Run the application
 
-To update from Nexus and start all services from the RELEASE version instead of snapshot
+To update from Nexus and start all services
 ```
-sm --start ONE_STOP_SHOP_ALL -r
+sm2 --start ONE_STOP_SHOP_ALL
 ```
 
 ### To run the application locally execute the following:
 
-The service needs to run in testOnly mode in order to access the testOnly get-passcodes endpoint which will generate a passcode for email verification.
+
 ```
-sm --stop ONE_STOP_SHOP_EXCLUSIONS_FRONTEND
+sm2 --stop ONE_STOP_SHOP_EXCLUSIONS_FRONTEND
 ```
 and
 ```
-sbt run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes
+sbt run
 ```
 ### License
 
