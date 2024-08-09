@@ -49,7 +49,8 @@
         ).asPageHeading(size = LabelSize.Large)
       ).asAccessibleAutocomplete(Some(
         AccessibleAutocomplete(
-          showAllValues = true
+          showAllValues = true,
+          defaultValue = Some("")
         )
       )).withHint(HintViewModel(messages("euCountry.hint")))
     )
