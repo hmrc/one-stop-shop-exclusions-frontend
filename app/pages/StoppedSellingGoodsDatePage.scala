@@ -31,5 +31,5 @@ case object StoppedSellingGoodsDatePage extends QuestionPage[LocalDate] {
 
   override def route(waypoints: Waypoints): Call = routes.StoppedSellingGoodsDateController.onPageLoad(waypoints)
 
-  override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = ApplicationCompletePage
+  override def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = CheckYourAnswersPage
 }

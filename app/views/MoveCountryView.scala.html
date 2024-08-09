@@ -18,30 +18,30 @@
 @import views.html.components.ButtonGroup
 
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukRadios: GovukRadios,
-button: ButtonGroup
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios,
+        button: ButtonGroup
 )
 
 @(form: Form[_], waypoints: Waypoints)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("moveCountry.title"))) {
+  @layout(pageTitle = title(form, messages("moveCountry.title"))) {
 
     @formHelper(action = routes.MoveCountryController.onSubmit(waypoints), Symbol("autoComplete") -> "off") {
 
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
+      @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+      }
 
-        @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("moveCountry.heading")).withCssClass("govuk-label--l").asPageHeading()
-            )
+      @govukRadios(
+        RadiosViewModel.yesNo(
+          field = form("value"),
+          legend = LegendViewModel(messages("moveCountry.heading")).withCssClass("govuk-label--l").asPageHeading()
         )
+      )
 
-        @button("site.continue", MoveCountryPage.route(waypoints).url, waypoints)
+      @button("site.continue", MoveCountryPage.route(waypoints).url, waypoints)
     }
-}
+  }

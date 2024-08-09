@@ -69,7 +69,7 @@ class LeaveSchemeControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect  to StoppedUsingServiceDatePage when the user submits true and is leaving the scheme" in {
+    "must redirect to StoppedUsingServiceDatePage when the user submits true and is leaving the scheme" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
