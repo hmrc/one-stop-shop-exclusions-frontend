@@ -18,7 +18,6 @@
 @import pages.EuCountryPage
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
-
 @import viewmodels.LabelSize
 @import views.html.components.ButtonGroup
 
@@ -52,7 +51,7 @@
         AccessibleAutocomplete(
           showAllValues = true
         )
-      ))
+      )).withHint(HintViewModel(messages("euCountry.hint")))
     )
 
     @button("site.continue", EuCountryPage.route(waypoints).url, waypoints)

@@ -72,6 +72,7 @@ moveCountry.change.hidden = if you are moving your business to an EU country
 
 euCountry.title = Which country is your business moving to?
 euCountry.heading = Which country is your business moving to?
+euCountry.hint = Start typing country
 euCountry.checkYourAnswersLabel = New country
 euCountry.error.required = Select the country your business is moving to
 euCountry.change.hidden = your new country
@@ -101,12 +102,13 @@ stopSellingGoods.title = Has your business stopped selling eligible goods to cus
 stopSellingGoods.heading = Has your business stopped selling eligible goods to customers in the EU or Northern Ireland?
 stopSellingGoods.error.required = Select yes if you stopped selling eligible goods to customers in the EU or Northern Ireland
 stopSellingGoods.checkYourAnswersLabel = Stopped trading goods
+stopSellingGoods.change.hidden = if you've stopped selling goods
 
 leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.checkYourAnswersLabel = leave scheme
 leaveScheme.error.required = Select yes if you want to leave the Import One Stop Shop scheme
-leaveScheme.change.hidden = Leave scheme
+leaveScheme.change.hidden = leave scheme
 
 stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
 stoppedSellingGoodsDate.heading = When did or when will your business stop selling eligible goods?
