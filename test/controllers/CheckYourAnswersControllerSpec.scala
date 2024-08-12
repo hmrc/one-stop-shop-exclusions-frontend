@@ -17,27 +17,28 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
-import models.{CheckMode, UserAnswers}
+import date.{Dates, Today}
+import models.{CheckMode, Country}
 import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
 import models.exclusions.ExclusionReason
-import models.requests.OptionalDataRequest
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import pages._
+import play.api.i18n.Messages
 import play.api.inject.bind
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.AuditService
-import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import viewmodels.checkAnswers.{EuCountrySummary, EuVatNumberSummary, MoveCountrySummary, MoveDateSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
-import java.time.Instant
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with BeforeAndAfterEach {
@@ -45,10 +46,21 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
   private val mockAuditService: AuditService = mock[AuditService]
   private val mockRegistrationConnector = mock[RegistrationConnector]
 
+  private val today: LocalDate = LocalDate.now
+  private val mockToday: Today = mock[Today]
+  when(mockToday.date).thenReturn(today)
+
   override protected def beforeEach(): Unit = {
     reset(mockRegistrationConnector)
     reset(mockAuditService)
   }
+
+  private val date: Dates = new Dates(mockToday)
+  private val answers = emptyUserAnswers
+    .set(MoveCountryPage, true).success.value
+    .set(EuCountryPage, Country("DE", "Germany")).success.value
+    .set(MoveDatePage, today).success.value
+    .set(EuVatNumberPage, "DE123456789").success.value
 
   "Check Your Answers Controller" - {
 
@@ -56,32 +68,28 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
       "must return OK and the correct view for a GET" in {
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad.url)
+
+          implicit val msgs: Messages = messages(application)
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
 
           val result = route(application, request).value
-
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
           val view = application.injector.instanceOf[CheckYourAnswersView]
           val waypoints = EmptyWaypoints.setNextWaypoint(Waypoint(CheckYourAnswersPage, CheckMode, CheckYourAnswersPage.urlFragment))
-          val list = SummaryListViewModel(Seq.empty)
+          val list = SummaryListViewModel(
+            Seq(
+              MoveCountrySummary.row(answers, waypoints, CheckYourAnswersPage),
+              EuCountrySummary.countryRow(answers, waypoints, CheckYourAnswersPage),
+              MoveDateSummary.rowMoveDate(answers, waypoints, CheckYourAnswersPage, date),
+              EuVatNumberSummary.rowEuVatNumber(answers, waypoints, CheckYourAnswersPage)
+            ).flatten
+          )
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(waypoints, list, isValid = false)(request, messages(application)).toString
-        }
-      }
-
-      "must redirect to kick out page via url tourism for code 1 and 5" in {
-
-        val userAnswers = UserAnswers(userAnswersId).set(MoveCountryPage, false)
-        val application = applicationBuilder(userAnswers = Some(userAnswers.get)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url).withFormUrlEncodedBody(("value", "false"))
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
+          contentAsString(result) mustEqual view(waypoints, list, isValid = true, appConfig.ossYourAccountUrl)(request, messages(application)).toString
         }
       }
     }

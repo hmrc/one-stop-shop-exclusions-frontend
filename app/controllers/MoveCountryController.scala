@@ -18,8 +18,6 @@ package controllers
 
 import controllers.actions._
 import forms.MoveCountryFormProvider
-
-import javax.inject.Inject
 import models.UserAnswers
 import pages.{MoveCountryPage, Waypoints}
 import play.api.data.Form
@@ -29,13 +27,14 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.MoveCountryView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class MoveCountryController @Inject()(
                                        cc: AuthenticatedControllerComponents,
-                                         formProvider: MoveCountryFormProvider,
-                                         view: MoveCountryView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                       formProvider: MoveCountryFormProvider,
+                                       view: MoveCountryView
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   protected val controllerComponents: MessagesControllerComponents = cc
   val form: Form[Boolean] = formProvider()
@@ -56,7 +55,7 @@ class MoveCountryController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-         BadRequest(view(formWithErrors, waypoints)).toFuture,
+          BadRequest(view(formWithErrors, waypoints)).toFuture,
 
         value => {
           val originalAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))

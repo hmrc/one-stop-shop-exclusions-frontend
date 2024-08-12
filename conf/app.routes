@@ -50,7 +50,7 @@ GET         /successful                                    controllers.Applicati
 
 GET         /submissionFailure                             controllers.SubmissionFailureController.onPageLoad()
 
-GET        /already-left-scheme-error                    controllers.AlreadyLeftSchemeErrorController.onPageLoad()
+GET         /already-left-scheme-error                     controllers.AlreadyLeftSchemeErrorController.onPageLoad()
 
 GET         /cancel-leave-scheme                           controllers.reversals.CancelLeaveSchemeRequestController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 POST        /cancel-leave-scheme                           controllers.reversals.CancelLeaveSchemeRequestController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints)
