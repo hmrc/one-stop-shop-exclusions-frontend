@@ -20,27 +20,27 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
-import uk.gov.hmrc.http.StringContextOps
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject()(configuration: Configuration) {
 
-  val host: String    = configuration.get[String]("host")
+  val host: String = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
-  private val contactFormServiceIdentifier = "one-stop-shop-exclusions-frontend"
+  private val contactFormServiceIdentifier = configuration.get[String]("contact-frontend.serviceId")
 
-  def feedbackUrl(implicit request: RequestHeader): java.net.URL =
-    url"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
+  def feedbackUrl(implicit request: RequestHeader): String =
+    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${SafeRedirectUrl(host + request.uri).encodedUrl}"
 
-  val loginUrl: String          = configuration.get[String]("urls.login")
-  val loginContinueUrl: String  = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String        = configuration.get[String]("urls.signOut")
+  val loginUrl: String = configuration.get[String]("urls.login")
+  val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+  val signOutUrl: String = configuration.get[String]("urls.signOut")
   val ossYourAccountUrl: String = configuration.get[String]("urls.yourAccountUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/one-stop-shop-exclusions-frontend"
+  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/one-stop-shop-exclusions-frontend"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
@@ -50,7 +50,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     "cy" -> Lang("cy")
   )
 
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
+  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
