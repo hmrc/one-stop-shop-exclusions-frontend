@@ -63,7 +63,7 @@ class AuthenticatedIdentifierAction @Inject()(
         getRegistrationAndBlock(request, block, internalId, enrolments)
 
       case Some(internalId) ~ enrolments ~ Some(Individual) ~ confidence =>
-        if (confidence >= ConfidenceLevel.L200) {
+        if (confidence >= ConfidenceLevel.L250) {
           getRegistrationAndBlock(request, block, internalId, enrolments)
         } else {
           throw InsufficientConfidenceLevel("Insufficient confidence level")
