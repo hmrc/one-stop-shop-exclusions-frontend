@@ -20,22 +20,33 @@ import config.FrontendAppConfig
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.FutureSyntax.FutureOps
 import views.html.reversals.CancelLeaveSchemeAcknowledgementView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class CancelLeaveSchemeAcknowledgementController @Inject()(
                                                             override val messagesApi: MessagesApi,
                                                             cc: AuthenticatedControllerComponents,
                                                             frontendAppConfig: FrontendAppConfig,
-                                                            view: CancelLeaveSchemeAcknowledgementView
-                                                          ) extends FrontendBaseController with I18nSupport {
+                                                            view: CancelLeaveSchemeAcknowledgementView,
+                                                            sessionRepository: SessionRepository
+                                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader {
+  def onPageLoad: Action[AnyContent] = cc.authAndGetOptionalDataAndEvaluateExcludedTrader.async {
     implicit request =>
-      Ok(view(frontendAppConfig.ossYourAccountUrl))
+      request.userAnswers match {
+        case Some(userAnswers) =>
+          sessionRepository.clear(userAnswers.id).map { _ =>
+            Ok(view(frontendAppConfig.ossYourAccountUrl))
+          }
+        case None =>
+          Ok(view(frontendAppConfig.ossYourAccountUrl)).toFuture
+      }
   }
 }
