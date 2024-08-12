@@ -40,6 +40,7 @@ import utils.FutureSyntax.FutureOps
 import views.html.reversals.CancelLeaveSchemeRequestView
 
 import java.time.{Clock, LocalDate, ZoneId}
+import scala.concurrent.Future
 
 class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar {
 
@@ -324,6 +325,40 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe CancelLeaveSchemeErrorPage.route(emptyWaypoints).url
+      }
+    }
+
+    "must call sessionRepository.clear on a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val mockRegistrationService = mock[RegistrationService]
+
+      when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .overrides(bind[RegistrationService].toInstance(mockRegistrationService))
+        .build()
+
+      running(application) {
+
+        val request = OptionalDataRequest(
+          FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          Some(emptyUserAnswers)
+        )
+
+        val result = route(application, request).value
+
+        status(result) mustBe OK
+        verify(mockSessionRepository, times(1)).clear(userAnswersId)
       }
     }
   }
