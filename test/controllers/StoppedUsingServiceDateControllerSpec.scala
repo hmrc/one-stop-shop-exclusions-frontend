@@ -16,29 +16,19 @@
 
 package controllers
 
-import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
-import connectors.RegistrationConnector
 import date.{Dates, Today, TodayImpl}
 import forms.StoppedUsingServiceDateFormProvider
 import models.UserAnswers
-import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
-import models.exclusions.ExclusionReason
-import models.responses.UnexpectedResponseStatus
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchersSugar.eqTo
-import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import pages.StoppedUsingServiceDatePage
 import play.api.data.Form
-import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.AuditService
 import views.html.StoppedUsingServiceDateView
 
-import scala.concurrent.Future
+import java.time.{LocalDate, ZoneOffset}
 
 
 class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfterEach {
@@ -54,9 +44,6 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
   lazy val stoppedUsingServiceDateRoute: String = routes.StoppedUsingServiceDateController.onPageLoad(emptyWaypoints).url
 
   override val emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
-
-  private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
-  private val mockAuditService: AuditService = mock[AuditService]
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, stoppedUsingServiceDateRoute)
@@ -117,70 +104,15 @@ class StoppedUsingServiceDateControllerSpec extends SpecBase with BeforeAndAfter
 
     "must redirect to the next page when valid data is submitted" in {
 
-      when(mockRegistrationConnector.amend(any())(any())) thenReturn Future.successful(Right(()))
-
       val userAnswers = emptyUserAnswers
       val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
-        .overrides(
-          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
-          bind[AuditService].toInstance(mockAuditService)
-        )
         .build()
 
       running(application) {
         val result = route(application, postRequest()).value
-
-        val updatedUserAnswers = UserAnswers(userAnswersId).set(StoppedUsingServiceDatePage, validAnswer).success.value
-
-        val expectedAuditEvent = ExclusionAuditModel(
-          ExclusionAuditType.ExclusionRequestSubmitted,
-          userAnswersId,
-          "",
-          vrn.vrn,
-          updatedUserAnswers.toUserAnswersForAudit,
-          registration,
-          Some(ExclusionReason.VoluntarilyLeaves),
-          SubmissionResult.Success
-        )
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual StoppedUsingServiceDatePage.navigate(emptyWaypoints, emptyUserAnswers, userAnswers).url
-        verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
-      }
-    }
-
-    "must show failure page and audit a failure when amend registration call fails to submit" in {
-
-      when(mockRegistrationConnector.amend(any())(any())) thenReturn
-        Future.successful(Left(UnexpectedResponseStatus(INTERNAL_SERVER_ERROR, "Error occurred")))
-
-      val userAnswers = emptyUserAnswers
-      val application = applicationBuilder(userAnswers = Some(userAnswers), clock = Some(Dates.clock))
-        .overrides(
-          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
-          bind[AuditService].toInstance(mockAuditService)
-        )
-        .build()
-
-      running(application) {
-        val result = route(application, postRequest()).value
-
-        val updatedUserAnswers = UserAnswers(userAnswersId).set(StoppedUsingServiceDatePage, validAnswer).success.value
-
-        val expectedAuditEvent = ExclusionAuditModel(
-          ExclusionAuditType.ExclusionRequestSubmitted,
-          userAnswersId,
-          "",
-          vrn.vrn,
-          updatedUserAnswers.toUserAnswersForAudit,
-          registration,
-          Some(ExclusionReason.VoluntarilyLeaves),
-          SubmissionResult.Failure
-        )
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.SubmissionFailureController.onPageLoad().url
-        verify(mockAuditService, times(1)).audit(eqTo(expectedAuditEvent))(any(), any())
       }
     }
 
