@@ -20,19 +20,62 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.SessionRepository
 import views.html.reversals.CancelLeaveSchemeAcknowledgementView
+import play.api.inject.bind
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
-class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase {
+class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase with BeforeAndAfterEach {
 
   private def excludedRegistration(exclusionReason: ExclusionReason, effectiveDate: LocalDate): Registration = registration.copy(
     excludedTrader = Some(ExcludedTrader(vrn, exclusionReason, effectiveDate))
   )
 
+  private val mockSessionRepository = mock[SessionRepository]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository)
+  }
+
   "CancelLeaveSchemeAcknowledgement Controller" - {
+
+    "must return OK and the correct view for a GET and clear the session when UserAnswers is present" in {
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      when(mockSessionRepository.clear(any())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CancelLeaveSchemeAcknowledgementController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        val view = application.injector.instanceOf[CancelLeaveSchemeAcknowledgementView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(config.ossYourAccountUrl)(request, messages(application)).toString
+
+        verify(mockSessionRepository).clear(emptyUserAnswers.id)
+      }
+    }
 
     "must return OK and the correct view for a GET" in {
 
