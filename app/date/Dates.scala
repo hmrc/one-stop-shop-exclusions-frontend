@@ -17,6 +17,7 @@
 package date
 
 import models.Quarter
+import models.requests.DataRequest
 
 import java.time.{Clock, LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
@@ -86,6 +87,14 @@ class Dates @Inject() (val today: Today) {
         LocalDate.of(currentYear, nextQuarter.startMonth, 1)
       case None =>
         throw new IllegalStateException("No quarter found for the current month")
+    }
+  }
+
+  def getMinimumDateBasedOnCommencementDate()(implicit request: DataRequest[_]): LocalDate = {
+    if(LocalDate.now(Dates.clock).isBefore(request.registration.commencementDate)) {
+      request.registration.commencementDate.minusMonths(3)
+    } else {
+      request.registration.commencementDate
     }
   }
 
