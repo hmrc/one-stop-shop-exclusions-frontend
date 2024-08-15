@@ -27,6 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedUsingServiceDateView
 
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,15 +35,15 @@ class StoppedUsingServiceDateController @Inject()(
                                                    cc: AuthenticatedControllerComponents,
                                                    formProvider: StoppedUsingServiceDateFormProvider,
                                                    dates: Dates,
-                                                   view: StoppedUsingServiceDateView
+                                                   view: StoppedUsingServiceDateView,
+                                                   clock: Clock
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData {
     implicit request =>
-      val commencementDate = request.registration.commencementDate
-      val form = formProvider(dates.today.date, commencementDate)
+      val form = formProvider(dates.today.date, dates.getMinimumDateBasedOnCommencementDate())
 
       val preparedForm = request.userAnswers.get(StoppedUsingServiceDatePage) match {
         case None => form
@@ -55,8 +56,7 @@ class StoppedUsingServiceDateController @Inject()(
   def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.authAndGetData.async {
     implicit request =>
 
-      val commencementDate = request.registration.commencementDate
-      val form = formProvider(dates.today.date, commencementDate)
+      val form = formProvider(dates.today.date, dates.getMinimumDateBasedOnCommencementDate())
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -69,4 +69,5 @@ class StoppedUsingServiceDateController @Inject()(
           } yield Redirect(StoppedUsingServiceDatePage.navigate(waypoints, request.userAnswers, updatedAnswers).url)
       )
   }
+
 }
