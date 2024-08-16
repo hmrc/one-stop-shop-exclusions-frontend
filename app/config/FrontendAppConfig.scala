@@ -40,7 +40,7 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
   val ossYourAccountUrl: String = configuration.get[String]("urls.yourAccountUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/one-stop-shop-exclusions-frontend"
+  val exitSurveyUrl: String = s"${exitSurveyBaseUrl}feedback/one-stop-shop-exclusions-frontend"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
