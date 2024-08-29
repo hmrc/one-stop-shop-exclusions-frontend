@@ -53,10 +53,9 @@ lazy val root = (project in file("."))
     resolvers ++= Seq(Resolver.jcenterRepo),
     // concatenate js
     Concat.groups := Seq(
-      "javascripts/application.js" ->
-        group(Seq(
-          "javascripts/app.js"
-        ))
+      "javascripts/all-services.js" -> group(
+        baseDirectory.value / "app" / "assets" / "javascripts" / "src" * "*.js"
+      )
     ),
     // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
     // suppress warnings in generated routes files
