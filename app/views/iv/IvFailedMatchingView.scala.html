@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  *@
 
 @this(
-    layout: templates.Layout
+        layout: templates.Layout
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(continueUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("unauthorised.title")),
-    timeout   = false
-) {
+    @layout(pageTitle = titleNoForm(messages("ivFailedMatching.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+        <h1 class="govuk-heading-l">@messages("ivFailedMatching.title")</h1>
 
-}
+        <p class="govuk-body">@messages("ivFailedMatching.p")</p>
+
+        <a href="@continueUrl" class="govuk-button" data-module="govuk-button" role="button" draggable="false">
+        @messages("site.tryAgain")
+        </a>
+    }

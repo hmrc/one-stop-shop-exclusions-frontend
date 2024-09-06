@@ -24,12 +24,15 @@ import logging.Logging
 import models.requests.IdentifierRequest
 import play.api.mvc.Results._
 import play.api.mvc._
+import services.UrlBuilderService
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.FutureSyntax.FutureOps
 
@@ -41,7 +44,8 @@ class AuthenticatedIdentifierAction @Inject()(
                                                override val authConnector: AuthConnector,
                                                config: FrontendAppConfig,
                                                val parser: BodyParsers.Default,
-                                               registrationConnector: RegistrationConnector
+                                               registrationConnector: RegistrationConnector,
+                                               urlBuilderService: UrlBuilderService
                                              )
                                              (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
 
@@ -75,6 +79,8 @@ class AuthenticatedIdentifierAction @Inject()(
     } recoverWith {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))).toFuture
+      case _: InsufficientConfidenceLevel =>
+        upliftConfidenceLevel(request).toFuture
       case e: AuthorisationException =>
         logger.info(s"Got authorisation exception ${e.getMessage}", e)
         Redirect(routes.UnauthorisedController.onPageLoad).toFuture
@@ -104,5 +110,18 @@ class AuthenticatedIdentifierAction @Inject()(
       .flatMap { enrolment => enrolment.identifiers.find(_.key == "VRN").map(e => Vrn(e.value))
       } orElse enrolments.enrolments.find(_.key == "HMCE-VATDEC-ORG")
       .flatMap { enrolment => enrolment.identifiers.find(_.key == "VATRegNo").map(e => Vrn(e.value)) }
+
+  private def upliftConfidenceLevel[A](request: Request[A]): Result = {
+    val redirectPolicy = OnlyRelative | AbsoluteWithHostnameFromAllowlist(config.allowedRedirectUrls: _*)
+    Redirect(
+      config.ivUpliftUrl,
+      Map(
+        "origin" -> Seq(config.origin),
+        "confidenceLevel" -> Seq(ConfidenceLevel.L250.toString),
+        "completionURL" -> Seq(urlBuilderService.loginContinueUrl(request).get(redirectPolicy).url),
+        "failureURL" -> Seq(urlBuilderService.ivFailureUrl(request))
+      )
+    )
+  }
 
 }
