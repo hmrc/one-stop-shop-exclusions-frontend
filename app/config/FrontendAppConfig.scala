@@ -20,13 +20,17 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+
+import java.net.URL
 
 @Singleton
 class FrontendAppConfig @Inject()(configuration: Configuration) {
 
   val host: String = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
+  val origin: String  = configuration.get[String]("origin")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = configuration.get[String]("contact-frontend.serviceId")
@@ -38,6 +42,15 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String = configuration.get[String]("urls.signOut")
   val ossYourAccountUrl: String = configuration.get[String]("urls.yourAccountUrl")
+  val ivUpliftUrl: String = configuration.get[String]("urls.ivUplift")
+
+  val ivEvidenceStatusUrl: URL =
+    url"${configuration.get[Service]("microservice.services.identity-verification").baseUrl}/disabled-evidences?origin=$origin"
+
+  val ivJourneyServiceUrl: String =
+    s"${configuration.get[Service]("microservice.services.identity-verification").baseUrl}/journey/"
+
+  def ivJourneyResultUrl(journeyId: String): URL = url"$ivJourneyServiceUrl$journeyId"
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String = s"${exitSurveyBaseUrl}feedback/one-stop-shop-exclusions-frontend"
@@ -56,4 +69,6 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
   val cacheTtl: Int = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   val returnsServiceUrl: Service = configuration.get[Service]("microservice.services.one-stop-shop-returns")
+
+  val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
 }

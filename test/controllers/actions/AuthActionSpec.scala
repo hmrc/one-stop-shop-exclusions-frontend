@@ -24,6 +24,7 @@ import controllers.routes
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.UrlBuilderService
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -35,6 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthActionSpec extends SpecBase {
 
   private val mockRegistrationConnector = mock[RegistrationConnector]
+  private val mockUrlBuilderService = mock[UrlBuilderService]
 
   class Harness(authAction: IdentifierAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
@@ -56,7 +58,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new MissingBearerToken),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -81,7 +84,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new BearerTokenExpired),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -106,7 +110,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new InsufficientEnrolments),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -126,18 +131,20 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val urlBuilder = application.injector.instanceOf[UrlBuilderService]
 
           val authAction = new AuthenticatedIdentifierAction(
             new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            urlBuilder
           )
           val controller = new Harness(authAction)
-          val result = controller.onPageLoad()(FakeRequest())
+          val result = controller.onPageLoad()(FakeRequest(GET, "/example"))
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad.url
+          redirectLocation(result).value must startWith(s"${appConfig.ivUpliftUrl}?origin=OSS&confidenceLevel=250")
         }
       }
     }
@@ -156,7 +163,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedAuthProvider),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -181,7 +189,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -206,7 +215,8 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedCredentialRole),
             appConfig,
             bodyParsers,
-            mockRegistrationConnector
+            mockRegistrationConnector,
+            mockUrlBuilderService
           )
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
