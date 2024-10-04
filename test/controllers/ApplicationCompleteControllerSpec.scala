@@ -38,7 +38,9 @@ class ApplicationCompleteControllerSpec extends SpecBase {
   "ApplicationComplete Controller" - {
 
     "when someone moves business" - {
+
       "must return OK with the leave date being the end of the quarter" in {
+
         val userAnswers = emptyUserAnswers
           .set(MoveCountryPage, true).success.get
           .set(EuCountryPage, country).success.get
@@ -76,7 +78,8 @@ class ApplicationCompleteControllerSpec extends SpecBase {
     }
 
     "when someone stops selling goods" - {
-      "must return OK with the leave date being end of the period (1st April) " in {
+
+      "must return OK with the leave date being start of the next quarter (1st April) " in {
 
         val stoppedSellingGoodsDate = LocalDate.of(2024, 1, 16)
 
@@ -113,9 +116,96 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           )(request, messages(application)).toString
         }
       }
+
+      "must return OK with the leave date being start of the next quarter of the following year (1st January) " +
+        "and selling goods date is today or later" in {
+
+        val today: LocalDate = LocalDate.of(2023, 10, 15)
+        val mockToday: Today = mock[Today]
+        when(mockToday.date).thenReturn(today)
+
+        val stoppedSellingGoodsDate = LocalDate.of(2023, 10, 15)
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, true).success.get
+          .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Today].toInstance(mockToday))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ApplicationCompleteView]
+
+          val config = application.injector.instanceOf[FrontendAppConfig]
+
+          status(result) mustEqual OK
+          val leaveDate = "1 January 2024"
+          val cancelDate = "31 December 2023"
+
+          contentAsString(result) mustEqual view(
+            config.ossYourAccountUrl,
+            leaveDate,
+            cancelDate,
+            Some(messages(application)("applicationComplete.stopSellingGoods.text.future")),
+            None,
+            Some(messages(application)("applicationComplete.leave.text", leaveDate)),
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+          )(request, messages(application)).toString
+        }
+      }
+
+      "must return OK with the leave date being start of the next quarter of the following year (1st January) " +
+        "and selling goods date is before today" in {
+
+        val today: LocalDate = LocalDate.of(2023, 10, 15)
+        val mockToday: Today = mock[Today]
+        when(mockToday.date).thenReturn(today)
+
+        val stoppedSellingGoodsDate = LocalDate.of(2023, 10, 14)
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, true).success.get
+          .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[Today].toInstance(mockToday))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ApplicationCompleteView]
+
+          val config = application.injector.instanceOf[FrontendAppConfig]
+
+          status(result) mustEqual OK
+          val leaveDate = "1 January 2024"
+          val cancelDate = "31 December 2023"
+
+          contentAsString(result) mustEqual view(
+            config.ossYourAccountUrl,
+            leaveDate,
+            cancelDate,
+            Some(messages(application)("applicationComplete.stopSellingGoods.text")),
+            None,
+            Some(messages(application)("applicationComplete.leave.text", leaveDate)),
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+          )(request, messages(application)).toString
+        }
+      }
     }
 
     "when someone stops using the service" - {
+
       "must return OK with the leave date being 1st day of next period (1st April) " in {
 
         val stoppedUsingServiceDate = LocalDate.of(2024, 1, 16)

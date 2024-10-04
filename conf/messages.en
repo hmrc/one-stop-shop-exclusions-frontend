@@ -46,8 +46,8 @@ error.missing_answers_header = Some information is missing.
 error.missing_answers_prompt.general = You need to complete the missing information before you continue.
 error.resolve_missing_answers = Resolve missing answers
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
+checkYourAnswers.title = Check your answers for leaving the OSS service
+checkYourAnswers.heading = Check your answers for leaving the OSS service
 checkYourAnswers.hint = I confirm I want to leave the OSS service.
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
@@ -72,7 +72,7 @@ moveCountry.change.hidden = if you are moving your business to an EU country
 
 euCountry.title = Which country is your business moving to?
 euCountry.heading = Which country is your business moving to?
-euCountry.hint = Start typing country
+euCountry.hint = Start typing a country
 euCountry.checkYourAnswersLabel = New country
 euCountry.error.required = Select the country your business is moving to
 euCountry.change.hidden = your new country
@@ -107,7 +107,7 @@ stopSellingGoods.change.hidden = if you''ve stopped selling goods
 leaveScheme.title = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.heading = Are you sure you want to leave the One Stop Shop scheme?
 leaveScheme.checkYourAnswersLabel = leave scheme
-leaveScheme.error.required = Select yes if you want to leave the Import One Stop Shop scheme
+leaveScheme.error.required = Select yes if you want to leave the One Stop Shop scheme
 leaveScheme.change.hidden = leave scheme
 
 stoppedSellingGoodsDate.title = When did or when will your business stop selling eligible goods?
@@ -135,6 +135,7 @@ stoppedUsingServiceDate.change.hidden = leaving date
 applicationComplete.title = We have received your request to leave
 applicationComplete.heading = We have received your request to leave
 applicationComplete.stopSellingGoods.text = Your business no longer sells eligible goods to customers in the EU or Northern Ireland.
+applicationComplete.stopSellingGoods.text.future = Your business will no longer sell eligible goods to customers in the EU or Northern Ireland.
 applicationComplete.moving.text = You are moving your business operations to {0}.
 applicationComplete.leave.text = You will leave this service on {0}.
 applicationComplete.left.text = You have now left the service.
