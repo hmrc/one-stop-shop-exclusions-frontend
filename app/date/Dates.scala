@@ -17,13 +17,14 @@
 package date
 
 import models.Quarter
+import models.Quarter.Q4
 import models.requests.DataRequest
 
-import java.time.{Clock, LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
 
-class Dates @Inject() (val today: Today) {
+class Dates @Inject()(val today: Today) {
 
   val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
   val MoveDayOfMonthSplit: Int = 10
@@ -62,7 +63,7 @@ class Dates @Inject() (val today: Today) {
     val quarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
     quarter match {
       case Some(q) => today.date.withMonth(q.startMonth.getValue).withDayOfMonth(1)
-      case None    => throw new IllegalStateException("No quarter found for the current month")
+      case None => throw new IllegalStateException("No quarter found for the current month")
     }
   }
 
@@ -71,27 +72,31 @@ class Dates @Inject() (val today: Today) {
     val quarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
     quarter match {
       case Some(q) => today.date.withMonth(q.endMonth.getValue).withDayOfMonth(q.endMonth.maxLength())
-      case None    => throw new IllegalStateException("No quarter found for the current month")
+      case None => throw new IllegalStateException("No quarter found for the current month")
     }
   }
 
   def firstDayOfNextQuarter: LocalDate = {
     val currentMonth = today.date.getMonth
-    val currentYear = today.date.getYear
     val currentQuarter = Quarter.values.find(q => currentMonth.compareTo(q.startMonth) >= 0 && currentMonth.compareTo(q.endMonth) <= 0)
 
     currentQuarter match {
       case Some(q) =>
         val nextQuarterIndex = (Quarter.values.indexOf(q) + 1) % Quarter.values.size
         val nextQuarter = Quarter.values(nextQuarterIndex)
-        LocalDate.of(currentYear, nextQuarter.startMonth, 1)
+        val year = if (currentQuarter.contains(Q4)) {
+          today.date.getYear + 1
+        } else {
+          today.date.getYear
+        }
+        LocalDate.of(year, nextQuarter.startMonth, 1)
       case None =>
         throw new IllegalStateException("No quarter found for the current month")
     }
   }
 
   def getMinimumDateBasedOnCommencementDate()(implicit request: DataRequest[_]): LocalDate = {
-    if(LocalDate.now(Dates.clock).isBefore(request.registration.commencementDate)) {
+    if (LocalDate.now(Dates.clock).isBefore(request.registration.commencementDate)) {
       request.registration.commencementDate.minusMonths(3)
     } else {
       request.registration.commencementDate
