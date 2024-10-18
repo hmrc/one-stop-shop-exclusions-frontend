@@ -17,7 +17,6 @@
 package models
 
 import models.Quarter.{Q1, Q2, Q3, Q4}
-import play.api.i18n.Messages
 import play.api.libs.json._
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -38,7 +37,7 @@ trait Period {
   protected val firstDayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM")
   protected val lastDayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
-  def displayText(implicit messages: Messages): String =
+  def displayText(): String =
     s"${lastDay.format(lastDayFormatter)}"
 
   override def toString: String = s"$year-${quarter.toString}"
@@ -88,7 +87,7 @@ object StandardPeriod {
       quarter <- Quarter.fromString(quarterString)
     } yield StandardPeriod(year, quarter)
 
-  def options(periods: Seq[StandardPeriod])(implicit messages: Messages): Seq[RadioItem] = periods.zipWithIndex.map {
+  def options(periods: Seq[StandardPeriod])(): Seq[RadioItem] = periods.zipWithIndex.map {
     case (value, index) =>
       RadioItem(
         content = Text(value.displayText),
@@ -127,6 +126,8 @@ object Period {
   def writes: Writes[Period] = Writes {
     case s: StandardPeriod => Json.toJson(s)(StandardPeriod.format)
     case p: PartialReturnPeriod => Json.toJson(p)(PartialReturnPeriod.format)
+    case _ =>
+      throw new IllegalArgumentException("Unknown Period type")
   }
 
   def getPeriod(date: LocalDate): Period = {
