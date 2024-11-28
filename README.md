@@ -20,7 +20,7 @@ Summary of APIs
 ------------
 
 ETMP:
-The exclusion details will be sent to ETMP and used to update the trader's One Stop Shop registration
+Submitting the exclusion details triggers an amend registration API call to ETMP
 
 Requirements
 ------------
