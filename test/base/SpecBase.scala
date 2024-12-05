@@ -88,7 +88,7 @@ trait SpecBase
                                     maybeRegistration: Option[Registration] = None
                                   ): GuiceApplicationBuilder = {
     val application = new GuiceApplicationBuilder()
-    val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+    val bodyParsers = application.injector().instanceOf[BodyParsers.Default]
     val clockToBind = clock.getOrElse(stubClockAtArbitraryDate)
 
     application

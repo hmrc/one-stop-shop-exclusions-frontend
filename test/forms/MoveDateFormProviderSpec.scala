@@ -20,7 +20,7 @@ import date.{Dates, LocalDateOps, Today, TodayImpl}
 
 import java.time.LocalDate
 import forms.behaviours.DateBehaviours
-import org.mockito.MockitoSugar.when
+import org.mockito.Mockito.when
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.FormError

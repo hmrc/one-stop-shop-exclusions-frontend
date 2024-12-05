@@ -21,10 +21,10 @@ import config.FrontendAppConfig
 import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.reversals.CancelLeaveSchemeAcknowledgementView
 import play.api.inject.bind
@@ -98,6 +98,32 @@ class CancelLeaveSchemeAcknowledgementControllerSpec extends SpecBase with Befor
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(config.ossYourAccountUrl)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when UserAnswers is None" in {
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = None,
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CancelLeaveSchemeAcknowledgementController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        val view = application.injector.instanceOf[CancelLeaveSchemeAcknowledgementView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(config.ossYourAccountUrl)(request, messages(application)).toString
+
+        verifyNoInteractions(mockSessionRepository)
       }
     }
   }

@@ -130,5 +130,37 @@ class EuVatNumberControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to Journey Recovery for a GET if no country is found in user answers" in {
+
+      val userAnswersWithoutCountry = emptyUserAnswers
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutCountry)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, euVatNumberRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no country is found in user answers" in {
+
+      val userAnswersWithoutCountry = emptyUserAnswers
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithoutCountry)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, euVatNumberRoute).withFormUrlEncodedBody(("value", "validAnswer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
   }
 }

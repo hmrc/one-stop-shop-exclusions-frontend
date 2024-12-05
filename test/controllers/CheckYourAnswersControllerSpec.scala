@@ -25,7 +25,7 @@ import models.audit.{ExclusionAuditModel, ExclusionAuditType, SubmissionResult}
 import models.exclusions.ExclusionReason
 import models.responses.UnexpectedResponseStatus
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchersSugar.eqTo
+import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import pages._
@@ -218,7 +218,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad.url)
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
 
           val result = route(application, request).value
 

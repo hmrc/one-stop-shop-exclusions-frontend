@@ -16,7 +16,6 @@
 
 package models
 
-import models.{Enumerable, WithName}
 import play.api.libs.json._
 
 sealed trait EuTaxIdentifierType
