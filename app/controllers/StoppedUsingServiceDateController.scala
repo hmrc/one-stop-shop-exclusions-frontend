@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import views.html.StoppedUsingServiceDateView
 
-import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,8 +34,7 @@ class StoppedUsingServiceDateController @Inject()(
                                                    cc: AuthenticatedControllerComponents,
                                                    formProvider: StoppedUsingServiceDateFormProvider,
                                                    dates: Dates,
-                                                   view: StoppedUsingServiceDateView,
-                                                   clock: Clock
+                                                   view: StoppedUsingServiceDateView
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc

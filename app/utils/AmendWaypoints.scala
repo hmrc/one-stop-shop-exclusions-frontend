@@ -16,21 +16,12 @@
 
 package utils
 
-import pages.{CheckAnswersPage, NonEmptyWaypoints, Waypoints}
+import pages.Waypoints
 
 object AmendWaypoints {
 
   implicit class AmendWaypointsOps(waypoints: Waypoints) {
     def inAmend: Boolean = false
-
-    private def isInMode(page: CheckAnswersPage) = {
-      waypoints match {
-        case nonEmptyWaypoints: NonEmptyWaypoints =>
-          nonEmptyWaypoints.waypoints.toList.map(_.urlFragment).contains(page.urlFragment)
-        case _ =>
-          false
-      }
-    }
 
     def inCheck: Boolean = false
   }

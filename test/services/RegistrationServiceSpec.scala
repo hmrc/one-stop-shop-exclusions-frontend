@@ -23,7 +23,7 @@ import models.audit.ExclusionAuditType
 import models.exclusions.ExclusionReason
 import models.requests.AmendRegistrationRequest
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchersSugar.eqTo
+import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import pages.{StoppedSellingGoodsDatePage, StoppedUsingServiceDatePage}

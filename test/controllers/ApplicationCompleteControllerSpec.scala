@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import date.Today
-import org.mockito.MockitoSugar.when
+import org.mockito.Mockito.when
 import pages._
 import play.api.test.FakeRequest
 import play.api.inject.bind
@@ -73,6 +73,44 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.next.info.bottom", maxMoveDate)),
 
           )(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to JourneyRecoveryController when EuCountryPage is missing" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, true).success.get
+          .set(MoveDatePage, today).success.get // Missing EuCountryPage
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to JourneyRecoveryController when MoveDatePage is missing" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, true).success.get
+          .set(EuCountryPage, country).success.get // Missing MoveDatePage
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }
@@ -202,6 +240,25 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           )(request, messages(application)).toString
         }
       }
+
+      "must redirect to JourneyRecoveryController when StoppedSellingGoodsDatePage is missing" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, true).success.get // Missing StoppedSellingGoodsDatePage
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
     }
 
     "when someone stops using the service" - {
@@ -240,6 +297,25 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.leave.text", leaveDate)),
             Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
           )(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to JourneyRecoveryController when StoppedUsingServiceDatePage is missing" in {
+
+        val userAnswers = emptyUserAnswers
+          .set(MoveCountryPage, false).success.get
+          .set(StopSellingGoodsPage, false).success.get // Missing StoppedUsingServiceDatePage
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ApplicationCompleteController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }
