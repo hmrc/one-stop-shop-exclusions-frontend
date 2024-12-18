@@ -154,5 +154,21 @@ class MoveCountryControllerSpec extends SpecBase {
         contentAsString(result) mustEqual view(form, emptyWaypoints)(request, messages(application)).toString
       }
     }
+
+    "must create new UserAnswers and redirect to the next page when no existing data is found on submit" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(POST, moveCountryRoute).withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        val userAnswers = UserAnswers(userAnswersId).set(MoveCountryPage, true).success.value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual MoveCountryPage.navigate(emptyWaypoints, UserAnswers(userAnswersId), userAnswers).url
+      }
+    }
   }
 }

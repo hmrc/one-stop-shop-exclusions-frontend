@@ -90,7 +90,7 @@ object StandardPeriod {
   def options(periods: Seq[StandardPeriod])(): Seq[RadioItem] = periods.zipWithIndex.map {
     case (value, index) =>
       RadioItem(
-        content = Text(value.displayText),
+        content = Text(value.displayText()),
         value = Some(value.toString),
         id = Some(s"value_$index")
       )

@@ -24,11 +24,10 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 import utils.FutureSyntax.FutureOps
 
-import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckAlreadyLeftSchemeFilterImpl @Inject()(clock: Clock)(implicit val executionContext: ExecutionContext)
+class CheckAlreadyLeftSchemeFilterImpl @Inject()()(implicit val executionContext: ExecutionContext)
   extends CheckAlreadyLeftSchemeFilter with Logging {
 
   override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {

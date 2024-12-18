@@ -94,7 +94,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and the correct view for a GET " in {
 
         val submittedVatReturns: Seq[VatReturn] = Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value
-        when(mockVatReturnsConnector.getSubmittedVatReturns) thenReturn submittedVatReturns.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns()) thenReturn submittedVatReturns.toFuture
 
         val today: LocalDate = LocalDate.of(2024, 5, 10)
         val clock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
@@ -358,6 +358,40 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, request).value
 
         status(result) mustBe OK
+        verify(mockSessionRepository, times(1)).clear(userAnswersId)
+      }
+    }
+
+    "must return OK and create a new UserAnswers when userAnswers is None" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
+
+      val effectiveDate: LocalDate = LocalDate.now(stubClockAtArbitraryDate).plusDays(1)
+      val excludedRegistrationCode5 = excludedRegistration(ExclusionReason.VoluntarilyLeaves, effectiveDate)
+
+      val application = applicationBuilder(
+        userAnswers = None,
+        maybeRegistration = Some(excludedRegistrationCode5)
+      ).overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+
+        val request = OptionalDataRequest(
+          FakeRequest(GET, cancelLeaveSchemeRequestRoute),
+          userAnswersId,
+          vrn,
+          excludedRegistrationCode5,
+          None
+        )
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[CancelLeaveSchemeRequestView]
+
+        status(result) mustBe OK
+        contentAsString(result) mustBe view(form, emptyWaypoints)(request, messages(application)).toString
+
         verify(mockSessionRepository, times(1)).clear(userAnswersId)
       }
     }
