@@ -16,10 +16,10 @@
 
 package generators
 
-import models._
+import models.*
 import models.amend.EtmpExclusionDetails
 import models.exclusions.{ExcludedTrader, ExclusionReason}
-import models.registration._
+import models.registration.*
 import models.requests.{AmendRegistrationRequest, RegistrationRequest}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}

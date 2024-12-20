@@ -26,8 +26,7 @@ object AppDependencies {
     "org.jsoup"               %  "jsoup"                      % "1.18.1",
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.64.8",
     "org.scalatestplus.play"  %% "scalatestplus-play"         % "7.0.1",
-    "org.playframework"       %% "play-test"                  % PlayVersion.current,
-    "org.scalatestplus"       %% "mockito-4-11"                % "3.2.18.0"
+    "org.playframework"       %% "play-test"                  % PlayVersion.current
   ).map(_ % "test, it")
 
   def apply(): Seq[ModuleID] = compile ++ test
