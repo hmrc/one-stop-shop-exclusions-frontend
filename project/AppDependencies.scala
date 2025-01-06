@@ -21,9 +21,9 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion,
     "org.scalatest"           %% "scalatest"                  % "3.2.19",
     "org.scalatestplus"       %% "scalacheck-1-15"            % "3.2.11.0",
-    "org.scalacheck"          %% "scalacheck"                 % "1.18.0",
+    "org.scalacheck"          %% "scalacheck"                 % "1.18.1",
     "org.pegdown"             %  "pegdown"                    % "1.6.0",
-    "org.jsoup"               %  "jsoup"                      % "1.18.1",
+    "org.jsoup"               %  "jsoup"                      % "1.18.3",
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.64.8",
     "org.scalatestplus.play"  %% "scalatestplus-play"         % "7.0.1",
     "org.playframework"       %% "play-test"                  % PlayVersion.current
