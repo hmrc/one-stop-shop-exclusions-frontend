@@ -212,6 +212,103 @@ class RegistrationServiceSpec extends SpecBase with BeforeAndAfterEach {
       }
 
     }
+
+    "when reversal" - {
+
+      "must create registration request and return a successful ETMP enrolment response" in {
+
+        val exceptedAmendRegistrationRequest = buildRegistration(
+          Some(ExclusionReason.Reversal),
+          LocalDate.now(),
+          None,
+          None,
+          None
+        )
+
+        when(mockRegistrationConnector.amend(any())(any())) thenReturn Right(()).toFuture
+
+        val app = applicationBuilder()
+          .build()
+
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+        running(app) {
+
+          registrationService.amendRegistrationAndAudit(
+            userAnswersId,
+            vrn,
+            emptyUserAnswers,
+            registration,
+            Some(ExclusionReason.Reversal),
+            ExclusionAuditType.ExclusionRequestSubmitted
+          ).futureValue mustBe Right(())
+          verify(mockRegistrationConnector, times(1)).amend(eqTo(exceptedAmendRegistrationRequest))(any())
+        }
+      }
+    }
+
+    "when an unhandled exclusion reason (NoLongerMeetsConditions) is provided" - {
+
+      "must throw an exception with message 'Exclusion reason not valid'" in {
+
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+        val exception = intercept[Exception] {
+          registrationService.amendRegistrationAndAudit(
+            userAnswersId,
+            vrn,
+            emptyUserAnswers,
+            registration,
+            Some(ExclusionReason.NoLongerMeetsConditions),
+            ExclusionAuditType.ExclusionRequestSubmitted
+          ).futureValue
+        }
+
+        exception.getMessage mustBe "Exclusion reason not valid"
+      }
+    }
+
+    "when an unhandled exclusion reason (CeasedTrade) is provided" - {
+
+      "must throw an exception with message 'Exclusion reason not valid'" in {
+
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+        val exception = intercept[Exception] {
+          registrationService.amendRegistrationAndAudit(
+            userAnswersId,
+            vrn,
+            emptyUserAnswers,
+            registration,
+            Some(ExclusionReason.CeasedTrade),
+            ExclusionAuditType.ExclusionRequestSubmitted
+          ).futureValue
+        }
+
+        exception.getMessage mustBe "Exclusion reason not valid"
+      }
+    }
+
+    "when an unhandled exclusion reason (FailsToComply) is provided" - {
+
+      "must throw an exception with message 'Exclusion reason not valid'" in {
+
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+        val exception = intercept[Exception] {
+          registrationService.amendRegistrationAndAudit(
+            userAnswersId,
+            vrn,
+            emptyUserAnswers,
+            registration,
+            Some(ExclusionReason.FailsToComply),
+            ExclusionAuditType.ExclusionRequestSubmitted
+          ).futureValue
+        }
+
+        exception.getMessage mustBe "Exclusion reason not valid"
+      }
+    }
   }
 
 }

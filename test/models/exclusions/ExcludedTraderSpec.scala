@@ -17,7 +17,7 @@
 package models.exclusions
 
 import base.SpecBase
-import play.api.libs.json.{JsSuccess, Json}
+import play.api.libs.json.{JsError, JsNull, JsSuccess, Json}
 
 class ExcludedTraderSpec extends SpecBase {
 
@@ -41,6 +41,36 @@ class ExcludedTraderSpec extends SpecBase {
 
       Json.toJson(expectedResult) mustBe json
       json.validate[ExcludedTrader] mustBe JsSuccess(expectedResult)
+    }
+
+    "must handle missing fields during deserialization" in {
+
+      val json = Json.obj()
+
+      json.validate[ExcludedTrader] mustBe a[JsError]
+    }
+
+    "must handle invalid fields during deserialization" in {
+
+      val json = Json.obj(
+        "vrn" -> 123456789,
+        "exclusionReason" -> excludedTrader.exclusionReason,
+        "effectiveDate" -> excludedTrader.effectiveDate
+      )
+
+      json.validate[ExcludedTrader] mustBe a[JsError]
+    }
+
+    "must handle null fields during deserialization" in {
+
+      val json = Json.obj(
+        "vrn" -> JsNull,
+        "exclusionReason" -> excludedTrader.exclusionReason,
+        "effectiveDate" -> excludedTrader.effectiveDate
+      )
+
+      json.validate[ExcludedTrader] mustBe a[JsError]
+
     }
   }
 }
