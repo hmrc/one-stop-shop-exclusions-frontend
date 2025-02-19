@@ -16,58 +16,57 @@
 
 package models
 
-import base.SpecBase
-import play.api.libs.json.{JsError, JsNull, JsSuccess, Json}
+import models.EuTaxIdentifierType.Vat
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.*
 
-class VatReturnSpec extends SpecBase {
+class EuTaxIdentifierSpec extends AnyFreeSpec with Matchers {
 
-  private val period: Period = arbitraryStandardPeriod.arbitrary.sample.value
+  "EuTaxIdentifier" - {
 
-  "VatReturn" - {
-
-    "must serialise/deserialise to and from VatReturn" in {
+    "must deserialise/serialise to and from EuTaxIdentifier" in {
 
       val json = Json.obj(
-        "period" -> period
+        "identifierType" -> "vat",
+        "value" -> "123456789"
       )
 
-      val expectedResult: VatReturn = VatReturn(
-        period = period
+      val expectedResult = EuTaxIdentifier(
+        identifierType = Vat,
+        value = "123456789"
       )
 
       Json.toJson(expectedResult) mustBe json
-      json.validate[VatReturn] mustBe JsSuccess(expectedResult)
+      json.validate[EuTaxIdentifier] mustBe JsSuccess(expectedResult)
     }
 
     "must handle missing fields during deserialization" in {
 
       val json = Json.obj()
 
-      json.validate[VatReturn] mustBe a[JsError]
+      json.validate[EuTaxIdentifier] mustBe a[JsError]
     }
 
     "must handle invalid fields during deserialization" in {
 
       val json = Json.obj(
-        "period" -> Json.obj(
-          "year" -> 2067,
-          "quarter" -> 12345
-        )
+        "identifierType" -> 12345,
+        "value" -> "123456789"
       )
 
-      json.validate[VatReturn] mustBe a[JsError]
+      json.validate[EuTaxIdentifier] mustBe a[JsError]
+
     }
 
     "must handle null fields during deserialization" in {
 
       val json = Json.obj(
-        "period" -> Json.obj(
-          "year" -> 2067,
-          "quarter" -> JsNull
-        )
+        "identifierType" -> JsNull,
+        "value" -> "123456789"
       )
 
-      json.validate[VatReturn] mustBe a[JsError]
+      json.validate[EuTaxIdentifier] mustBe a[JsError]
     }
   }
 }

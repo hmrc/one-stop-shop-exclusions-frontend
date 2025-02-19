@@ -16,13 +16,13 @@
 
 package base
 
-import controllers.actions._
+import controllers.actions.*
 import date.Dates
 import generators.Generators
 import models.CountryWithValidationDetails.euCountriesWithVRNValidationRules
 import models.registration.Registration
 import models.requests.{AmendRegistrationRequest, RegistrationRequest}
-import models.{CheckMode, Country, CountryWithValidationDetails, UserAnswers}
+import models.{Bic, CheckMode, Country, CountryWithValidationDetails, Iban, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -30,7 +30,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages._
+import pages.*
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
@@ -69,6 +69,8 @@ trait SpecBase
   val registrationRequest: RegistrationRequest = arbitrary[RegistrationRequest].sample.value
   val amendRegistrationRequest: AmendRegistrationRequest = arbitrary[AmendRegistrationRequest].sample.value
   val stubClock: Clock = Clock.fixed(LocalDate.now.atStartOfDay(ZoneId.systemDefault).toInstant, ZoneId.systemDefault)
+  val iban: Iban = Iban("GB33BUKB20201555555555").toOption.get
+  val bic: Bic = Bic("ABCDGB2A").get
 
   def completeUserAnswers: UserAnswers =
     emptyUserAnswers

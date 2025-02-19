@@ -132,5 +132,41 @@ class EtmpExclusionDetailsSpec extends AnyWordSpec with Matchers {
 
       json.as[EtmpExclusionDetails] mustEqual expectedExclusionDetails
     }
+
+    "handle missing values when deserializing" in {
+
+      val json: JsObject = Json.obj()
+
+      json.validate[EtmpExclusionDetails] mustBe a[JsError]
+    }
+
+    "must handle invalid fields during deserialization" in {
+
+      val json: JsObject = Json.obj(
+        "partyType" -> 12345,
+        "exclusionRequestDate" -> "2024-12-05",
+        "exclusionReason" -> "1", // This will correspond to NoLongerSupplies
+        "movePOBDate" -> "2025-01-01",
+        "issuedBy" -> "John Doe",
+        "vatNumber" -> "GB123456789"
+      )
+
+      json.validate[EtmpExclusionDetails] mustBe a[JsError]
+    }
+
+    "must handle null fields during deserialization" in {
+
+      val json: JsObject = Json.obj(
+        "partyType" -> "NETP",
+        "exclusionRequestDate" -> "2024-12-05",
+        "exclusionReason" -> JsNull,
+        "movePOBDate" -> "2025-01-01",
+        "issuedBy" -> "John Doe",
+        "vatNumber" -> "GB123456789"
+      )
+
+      json.validate[EtmpExclusionDetails] mustBe a[JsError]
+
+    }
   }
 }
