@@ -28,6 +28,8 @@ import pages.{CannotUseThisServicePage, EmptyWaypoints}
 import pages.reversals.CancelLeaveSchemeErrorPage
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.FutureSyntax.FutureOps
 
 import java.time.{Clock, LocalDate}
@@ -43,6 +45,8 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
   private val today: LocalDate = LocalDate.now(clock)
 
   override protected def filter[A](request: OptionalDataRequest[A]): Future[Option[Result]] = {
+
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     val maybeExclusion: Option[ExcludedTrader] = request.registration.excludedTrader
 
@@ -71,7 +75,7 @@ class CheckCancelRequestToLeaveFilterImpl @Inject()(
     }
   }
 
-  private def checkVatReturnSubmissionStatus(excludedTrader: ExcludedTrader): Future[Option[Result]] = {
+  private def checkVatReturnSubmissionStatus(excludedTrader: ExcludedTrader)(implicit hc: HeaderCarrier): Future[Option[Result]] = {
     vatReturnsConnector.getSubmittedVatReturns().map { vatReturns =>
       val periods = vatReturns.map(_.period)
 

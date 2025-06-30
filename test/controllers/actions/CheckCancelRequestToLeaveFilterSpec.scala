@@ -24,6 +24,7 @@ import models.exclusions.{ExcludedTrader, ExclusionReason}
 import models.registration.Registration
 import models.requests.OptionalDataRequest
 import models.{Period, Quarter, StandardPeriod, VatReturn}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
 import pages.CannotUseThisServicePage
@@ -141,7 +142,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
 
       "must return None when the effective date is on the 10th day of the following month they changed country" in {
 
-        when(mockVatReturnsConnector.getSubmittedVatReturns()) thenReturn submittedVatReturns.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns()(any())) thenReturn submittedVatReturns.toFuture
 
         val today: LocalDate = LocalDate.of(2024, 5, exclusionCodeSixTenthOfMonth)
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
@@ -224,7 +225,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val submittedVatReturnsWithoutEffectivePeriod: Seq[VatReturn] =
           Gen.listOfN(4, arbitraryVatReturn.arbitrary.suchThat(vr => vr.period != effectivePeriod)).sample.value
 
-        when(mockVatReturnsConnector.getSubmittedVatReturns()) thenReturn submittedVatReturnsWithoutEffectivePeriod.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns()(any())) thenReturn submittedVatReturnsWithoutEffectivePeriod.toFuture
 
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 
@@ -258,7 +259,7 @@ class CheckCancelRequestToLeaveFilterSpec extends SpecBase {
         val submittedVatReturnsWithFinalReturnPeriod: Seq[VatReturn] =
           Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value ++ Seq(VatReturn(period = finalReturnPeriod))
 
-        when(mockVatReturnsConnector.getSubmittedVatReturns()) thenReturn submittedVatReturnsWithFinalReturnPeriod.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns()(any())) thenReturn submittedVatReturnsWithFinalReturnPeriod.toFuture
 
         val newClock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
 

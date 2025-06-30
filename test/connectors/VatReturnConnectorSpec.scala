@@ -17,15 +17,18 @@
 package connectors
 
 import base.SpecBase
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.VatReturn
 import org.scalacheck.Gen
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.test.Helpers.running
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 class VatReturnConnectorSpec extends SpecBase with WireMockHelper {
+
+  implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
   private def application = applicationBuilder()
     .configure("microservice.services.one-stop-shop-returns.port" -> server.port())
