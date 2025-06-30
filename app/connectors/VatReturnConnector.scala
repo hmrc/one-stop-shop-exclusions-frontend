@@ -29,10 +29,9 @@ class VatReturnConnector @Inject()(
                                     httpClientV2: HttpClientV2
                                   )(implicit ec: ExecutionContext) extends HttpErrorFunctions {
 
-  private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
   private val baseUrl: String = frontendAppConfig.returnsServiceUrl
 
-  def getSubmittedVatReturns(): Future[VatReturnMultipleResponse] = {
+  def getSubmittedVatReturns()(implicit hc: HeaderCarrier): Future[VatReturnMultipleResponse] = {
     httpClientV2.get(url"$baseUrl/vat-returns").execute[VatReturnMultipleResponse]
   }
 }

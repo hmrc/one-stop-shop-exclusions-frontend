@@ -94,7 +94,7 @@ class CancelLeaveSchemeRequestControllerSpec extends SpecBase with MockitoSugar 
       "must return OK and the correct view for a GET " in {
 
         val submittedVatReturns: Seq[VatReturn] = Gen.listOfN(4, arbitraryVatReturn.arbitrary).sample.value
-        when(mockVatReturnsConnector.getSubmittedVatReturns()) thenReturn submittedVatReturns.toFuture
+        when(mockVatReturnsConnector.getSubmittedVatReturns()(any())) thenReturn submittedVatReturns.toFuture
 
         val today: LocalDate = LocalDate.of(2024, 5, 10)
         val clock = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
