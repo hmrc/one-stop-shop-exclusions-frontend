@@ -22,7 +22,6 @@ object AppDependencies {
     "org.scalatest"           %% "scalatest"                  % "3.2.19",
     "org.scalatestplus"       %% "scalacheck-1-15"            % "3.2.11.0",
     "org.scalacheck"          %% "scalacheck"                 % "1.18.1",
-    "org.pegdown"             %  "pegdown"                    % "1.6.0",
     "org.jsoup"               %  "jsoup"                      % "1.21.1",
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.64.8",
     "org.scalatestplus.play"  %% "scalatestplus-play"         % "7.0.2",
