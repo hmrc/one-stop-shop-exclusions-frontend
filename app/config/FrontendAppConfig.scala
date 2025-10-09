@@ -72,4 +72,6 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
   val returnsServiceUrl: Service = configuration.get[Service]("microservice.services.one-stop-shop-returns")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
+
+  lazy val userResearchUrl: String = configuration.get[String]("urls.userResearch")
 }

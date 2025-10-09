@@ -92,7 +92,8 @@ class ApplicationCompleteController @Inject()(
         Some(messages("applicationComplete.moving.text", country.name)),
         nextInfoBullet,
         leaveMessage,
-        nextInfoBottom
+        nextInfoBottom,
+        config.userResearchUrl
       ))
     }
   }
@@ -117,7 +118,8 @@ class ApplicationCompleteController @Inject()(
         Some(messages(leaveMessage)),
         None,
         Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
-        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1))))
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1)))),
+        config.userResearchUrl
 
       ))
     }
@@ -135,7 +137,8 @@ class ApplicationCompleteController @Inject()(
         None,
         None,
         Some(messages("applicationComplete.leave.text", dates.formatter.format(leaveDate))),
-        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1))))
+        Some(messages("applicationComplete.next.info.bottom", dates.formatter.format(leaveDate.minusDays(1)))),
+        config.userResearchUrl
       ))
     }
   }
