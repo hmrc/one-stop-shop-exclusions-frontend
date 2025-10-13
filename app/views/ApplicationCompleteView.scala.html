@@ -25,7 +25,8 @@
     recap: Option[String] = None,
     bullet0: Option[String] = None,
     isBeforeToday: Option[String] = None,
-    bottomMessage: Option[String] = None
+    bottomMessage: Option[String] = None,
+    userResearchUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("applicationComplete.title"))) {
@@ -59,5 +60,10 @@
             @messages("applicationComplete.next.info.returnToAccount")
         </a>
     </p>
-
+    <div>
+        <h2 class="govuk-heading-m">@messages("userResearch.heading")</h2>
+            <p class="govuk-body">
+                <a href="@userResearchUrl" class="govuk-link" target="_blank">@messages("userResearch.link.text")</a>
+            </p>
+    </div>
 }

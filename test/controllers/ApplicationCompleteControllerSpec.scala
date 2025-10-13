@@ -47,6 +47,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(MoveDatePage, today).success.get
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .overrides(bind[Today].toInstance(mockToday))
           .build()
 
@@ -71,6 +72,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.next.info.bullet0", country.name, maxMoveDate)),
             Some(messages(application)("applicationComplete.left.text")),
             Some(messages(application)("applicationComplete.next.info.bottom", maxMoveDate)),
+            "https://test-url.com"
 
           )(request, messages(application)).toString
         }
@@ -102,6 +104,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(EuCountryPage, country).success.get // Missing MoveDatePage
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .build()
 
         running(application) {
@@ -127,6 +130,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .overrides(bind[Today].toInstance(mockToday))
           .build()
 
@@ -150,7 +154,8 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.stopSellingGoods.text")),
             None,
             Some(messages(application)("applicationComplete.leave.text", leaveDate)),
-            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate)),
+            "https://test-url.com"
           )(request, messages(application)).toString
         }
       }
@@ -170,6 +175,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .overrides(bind[Today].toInstance(mockToday))
           .build()
 
@@ -193,7 +199,8 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.stopSellingGoods.text.future")),
             None,
             Some(messages(application)("applicationComplete.leave.text", leaveDate)),
-            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate)),
+            "https://test-url.com"
           )(request, messages(application)).toString
         }
       }
@@ -213,6 +220,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StoppedSellingGoodsDatePage, stoppedSellingGoodsDate).success.get
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .overrides(bind[Today].toInstance(mockToday))
           .build()
 
@@ -236,7 +244,8 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             Some(messages(application)("applicationComplete.stopSellingGoods.text")),
             None,
             Some(messages(application)("applicationComplete.leave.text", leaveDate)),
-            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate)),
+            "https://test-url.com"
           )(request, messages(application)).toString
         }
       }
@@ -248,6 +257,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StopSellingGoodsPage, true).success.get // Missing StoppedSellingGoodsDatePage
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .build()
 
         running(application) {
@@ -273,6 +283,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StoppedUsingServiceDatePage, stoppedUsingServiceDate).success.get
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .overrides(bind[Today].toInstance(mockToday))
           .build()
 
@@ -295,7 +306,8 @@ class ApplicationCompleteControllerSpec extends SpecBase {
             None,
             None,
             Some(messages(application)("applicationComplete.leave.text", leaveDate)),
-            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate))
+            Some(messages(application)("applicationComplete.next.info.bottom", cancelDate)),
+            "https://test-url.com"
           )(request, messages(application)).toString
         }
       }
@@ -307,6 +319,7 @@ class ApplicationCompleteControllerSpec extends SpecBase {
           .set(StopSellingGoodsPage, false).success.get // Missing StoppedUsingServiceDatePage
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .configure("urls.userResearch" -> "https://test-url.com")
           .build()
 
         running(application) {
