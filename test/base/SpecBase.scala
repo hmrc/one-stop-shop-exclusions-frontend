@@ -64,7 +64,7 @@ trait SpecBase
   val taxNumber: String = "213456789"
   val countryWithValidationDetails: CountryWithValidationDetails =
     euCountriesWithVRNValidationRules.find(_.country == country).value
-  val vrn: Vrn = Vrn(countryWithValidationDetails.exampleVrn)
+  val vrn: Vrn = Vrn("123456789")
   val registration: Registration = Arbitrary.arbitrary[Registration].sample.value
   val registrationRequest: RegistrationRequest = arbitrary[RegistrationRequest].sample.value
   val amendRegistrationRequest: AmendRegistrationRequest = arbitrary[AmendRegistrationRequest].sample.value
